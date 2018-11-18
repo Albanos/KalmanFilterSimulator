@@ -142,7 +142,7 @@ public class EstimationFilter {
     }
 
     public void makeEstimation() {
-        int i =0;
+        int i = 0;
         int j = 0;
         while (!copyListOfAllCartesianPoints.isEmpty()) {
             // LAZY-WAITING:
@@ -162,7 +162,7 @@ public class EstimationFilter {
             filter.predict(u);
 
             // Prüfe ob 1s vergangen ist. Wenn ja, hole nächste bekannte Position und den Speed
-            if((System.currentTimeMillis() - timestamp2) >= 1000) {
+            if ((System.currentTimeMillis() - timestamp2) >= 1000) {
                 timestamp2 = System.currentTimeMillis();
 
                 //System.out.println("Korrektur, zur Zeit:  " + new Timestamp(System.currentTimeMillis()));
@@ -195,7 +195,7 @@ public class EstimationFilter {
             Service.calculateWGSCoordinateByCartesianPoint(estimatedPoint);
 
             // Erhöhe counter
-            i = i+1;
+            i = i + 1;
         }
     }
 }

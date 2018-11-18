@@ -11,7 +11,7 @@ public class Coordinates {
     public Coordinates() {
     }
 
-    public Coordinates(double latitude, double longitude, double altitude){
+    public Coordinates(double latitude, double longitude, double altitude) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
@@ -26,7 +26,7 @@ public class Coordinates {
         this.accuracy = accuracy;
     }
 
-    public Coordinates(double latitude, double longitude){
+    public Coordinates(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.timestamp = System.currentTimeMillis();

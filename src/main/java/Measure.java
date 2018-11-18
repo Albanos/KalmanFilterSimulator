@@ -1,6 +1,3 @@
-import geodesy.GlobalPosition;
-
-import java.sql.Timestamp;
 
 /**
  * @author Luan Hajzeraj on 12.11.2018.
