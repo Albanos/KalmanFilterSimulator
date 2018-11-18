@@ -19,10 +19,39 @@ public class ImuValues {
     private double bearingGnss;
     private double amountGnss;
 
-    private double speed_x;
-    private double speed_y;
+    private double speed_x_wgs;
+    private double speed_y_wgs;
 
     private double gnssAccuracy;
+
+    private double accel_x_wgs;
+    private double accel_y_wgs;
+
+    private double dt;
+
+    public double getDt() {
+        return dt;
+    }
+
+    public void setDt(double dt) {
+        this.dt = dt;
+    }
+
+    public double getAccel_x_wgs() {
+        return accel_x_wgs;
+    }
+
+    public void setAccel_x_wgs(double accel_x_wgs) {
+        this.accel_x_wgs = accel_x_wgs;
+    }
+
+    public double getAccel_y_wgs() {
+        return accel_y_wgs;
+    }
+
+    public void setAccel_y_wgs(double accel_y_wgs) {
+        this.accel_y_wgs = accel_y_wgs;
+    }
 
     public double getAccel_x() {
         return accel_x;
@@ -120,20 +149,20 @@ public class ImuValues {
         this.amountGnss = amountGnss;
     }
 
-    public double getSpeed_x() {
-        return speed_x;
+    public double getSpeed_x_wgs() {
+        return speed_x_wgs;
     }
 
-    public void setSpeed_x(double speed_x) {
-        this.speed_x = speed_x;
+    public void setSpeed_x_wgs(double speed_x_wgs) {
+        this.speed_x_wgs = speed_x_wgs;
     }
 
-    public double getSpeed_y() {
-        return speed_y;
+    public double getSpeed_y_wgs() {
+        return speed_y_wgs;
     }
 
-    public void setSpeed_y(double speed_y) {
-        this.speed_y = speed_y;
+    public void setSpeed_y_wgs(double speed_y_wgs) {
+        this.speed_y_wgs = speed_y_wgs;
     }
 
     public double getGnssAccuracy() {

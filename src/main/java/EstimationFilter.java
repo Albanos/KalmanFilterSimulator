@@ -15,7 +15,8 @@ public class EstimationFilter {
 
     private KalmanFilter filter;
 
-    final double dt = Service.getDt();
+    //final double dt = Service.getDt();
+    final double dt = Service.getListOfAllImuValues().getFirst().getDt();
 
     // Statische Variablen, von der doku-page
     // position measurement noise (meter)
@@ -50,16 +51,15 @@ public class EstimationFilter {
     // Variable zum steuern der Erzeugung von Punkten, pro sekunde (in ms).
     // Bsp.: TIME_TO_SLEEP=100 --> 10 Punkte/sek --> 10 Hz
     private static final int TIME_TO_SLEEP = 100;
-    private static long timestamp = System.currentTimeMillis();
-    private static long timestamp2 = System.currentTimeMillis();
+    private static long timestamp2;
+    private static long timestamp = timestamp2= System.currentTimeMillis();
     private static LinkedList<CartesianPoint> copyListOfAllCartesianPoints = new LinkedList<>();
 
     public EstimationFilter() {
-        CartesianPoint firstCartesianPoint = Service.getListOfAllCartesianPoints().getFirst();
-
         // Kopiere alle kartesischen Punkte, damit diese für Schleife gelöscht werden können
         copyListOfAllCartesianPoints.addAll(Service.getListOfAllCartesianPoints());
 
+        CartesianPoint firstCartesianPoint = Service.getListOfAllCartesianPoints().getFirst();
         float locationAccurancy = (float) firstCartesianPoint.getAccuracy();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
@@ -68,10 +68,11 @@ public class EstimationFilter {
         double coordinate_x = firstCartesianPoint.getX();
         double coordinate_y = firstCartesianPoint.getY();
 
-        double speed_x = firstCartesianPoint.getSpeed_x();
-        double speed_y = firstCartesianPoint.getSpeed_y();
-        double accel_x = firstCartesianPoint.getAccel_x_wgs();
-        double accel_y = firstCartesianPoint.getAccel_y_wgs();
+        ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
+        double speed_x = firstImuValue.getSpeed_x_wgs();
+        double speed_y = firstImuValue.getSpeed_y_wgs();
+        double accel_x = firstImuValue.getAccel_x_wgs();
+        double accel_y = firstImuValue.getAccel_y_wgs();
 
         x = new ArrayRealVector(new double[]{coordinate_x, coordinate_y, speed_x, speed_y});
         u = new ArrayRealVector(new double[]{accel_x, accel_y});
@@ -150,14 +151,14 @@ public class EstimationFilter {
             if ((System.currentTimeMillis() - timestamp) < TIME_TO_SLEEP) {
                 continue;
             }
+            timestamp = System.currentTimeMillis();
 
             System.out.println("Anzahl Punkte in Kopie:  " + copyListOfAllCartesianPoints.size());
 
-            timestamp = System.currentTimeMillis();
 
             // Aktualisiere u
-            u.setEntry(0, Service.getListOfAllImuValues().get(i).getAccel_x());
-            u.setEntry(1, Service.getListOfAllImuValues().get(i).getAccel_y());
+            u.setEntry(0, Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
+            u.setEntry(1, Service.getListOfAllImuValues().get(i).getAccel_y_wgs());
 
             filter.predict(u);
 
@@ -170,8 +171,8 @@ public class EstimationFilter {
                 currentMeasurment = new ArrayRealVector(new double[]{
                         copyListOfAllCartesianPoints.get(j).getX(),
                         copyListOfAllCartesianPoints.get(j).getY(),
-                        Service.getListOfAllImuValues().get(i).getSpeed_x(),
-                        Service.getListOfAllImuValues().get(i).getSpeed_y()
+                        Service.getListOfAllImuValues().get(i).getSpeed_x_wgs(),
+                        Service.getListOfAllImuValues().get(i).getSpeed_y_wgs()
                 });
 
                 filter.correct(currentMeasurment);

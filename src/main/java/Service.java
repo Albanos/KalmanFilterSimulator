@@ -14,7 +14,7 @@ import java.util.List;
  */
 class Service {
     private static double dt;
-    private static double oldDt;
+    private static double oldDt = 0;
     private static GlobalPosition firstPosition = null;
     private static LinkedList<CartesianPoint> listOfAllCartesianPoints = new LinkedList<CartesianPoint>();
     private static LinkedList<CartesianPoint> listOfAllEstimatedCartesianPoints = new LinkedList<>();
@@ -364,30 +364,30 @@ class Service {
         return result;
     }
 
-    public static void calculateWgsAccelOfDataType1() {
+    public static void calculateWgsAccelOfAllImuValues() {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
 
-        for (int i = 0; i < Service.getListOfAllMeasurements().size() - 1; i++) {
-            Measure measure = Service.getListOfAllMeasurements().get(i + 1);
-            CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
-
-            gravityValues[0] = (float) measure.getGravity_x();
-            gravityValues[1] = (float) measure.getGravity_y();
-            gravityValues[2] = (float) measure.getGravity_z();
-
-            magneticValues[0] = (float) measure.getMagnitude_x();
-            magneticValues[1] = (float) measure.getMagnitude_y();
-            magneticValues[2] = (float) measure.getMagnitude_z();
+        for (int i = 0; i < Service.getListOfAllImuValues().size() - 1; i++) {
+            ImuValues currentImu = Service.getListOfAllImuValues().get(i);
+            //ImuValues currentImuValue = Service.getListOfAllImuValues().get(i);
 
             // Setze dt im Service und greife im Filter darauf zu
-            Service.setDt(Service.getOldDt() == 0 ? 0.1f : (Double.valueOf(measure.getTimestamp()) - Service.getOldDt()) / 1000000000.0f);
-            Service.setOldDt(Double.valueOf(measure.getTimestamp()));
+            currentImu.setDt(Service.getOldDt() == 0 ? 0.1f : (Double.valueOf(currentImu.getTimestamp()) - Service.getOldDt()) / 1000000000.0f);
+            Service.setOldDt(currentImu.getDt());
+
+            gravityValues[0] = (float) currentImu.getGravity_x();
+            gravityValues[1] = (float) currentImu.getGravity_y();
+            gravityValues[2] = (float) currentImu.getGravity_z();
+
+            magneticValues[0] = (float) currentImu.getMagnitude_x();
+            magneticValues[1] = (float) currentImu.getMagnitude_y();
+            magneticValues[2] = (float) currentImu.getMagnitude_z();
 
             float[] deviceRelativeAcceleration = new float[4];
-            deviceRelativeAcceleration[0] = (float) measure.getAccel_x();
-            deviceRelativeAcceleration[1] = (float) measure.getAccel_y();
-            deviceRelativeAcceleration[2] = (float) measure.getAccel_z();
+            deviceRelativeAcceleration[0] = (float) currentImu.getAccel_x();
+            deviceRelativeAcceleration[1] = (float) currentImu.getAccel_y();
+            deviceRelativeAcceleration[2] = (float) currentImu.getAccel_z();
             deviceRelativeAcceleration[3] = 0;
 
             float[] R = new float[16], I = new float[16], earthAcc = new float[16];
@@ -401,38 +401,12 @@ class Service {
             earthAcc[1] = (float) realVector.getEntry(2);
             earthAcc[3] = (float) realVector.getEntry(3);
 
-            cartesianPoint.setAccel_x_wgs(earthAcc[0]);
-            cartesianPoint.setAccel_y_wgs(earthAcc[1]);
-//            Service.setAccel_x_wgs(earthAcc[0]);
-//            Service.setAccel_y_wgs(earthAcc[1]);
+            currentImu.setAccel_x_wgs(earthAcc[0]);
+            currentImu.setAccel_y_wgs(earthAcc[1]);
+
         }
     }
 
-    /**
-     * Berechnet die Kartesischen Punkte für den Daten-Type1: nach Positionen gefiltert -> 1 Wert pro sekunde
-     */
-    public static void calculateAllCartesianPointsOfDataType1() {
-        if (Service.getListOfAllGlobalPositions().size() > 0) {
-            for (GlobalPosition g : Service.getListOfAllGlobalPositions()) {
-                double distance = coordinateDistanceBetweenTwoPoints(Service.getFirstPosition(), g);
-                double angle = coordinateAngleBetweenTwoPoints(Service.getFirstPosition(), g);
-
-                // handle the first point: distance and angle between firstPoint and firstPoint is 0
-                if (distance != 0.0 && angle != 0.0) {
-                    Service.getListOfAllCartesianPoints().add(
-                            new CartesianPoint(
-                                    distance * Math.sin(Math.toRadians(angle)),
-                                    distance * Math.cos(Math.toRadians(angle))
-                            )
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * Berechnet die karteischen Punkte von Daten-Typ2
-     */
     public static void calculateAllCartesianPoints() {
         if (Service.getListOfAllGlobalPositions().size() >= 2) {
             for (GlobalPosition g : Service.getListOfAllGlobalPositions()) {
@@ -490,18 +464,6 @@ class Service {
             return gm.getAzimuth();
         }
         return 0;
-    }
-
-    public static void setAllParametersOfAllCartesianPoints() {
-        for (int i = 0; i < Service.getListOfAllMeasurements().size() - 1; i++) {
-            Measure measure = Service.getListOfAllMeasurements().get(i + 1);
-            CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
-
-            cartesianPoint.setSpeed_x(measure.getSpeed_x());
-            cartesianPoint.setSpeed_y(measure.getSpeed_y());
-            cartesianPoint.setAccuracy(measure.getGnssAccuracy());
-            cartesianPoint.setTimestamp(measure.getTimestamp());
-        }
     }
 
     /**

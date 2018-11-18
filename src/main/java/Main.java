@@ -4,18 +4,22 @@ import java.util.LinkedList;
  * @author Luan Hajzeraj on 12.11.2018.
  */
 public class Main {
-    private static final String pathToFileS7OwnFormat =
+    private static final String pathToS7File =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\s7_edge_eigenesFormat_09_51_35.csv";
+
+    private static final String pathToNexus6File =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Nexus6_15_37_59.csv";
 
     public static void main(String[] args) {
 
         // Lese Daten von File
         CsvReader reader = new CsvReader();
         //reader.readCsvDataOfFileType2(pathToFile2Nexus6);
-        reader.readCsvDataAndSaveInPojo(pathToFileS7OwnFormat);
+        reader.readCsvDataAndSaveInPojo(pathToNexus6File);
 
         LinkedList<Coordinates> allWGSPositions = Service.getListOfAllWGSPositions();
         LinkedList<ImuValues> allIMUValues = Service.getListOfAllImuValues();
+        LinkedList<Measure> allMeasurements = Service.getListOfAllMeasurements();
 
         // Berechne kartesische Punkte aus Lat/Lon
         Service.calculateAllCartesianPoints();
@@ -26,8 +30,8 @@ public class Main {
         LinkedList<CartesianPoint> allCartesianPoints = Service.getListOfAllCartesianPoints();
 
         // Filter ausführen
-//        EstimationFilter filter = new EstimationFilter();
-//        filter.makeEstimation();
+        EstimationFilter filter = new EstimationFilter();
+        filter.makeEstimation();
 
         // Schreibe Daten in ein file
         ExcelFileCreator excelFileCreator = new ExcelFileCreator();

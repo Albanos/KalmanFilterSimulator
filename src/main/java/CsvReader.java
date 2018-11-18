@@ -87,6 +87,9 @@ public class CsvReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Setze nun auch für jeden Accel-Value den WGS-Accel-Value
+        Service.calculateWgsAccelOfAllImuValues();
     }
 
     private void saveIMUValuesInPojo(String[] line) {
@@ -106,8 +109,8 @@ public class CsvReader {
         // set GNSS-Speed (amount of speed), GNSS-Bearing and speed in x- and y-orientation --> FILE 2
         data.setAmountGnss(Double.valueOf(line[14]));
         data.setBearingGnss(Double.valueOf(line[15]));
-        data.setSpeed_x(data.getAmountGnss() * Math.sin(Math.toRadians(data.getBearingGnss())));
-        data.setSpeed_y(data.getAmountGnss() * Math.cos(Math.toRadians(data.getBearingGnss())));
+        data.setSpeed_x_wgs(data.getAmountGnss() * Math.sin(Math.toRadians(data.getBearingGnss())));
+        data.setSpeed_y_wgs(data.getAmountGnss() * Math.cos(Math.toRadians(data.getBearingGnss())));
 
         data.setTimestamp(line[0]);
 
