@@ -5,8 +5,7 @@ import java.util.LinkedList;
  */
 public class Main {
     private static final String pathToFileS7OwnFormat =
-            "D:\\Workspace_IntelliJ\\FilterSimulator\\" +
-                    "src\\main\\resources\\s7_edge_eigenesFormat_09_51_35.csv";
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\s7_edge_eigenesFormat_09_51_35.csv";
 
     public static void main(String[] args) {
 
@@ -24,11 +23,11 @@ public class Main {
         // Setze evtl noch andere Groessen
         Service.setAllOtheParametersOfAllCartesianPoints();
 
-        LinkedList<CartesianPoint> allCartesianPoints = Service.getOnlyCartesianPoints();
+        LinkedList<CartesianPoint> allCartesianPoints = Service.getListOfAllCartesianPoints();
 
         // Filter ausführen
-        EstimationFilter filter = new EstimationFilter();
-        filter.makeEstimation();
+//        EstimationFilter filter = new EstimationFilter();
+//        filter.makeEstimation();
 
         // Schreibe Daten in ein file
         ExcelFileCreator excelFileCreator = new ExcelFileCreator();

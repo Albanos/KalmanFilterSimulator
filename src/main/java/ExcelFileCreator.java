@@ -84,7 +84,7 @@ public class ExcelFileCreator {
 
         // Zeichne die originalen kartesischen Punkte
         int i = 2;
-        for (CartesianPoint p : Service.getOnlyCartesianPoints()) {
+        for (CartesianPoint p : Service.getListOfAllCartesianPoints()) {
             String timestamp = p.getTimestamp();
 
             Double x = p.getX();
@@ -170,7 +170,11 @@ public class ExcelFileCreator {
 
         // ======================Schreibe alles in ein file
         try {
-            String fileName = "export_" + new Timestamp(System.currentTimeMillis()) + ".xls";
+            String fileName = "export_" +
+                    new Timestamp(System.currentTimeMillis()).toString()
+                            .replaceAll("\\s", "_")
+                            .replaceAll(":", "-")
+                            .replaceAll("\\.", "-").concat(".xls");
             FileOutputStream fos = new FileOutputStream(fileName);
             workbook.write(fos);
             fos.close();

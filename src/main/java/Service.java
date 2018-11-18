@@ -28,27 +28,14 @@ class Service {
     private static HashMap<CartesianPoint, List<Double>> angleDistanceCartesianPointMap = new HashMap<>();
     private static LinkedHashMap<CartesianPoint, Coordinates> pointToWGSMap = new LinkedHashMap<>();
 
-    // Variablen fuer den Daten-Typ2: deutlich mehr IMU-Werte
     private static LinkedList<Coordinates> listOfAllWGSPositions = new LinkedList<>();
-    private static LinkedList<Measure> onlyIMUValues = new LinkedList<>();
-    private static LinkedList<CartesianPoint> onlyCartesianPoints = new LinkedList<>();
-
     private static LinkedList<ImuValues> listOfAllImuValues = new LinkedList<>();
-
 
     // ====================================================
 
 
     public static LinkedList<ImuValues> getListOfAllImuValues() {
         return listOfAllImuValues;
-    }
-
-    public static LinkedList<Measure> getOnlyIMUValues() {
-        return onlyIMUValues;
-    }
-
-    public static LinkedList<CartesianPoint> getOnlyCartesianPoints() {
-        return onlyCartesianPoints;
     }
 
     public static LinkedList<Coordinates> getListOfAllWGSPositions() {
@@ -455,7 +442,7 @@ class Service {
                 // handle the first point: distance and angle between firstPoint and firstPoint is 0
                 if (distance != 0.0 && angle != 0.0) {
 
-                    Service.getOnlyCartesianPoints().add(
+                    Service.getListOfAllCartesianPoints().add(
                             new CartesianPoint(
                                     distance * Math.sin(Math.toRadians(angle)),
                                     distance * Math.cos(Math.toRadians(angle))
@@ -523,7 +510,7 @@ class Service {
     public static void setAllOtheParametersOfAllCartesianPoints() {
         for (int i = 0; i < Service.getListOfAllWGSPositions().size() - 1; i++) {
             Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i + 1);
-            CartesianPoint cartesianPoint = Service.getOnlyCartesianPoints().get(i);
+            CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
 
             cartesianPoint.setAccuracy(wgsPosition.getAccuracy());
         }
@@ -534,8 +521,8 @@ class Service {
         double pointY = point.getY();
 
         // Ermittle die Differenz zum ersten Punkt
-        double firstPointX = Service.getOnlyCartesianPoints().getFirst().getX();
-        double firstPointY = Service.getOnlyCartesianPoints().getFirst().getY();
+        double firstPointX = Service.getListOfAllCartesianPoints().getFirst().getX();
+        double firstPointY = Service.getListOfAllCartesianPoints().getFirst().getY();
 
         double x = firstPointX - pointX;
         double y = firstPointY - pointY;

@@ -55,13 +55,13 @@ public class EstimationFilter {
     private static LinkedList<CartesianPoint> copyListOfAllCartesianPoints = new LinkedList<>();
 
     public EstimationFilter() {
-        CartesianPoint firstCartesianPoint = Service.getOnlyCartesianPoints().getFirst();
+        CartesianPoint firstCartesianPoint = Service.getListOfAllCartesianPoints().getFirst();
 
         // Kopiere alle kartesischen Punkte, damit diese für Schleife gelöscht werden können
-        copyListOfAllCartesianPoints.addAll(Service.getOnlyCartesianPoints());
+        copyListOfAllCartesianPoints.addAll(Service.getListOfAllCartesianPoints());
 
         float locationAccurancy = (float) firstCartesianPoint.getAccuracy();
-        LinkedList<CartesianPoint> onlyCartesianPoints = Service.getOnlyCartesianPoints();
+
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
         final float sigmaAccel = 8f;
 
@@ -184,7 +184,7 @@ public class EstimationFilter {
             double estimatedPosition_y = filter.getStateEstimation()[1];
 
             System.out.println("Geschätzter Punkt:  " + estimatedPosition_x + " ; " + estimatedPosition_y + " Zur Zeit (jetzt):  " + new Timestamp(System.currentTimeMillis()));
-            System.out.println("Echter Punkt:  " + Service.getOnlyCartesianPoints().get(j).getX() + " ; " + Service.getOnlyCartesianPoints().get(j).getY() + "\n");
+            System.out.println("Echter Punkt:  " + Service.getListOfAllCartesianPoints().get(j).getX() + " ; " + Service.getListOfAllCartesianPoints().get(j).getY() + "\n");
 
             CartesianPoint estimatedPoint = new CartesianPoint(estimatedPosition_x, estimatedPosition_y);
 
