@@ -188,7 +188,7 @@ public class EstimationFilter {
             System.out.println("Echter Punkt:  " + Service.getListOfAllCartesianPoints().get(j).getX() + " ; " + Service.getListOfAllCartesianPoints().get(j).getY() + "\n");
 
             CartesianPoint estimatedPoint = new CartesianPoint(estimatedPosition_x, estimatedPosition_y);
-
+            estimatedPoint.setTimestamp(Long.toString(System.currentTimeMillis()));
             Service.getListOfAllEstimatedCartesianPoints().add(estimatedPoint);
 
             // Rechne die geschätzten Punkte wieder in das WGS-System um

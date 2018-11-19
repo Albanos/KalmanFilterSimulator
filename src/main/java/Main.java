@@ -15,7 +15,7 @@ public class Main {
         // Lese Daten von File
         CsvReader reader = new CsvReader();
         //reader.readCsvDataOfFileType2(pathToFile2Nexus6);
-        reader.readCsvDataAndSaveInPojo(pathToNexus6File);
+        reader.readCsvDataAndSaveInPojo(pathToS7File);
 
         LinkedList<Coordinates> allWGSPositions = Service.getListOfAllWGSPositions();
         LinkedList<ImuValues> allIMUValues = Service.getListOfAllImuValues();
