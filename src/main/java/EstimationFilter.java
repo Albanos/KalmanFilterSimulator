@@ -60,7 +60,7 @@ public class EstimationFilter {
         copyListOfAllCartesianPoints.addAll(Service.getListOfAllCartesianPoints());
 
         CartesianPoint firstCartesianPoint = Service.getListOfAllCartesianPoints().getFirst();
-        float locationAccurancy = (float) firstCartesianPoint.getAccuracy();
+        float locationAccurancy = (float) firstCartesianPoint.getAccuracy_gnss();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
         final float sigmaAccel = 8f;

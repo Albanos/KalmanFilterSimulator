@@ -13,6 +13,7 @@ import java.util.List;
  * @author Luan Hajzeraj on 13.11.2018.
  */
 class Service {
+    private static GeodeticCalculator calculator = new GeodeticCalculator();
     private static double dt;
     private static double oldDt = 0;
     private static GlobalPosition firstPosition = null;
@@ -22,17 +23,19 @@ class Service {
     // fuer jede Position auch eine GlobalPosition
     private static LinkedList<GlobalPosition> listOfAllGlobalPositions = new LinkedList<GlobalPosition>();
 
-    // alle Messungen aus .csv-file
-    private static LinkedList<Measure> listOfAllMeasurements = new LinkedList<Measure>();
-
     private static HashMap<CartesianPoint, List<Double>> angleDistanceCartesianPointMap = new HashMap<>();
     private static LinkedHashMap<CartesianPoint, Coordinates> pointToWGSMap = new LinkedHashMap<>();
 
     private static LinkedList<Coordinates> listOfAllWGSPositions = new LinkedList<>();
     private static LinkedList<ImuValues> listOfAllImuValues = new LinkedList<>();
+    private static LinkedList<Coordinates> listOfAllGTWgsPositions = new LinkedList<>();
 
     // ====================================================
 
+
+    public static LinkedList<Coordinates> getListOfAllGTWgsPositions() {
+        return listOfAllGTWgsPositions;
+    }
 
     public static LinkedList<ImuValues> getListOfAllImuValues() {
         return listOfAllImuValues;
@@ -52,10 +55,6 @@ class Service {
 
     public static LinkedList<CartesianPoint> getListOfAllEstimatedCartesianPoints() {
         return listOfAllEstimatedCartesianPoints;
-    }
-
-    public static LinkedList<Measure> getListOfAllMeasurements() {
-        return listOfAllMeasurements;
     }
 
     public static LinkedList<CartesianPoint> getListOfAllCartesianPoints() {
@@ -436,9 +435,7 @@ class Service {
      */
     static double coordinateDistanceBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
-            GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
-
-            GeodeticMeasurement gm = geodeticCalculator
+            GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
 
             return gm.getEllipsoidalDistance();
@@ -456,9 +453,7 @@ class Service {
      */
     static double coordinateAngleBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
-            GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
-
-            GeodeticMeasurement gm = geodeticCalculator
+            GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
 
             return gm.getAzimuth();
@@ -474,7 +469,7 @@ class Service {
             Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i + 1);
             CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
 
-            cartesianPoint.setAccuracy(wgsPosition.getAccuracy());
+            cartesianPoint.setAccuracy_gnss(wgsPosition.getAccuracy());
             cartesianPoint.setTimestamp(Double.toString(wgsPosition.getTimestamp()));
         }
     }
@@ -523,11 +518,22 @@ class Service {
         Double distanceOfPoint = valuesForPoint.get(1);
 
         // Bestimme über Geodesy-framework die neue Position
-        GeodeticCalculator calculator = new GeodeticCalculator();
         GlobalCoordinates globalCoordinates = calculator.calculateEndingGlobalCoordinates(Ellipsoid.WGS84,
                 Service.getFirstPosition(), angleOfPoint, distanceOfPoint);
 
         // Speichere die Werte in Map: erst lat, dann lon
         Service.getPointToWGSMap().put(point, new Coordinates(globalCoordinates.getLatitude(), globalCoordinates.getLongitude()));
+    }
+
+    /**
+     * Berechnet die Distanz zwischen geschätztem Punkt (im WGS-System) und GT-Punkt (im WGS-System), auf lat/lon-Ebene
+     */
+    static void calculateDistanceBetweenEstimatedAndGTPosition(CartesianPoint currentEsttimatedPoint, int iterationCounter) {
+        Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
+        Coordinates estimatedWgsPosition = Service.getPointToWGSMap().get(currentEsttimatedPoint);
+        GlobalCoordinates start = new GlobalCoordinates(estimatedWgsPosition.getLatitude(), estimatedWgsPosition.getLongitude());
+        GlobalCoordinates end = new GlobalCoordinates(currentGTPosition.getLatitude(), currentGTPosition.getLongitude());
+
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, start, end);
     }
 }

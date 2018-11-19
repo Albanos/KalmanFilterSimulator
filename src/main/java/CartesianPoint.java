@@ -8,7 +8,7 @@ public class CartesianPoint {
     private double accel_y_wgs;
     private double speed_x;
     private double speed_y;
-    private double accuracy;
+    private double accuracy_gnss;
     private String timestamp;
 
     public String getTimestamp() {
@@ -35,12 +35,12 @@ public class CartesianPoint {
         this.speed_y = speed_y;
     }
 
-    public double getAccuracy() {
-        return accuracy;
+    public double getAccuracy_gnss() {
+        return accuracy_gnss;
     }
 
-    public void setAccuracy(double accuracy) {
-        this.accuracy = accuracy;
+    public void setAccuracy_gnss(double accuracy_gnss) {
+        this.accuracy_gnss = accuracy_gnss;
     }
 
     public CartesianPoint(double x, double y) {

@@ -22,8 +22,6 @@ public class ImuValues {
     private double speed_x_wgs;
     private double speed_y_wgs;
 
-    private double gnssAccuracy;
-
     private double accel_x_wgs;
     private double accel_y_wgs;
 
@@ -163,13 +161,5 @@ public class ImuValues {
 
     public void setSpeed_y_wgs(double speed_y_wgs) {
         this.speed_y_wgs = speed_y_wgs;
-    }
-
-    public double getGnssAccuracy() {
-        return gnssAccuracy;
-    }
-
-    public void setGnssAccuracy(double gnssAccuracy) {
-        this.gnssAccuracy = gnssAccuracy;
     }
 }

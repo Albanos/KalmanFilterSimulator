@@ -5,6 +5,8 @@ public class Coordinates {
     private double latitude;
     private double longitude;
     private double altitude;
+    private double latitude_GT;
+    private double longitude_GT;
     private double timestamp;
     private double accuracy;
 
@@ -16,6 +18,22 @@ public class Coordinates {
         this.longitude = longitude;
         this.altitude = altitude;
         this.timestamp = System.currentTimeMillis();
+    }
+
+    public double getLatitude_GT() {
+        return latitude_GT;
+    }
+
+    public void setLatitude_GT(double latitude_GT) {
+        this.latitude_GT = latitude_GT;
+    }
+
+    public double getLongitude_GT() {
+        return longitude_GT;
+    }
+
+    public void setLongitude_GT(double longitude_GT) {
+        this.longitude_GT = longitude_GT;
     }
 
     public double getAccuracy() {
