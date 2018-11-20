@@ -30,8 +30,14 @@ class Service {
     private static LinkedList<ImuValues> listOfAllImuValues = new LinkedList<>();
     private static LinkedList<Coordinates> listOfAllGTWgsPositions = new LinkedList<>();
 
+    private static LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtDistanceMap = new LinkedHashMap<>();
+
     // ====================================================
 
+
+    public static LinkedHashMap<Coordinates, Double> getEstimatedWgsPositionGtDistanceMap() {
+        return estimatedWgsPositionGtDistanceMap;
+    }
 
     public static LinkedList<Coordinates> getListOfAllGTWgsPositions() {
         return listOfAllGTWgsPositions;
@@ -527,13 +533,16 @@ class Service {
 
     /**
      * Berechnet die Distanz zwischen geschätztem Punkt (im WGS-System) und GT-Punkt (im WGS-System), auf lat/lon-Ebene
+     * und speichert diesen in einer globalen map
      */
     static void calculateDistanceBetweenEstimatedAndGTPosition(CartesianPoint currentEsttimatedPoint, int iterationCounter) {
         Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
         Coordinates estimatedWgsPosition = Service.getPointToWGSMap().get(currentEsttimatedPoint);
-        GlobalCoordinates start = new GlobalCoordinates(estimatedWgsPosition.getLatitude(), estimatedWgsPosition.getLongitude());
-        GlobalCoordinates end = new GlobalCoordinates(currentGTPosition.getLatitude(), currentGTPosition.getLongitude());
+
+        GlobalPosition start = new GlobalPosition(estimatedWgsPosition.getLatitude(), estimatedWgsPosition.getLongitude(), 0);
+        GlobalPosition end = new GlobalPosition(currentGTPosition.getLatitude_GT(), currentGTPosition.getLongitude_GT(), 0);
 
         GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, start, end);
+        Service.getEstimatedWgsPositionGtDistanceMap().put(estimatedWgsPosition, geodeticCurve.getEllipsoidalDistance());
     }
 }

@@ -53,16 +53,17 @@ public class CsvReader {
                     ));
                 }
 
-                // set gnss-accuracy --> FILE 2
-                c.setAccuracy(Double.valueOf(line[6]));
-
                 saveWgsPositionsAndGlobalsPositions(c);
 
                 // Speiechere die GT-Positionen in einer separaten Liste
                 saveGTPositions(line);
 
+                // set gnss-accuracy --> FILE 2
+                c.setAccuracy(Double.valueOf(line[6]));
+
                 // Speiechere die IMU-Werte in einer separate Liste
                 saveIMUValuesInPojo(line);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,12 +113,12 @@ public class CsvReader {
         }
         else {
             Coordinates lastGtPosition = Service.getListOfAllGTWgsPositions().getLast();
-            //if(lastGtPosition.getLatitude() != c.getLatitude()) {
+            if(lastGtPosition.getLatitude_GT() != c.getLatitude_GT()) {
                 c.setLongitude_GT(Double.valueOf(line[4]));
                 c.setLatitude_GT(Double.valueOf(line[5]));
 
                 Service.getListOfAllGTWgsPositions().add(c);
-            //}
+            }
         }
     }
 

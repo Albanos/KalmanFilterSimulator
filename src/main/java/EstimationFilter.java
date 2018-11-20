@@ -195,6 +195,9 @@ public class EstimationFilter {
             Service.calculateAngleAndDistanceByPoint(estimatedPoint);
             Service.calculateWGSCoordinateByCartesianPoint(estimatedPoint);
 
+            // Berechne den Abstand zwischen geschätztem Punkt und GT-Punkt
+            Service.calculateDistanceBetweenEstimatedAndGTPosition(estimatedPoint, i);
+
             // Erhöhe counter
             i = i + 1;
         }
