@@ -113,10 +113,6 @@ public class ExcelFileCreator {
             //long timestamp = p.getTimestamp();
             Double x = p.getX();
             Double y = p.getY();
-            //RealVector currentU = Service.getThread().getFilter().getU();
-//            LinkedList<Pair> foo = Service.getListWithUValues();
-//            double xValueOfU = Service.getListWithUValues().get(j).getX();
-//            double yValueOfU = Service.getListWithUValues().get(j).getY();
 
             // Zeichne ausserdem noch die Globalen Koordinaten des jeweils geschätzten Punktes
             // Existiert für diesen Punkt kein Eintrag in der Liste ist es der erste Punkt (für ihn werden keine WGS-Koordinaten berechnet)
@@ -145,11 +141,6 @@ public class ExcelFileCreator {
             estimatedTimestamp.setCellValue(timestamp);
             estimatedX.setCellValue(x);
             estimatedY.setCellValue(y);
-            //vectorU.setCellValue(currentU.toString());
-//            vectorUX.setCellValue(xValueOfU);
-//            vectorUY.setCellValue(yValueOfU);
-//            velocityX.setCellValue(estimatedVelocityX);
-//            velocityY.setCellValue(estimatedVelocityY);
             latitudeOfPoint.setCellValue(latitudeOfP);
             longitudeOfPoint.setCellValue(longitudeOfP);
             distanceEstGt.setCellValue(distanceEstPstGtPst);

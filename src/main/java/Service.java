@@ -377,10 +377,7 @@ class Service {
             ImuValues currentImu = Service.getListOfAllImuValues().get(i);
             //ImuValues currentImuValue = Service.getListOfAllImuValues().get(i);
 
-            // Setze dt im Service und greife im Filter darauf zu
-            // TODO: Timestamps werden aufgrund des Punktes Fehlerhaft eingelesen
-            //currentImu.setDt(Service.getOldDt() == 0 ? 0.1f : (currentImu.getTimestamp() - Service.getOldDt()) / 1000000000.0f);
-            //Service.setOldDt(currentImu.getDt());
+            // Setze dt im Service und greife im Filter darauf zu. WICHTIG: timestamps der Messungen sind in ms, nicht in nano wie android
             Service.setDt(Service.getOldDt() == 0 ? 0.1f : (currentImu.getTimestamp() - Service.getOldDt()) / 1000.0f);
             Service.setOldDt(currentImu.getTimestamp());
             double dt = Service.getDt();

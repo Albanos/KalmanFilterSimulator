@@ -16,11 +16,6 @@ public class EstimationFilter {
     private KalmanFilter filter;
 
     final double dt = Service.getDt();
-    //final double dt = Service.getListOfAllImuValues().getFirst().getDt();
-    // statisch gesetzter timestamp, aus android-simulation heraus
-    //final double dt = 0.020828266;
-    //final double dt = 0.02;
-    //final double dt = 0.04;
 
     // Statische Variablen, von der doku-page
     // position measurement noise (meter)

@@ -44,9 +44,6 @@ public class CsvReader {
                 c.setLatitude(Double.valueOf(line[2]));
                 c.setAltitude(Double.valueOf(line[3]));
 
-//                c.setLongitude_GT(Double.valueOf(line[4]));
-//                c.setLatitude_GT(Double.valueOf(line[5]));
-
                 // set firstGlobalPosition (for geodesy)
                 if (Service.getFirstPosition() == null) {
                     Service.setFirstPosition(new GlobalPosition(
@@ -144,13 +141,6 @@ public class CsvReader {
         data.setGravity_x(Double.valueOf(line[15]));
         data.setGravity_y(Double.valueOf(line[16]));
         data.setGravity_z(Double.valueOf(line[17]));
-
-        // set GNSS-Speed (amount of speed), GNSS-Bearing and speed in x- and y-orientation --> FILE 2
-//        data.setAmountGnss(Double.valueOf(line[16]));
-//        data.setBearingGnss(Double.valueOf(line[17]));
-//        data.setSpeed_x_wgs(data.getAmountGnss() * Math.sin(Math.toRadians(data.getBearingGnss())));
-//        data.setSpeed_y_wgs(data.getAmountGnss() * Math.cos(Math.toRadians(data.getBearingGnss())));
-
 
         // Entferne Punkt aus Timestamp
         String timestampWithoutPoint = line[0].replaceAll("\\.", "");
