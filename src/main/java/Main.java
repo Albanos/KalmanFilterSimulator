@@ -6,16 +6,18 @@ import java.util.LinkedList;
  */
 public class Main {
     private static final String pathToNexus6File =
-            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Nexus6_ownFOrmat_withGT_10_48_21.csv";
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Nexus6_ownFormat_withGT_15_27_39.csv";
 
     private static final String pathToS7File =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\S7Edge_ownFormat_withGT_16_52_36.csv";
 
-    public static void main(String[] args) {
+    private static final String pathToNexus6File2 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\nexus6_ownFormat_withGT_11_19_10.csv";
 
+    public static void main(String[] args) {
         // Lese Daten von File
         CsvReader reader = new CsvReader();
-        reader.readCsvDataAndSaveInPojo(pathToS7File);
+        reader.readCsvDataAndSaveInPojo(pathToNexus6File2);
 
         LinkedList<Coordinates> allWGSPositions = Service.getListOfAllWGSPositions();
         LinkedList<ImuValues> allIMUValues = Service.getListOfAllImuValues();

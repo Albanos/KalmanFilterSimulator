@@ -7,8 +7,12 @@ public class Coordinates {
     private double altitude;
     private double latitude_GT;
     private double longitude_GT;
-    private double timestamp;
+    private long timestamp;
     private double accuracy;
+    private double bearing_gnss;
+    private double amountSpeedGnss;
+    private double speed_x_gnss;
+    private double speed_y_gnss;
 
     public Coordinates() {
     }
@@ -18,6 +22,38 @@ public class Coordinates {
         this.longitude = longitude;
         this.altitude = altitude;
         this.timestamp = System.currentTimeMillis();
+    }
+
+    public double getBearing_gnss() {
+        return bearing_gnss;
+    }
+
+    public void setBearing_gnss(double bearing_gnss) {
+        this.bearing_gnss = bearing_gnss;
+    }
+
+    public double getAmountSpeedGnss() {
+        return amountSpeedGnss;
+    }
+
+    public void setAmountSpeedGnss(double amountSpeedGnss) {
+        this.amountSpeedGnss = amountSpeedGnss;
+    }
+
+    public double getSpeed_x_gnss() {
+        return speed_x_gnss;
+    }
+
+    public void setSpeed_x_gnss(double speed_x_gnss) {
+        this.speed_x_gnss = speed_x_gnss;
+    }
+
+    public double getSpeed_y_gnss() {
+        return speed_y_gnss;
+    }
+
+    public void setSpeed_y_gnss(double speed_y_gnss) {
+        this.speed_y_gnss = speed_y_gnss;
     }
 
     public double getLatitude_GT() {
@@ -62,7 +98,7 @@ public class Coordinates {
         return altitude;
     }
 
-    public double getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -78,7 +114,7 @@ public class Coordinates {
         this.altitude = altitude;
     }
 
-    public void setTimestamp(double timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 }

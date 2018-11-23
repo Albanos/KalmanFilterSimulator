@@ -6,33 +6,33 @@ public class CartesianPoint {
     private double y;
     private double accel_x_wgs;
     private double accel_y_wgs;
-    private double speed_x;
-    private double speed_y;
+    private double speed_x_wgs;
+    private double speed_y_wgs;
     private double accuracy_gnss;
-    private String timestamp;
+    private long timestamp;
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public double getSpeed_x() {
-        return speed_x;
+    public double getSpeed_x_wgs() {
+        return speed_x_wgs;
     }
 
-    public void setSpeed_x(double speed_x) {
-        this.speed_x = speed_x;
+    public void setSpeed_x_wgs(double speed_x_wgs) {
+        this.speed_x_wgs = speed_x_wgs;
     }
 
-    public double getSpeed_y() {
-        return speed_y;
+    public double getSpeed_y_wgs() {
+        return speed_y_wgs;
     }
 
-    public void setSpeed_y(double speed_y) {
-        this.speed_y = speed_y;
+    public void setSpeed_y_wgs(double speed_y_wgs) {
+        this.speed_y_wgs = speed_y_wgs;
     }
 
     public double getAccuracy_gnss() {

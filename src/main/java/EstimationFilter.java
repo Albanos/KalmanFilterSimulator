@@ -15,8 +15,12 @@ public class EstimationFilter {
 
     private KalmanFilter filter;
 
-    //final double dt = Service.getDt();
-    final double dt = Service.getListOfAllImuValues().getFirst().getDt();
+    final double dt = Service.getDt();
+    //final double dt = Service.getListOfAllImuValues().getFirst().getDt();
+    // statisch gesetzter timestamp, aus android-simulation heraus
+    //final double dt = 0.020828266;
+    //final double dt = 0.02;
+    //final double dt = 0.04;
 
     // Statische Variablen, von der doku-page
     // position measurement noise (meter)
@@ -52,7 +56,7 @@ public class EstimationFilter {
     // Bsp.: TIME_TO_SLEEP=100 --> 10 Punkte/sek --> 10 Hz
     private static final int TIME_TO_SLEEP = 100;
     private static long timestamp2;
-    private static long timestamp = timestamp2= System.currentTimeMillis();
+    private static long timestamp = timestamp2 = System.currentTimeMillis();
     private static LinkedList<CartesianPoint> copyListOfAllCartesianPoints = new LinkedList<>();
 
     public EstimationFilter() {
@@ -67,18 +71,18 @@ public class EstimationFilter {
 
         double coordinate_x = firstCartesianPoint.getX();
         double coordinate_y = firstCartesianPoint.getY();
+        double speed_x = firstCartesianPoint.getSpeed_x_wgs();
+        double speed_y = firstCartesianPoint.getSpeed_y_wgs();
 
         ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
-        double speed_x = firstImuValue.getSpeed_x_wgs();
-        double speed_y = firstImuValue.getSpeed_y_wgs();
         double accel_x = firstImuValue.getAccel_x_wgs();
         double accel_y = firstImuValue.getAccel_y_wgs();
 
         x = new ArrayRealVector(new double[]{coordinate_x, coordinate_y, speed_x, speed_y});
         u = new ArrayRealVector(new double[]{accel_x, accel_y});
         A = new Array2DRowRealMatrix(new double[][]{
-                {1, 0, dt, 0},
-                {0, 1, 0, dt},
+                {1, 0, this.dt, 0},
+                {0, 1, 0, this.dt},
                 {0, 0, 1, 0},
                 {0, 0, 0, 1}
         });
@@ -92,8 +96,8 @@ public class EstimationFilter {
         B = new Array2DRowRealMatrix(new double[][]{
                 {0, 0},
                 {0, 0},
-                {dt, 0},
-                {0, dt}
+                {this.dt, 0},
+                {0, this.dt}
         });
 
         H = new Array2DRowRealMatrix(new double[][]{
@@ -107,10 +111,10 @@ public class EstimationFilter {
         // Standardabweichung soll bei zusätzlicher Messung von Geschwindigkeit mitberücksichtigt,
         // deshalb wird sigma nachobengesetzt
         Q = new Array2DRowRealMatrix(new double[][]{
-                {1 / 4 * Math.pow(dt, 4), 1 / 4 * Math.pow(dt, 4), 1 / 2 * Math.pow(dt, 3), 1 / 2 * Math.pow(dt, 3)},
-                {1 / 4 * Math.pow(dt, 4), 1 / 4 * Math.pow(dt, 4), 1 / 2 * Math.pow(dt, 3), 1 / 2 * Math.pow(dt, 3)},
-                {1 / 2 * Math.pow(dt, 3), 1 / 2 * Math.pow(dt, 3), Math.pow(dt, 2) * Math.pow(sigmaAccel, 2), Math.pow(dt, 2)},
-                {1 / 2 * Math.pow(dt, 3), 1 / 2 * Math.pow(dt, 3), Math.pow(dt, 2), Math.pow(dt, 2) * Math.pow(sigmaAccel, 2)}
+                {1 / 4 * Math.pow(this.dt, 4), 1 / 4 * Math.pow(this.dt, 4), 1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3)},
+                {1 / 4 * Math.pow(this.dt, 4), 1 / 4 * Math.pow(this.dt, 4), 1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3)},
+                {1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2), Math.pow(this.dt, 2)},
+                {1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3), Math.pow(this.dt, 2), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2)}
         });
 
         double locationVarianz = Math.pow(locationAccurancy, 2);
@@ -130,9 +134,12 @@ public class EstimationFilter {
                 {0, 0, 0, 10}
         });
 
-//        z = new ArrayRealVector(new double[]{Service.getListOfPoints().getLast().getX(),
-//                Service.getListOfPoints().getLast().getY(),
-//                Service.getSpeed_x_wgs(), Service.getSpeed_y_wgs()});
+        currentMeasurment = new ArrayRealVector(new double[]{
+                copyListOfAllCartesianPoints.getFirst().getX(),
+                copyListOfAllCartesianPoints.getFirst().getY(),
+                copyListOfAllCartesianPoints.getFirst().getSpeed_x_wgs(),
+                copyListOfAllCartesianPoints.getFirst().getSpeed_y_wgs()
+        });
 
         //currentMeasurment = z;
 
@@ -166,29 +173,30 @@ public class EstimationFilter {
             if ((System.currentTimeMillis() - timestamp2) >= 1000) {
                 timestamp2 = System.currentTimeMillis();
 
-                //System.out.println("Korrektur, zur Zeit:  " + new Timestamp(System.currentTimeMillis()));
-                System.out.println("===================================================================================DRIN!!!, Zeit:  " + new Timestamp(System.currentTimeMillis()));
+                System.out.println("===================================================================================Aktuelle Position, Zeit:  " + new Timestamp(System.currentTimeMillis()));
+                CartesianPoint currentPosition = copyListOfAllCartesianPoints.get(j);
+
                 currentMeasurment = new ArrayRealVector(new double[]{
-                        copyListOfAllCartesianPoints.get(j).getX(),
-                        copyListOfAllCartesianPoints.get(j).getY(),
-                        Service.getListOfAllImuValues().get(i).getSpeed_x_wgs(),
-                        Service.getListOfAllImuValues().get(i).getSpeed_y_wgs()
+                        currentPosition.getX(),
+                        currentPosition.getY(),
+                        currentPosition.getSpeed_x_wgs(),
+                        currentPosition.getSpeed_y_wgs()
                 });
 
                 filter.correct(currentMeasurment);
 
                 // Entferne die soeben genutzte Position damit Schleife irgendwann terminiert
                 copyListOfAllCartesianPoints.remove(j);
+
             }
 
             double estimatedPosition_x = filter.getStateEstimation()[0];
             double estimatedPosition_y = filter.getStateEstimation()[1];
 
-            System.out.println("Geschätzter Punkt:  " + estimatedPosition_x + " ; " + estimatedPosition_y + " Zur Zeit (jetzt):  " + new Timestamp(System.currentTimeMillis()));
-            System.out.println("Echter Punkt:  " + Service.getListOfAllCartesianPoints().get(j).getX() + " ; " + Service.getListOfAllCartesianPoints().get(j).getY() + "\n");
+            System.out.println("Geschätzter Punkt:  " + estimatedPosition_x + " ; " + estimatedPosition_y + " Zur Zeit (jetzt):  " + new Timestamp(System.currentTimeMillis()) + "\n");
 
             CartesianPoint estimatedPoint = new CartesianPoint(estimatedPosition_x, estimatedPosition_y);
-            estimatedPoint.setTimestamp(Long.toString(System.currentTimeMillis()));
+            estimatedPoint.setTimestamp(System.currentTimeMillis());
             Service.getListOfAllEstimatedCartesianPoints().add(estimatedPoint);
 
             // Rechne die geschätzten Punkte wieder in das WGS-System um

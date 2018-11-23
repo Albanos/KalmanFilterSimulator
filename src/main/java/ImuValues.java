@@ -14,7 +14,7 @@ public class ImuValues {
     private double gravity_y;
     private double gravity_z;
 
-    private String timestamp;
+    private long timestamp;
 
     private double bearingGnss;
     private double amountGnss;
@@ -123,11 +123,11 @@ public class ImuValues {
         this.gravity_z = gravity_z;
     }
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

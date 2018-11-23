@@ -378,8 +378,12 @@ class Service {
             //ImuValues currentImuValue = Service.getListOfAllImuValues().get(i);
 
             // Setze dt im Service und greife im Filter darauf zu
-            currentImu.setDt(Service.getOldDt() == 0 ? 0.1f : (Double.valueOf(currentImu.getTimestamp()) - Service.getOldDt()) / 1000000000.0f);
-            Service.setOldDt(currentImu.getDt());
+            // TODO: Timestamps werden aufgrund des Punktes Fehlerhaft eingelesen
+            //currentImu.setDt(Service.getOldDt() == 0 ? 0.1f : (currentImu.getTimestamp() - Service.getOldDt()) / 1000000000.0f);
+            //Service.setOldDt(currentImu.getDt());
+            Service.setDt(Service.getOldDt() == 0 ? 0.1f : (currentImu.getTimestamp() - Service.getOldDt()) / 1000.0f);
+            Service.setOldDt(currentImu.getTimestamp());
+            double dt = Service.getDt();
 
             gravityValues[0] = (float) currentImu.getGravity_x();
             gravityValues[1] = (float) currentImu.getGravity_y();
@@ -472,11 +476,19 @@ class Service {
      */
     public static void setAllOtheParametersOfAllCartesianPoints() {
         for (int i = 0; i < Service.getListOfAllWGSPositions().size() - 1; i++) {
-            Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i + 1);
+            Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i);
             CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
 
             cartesianPoint.setAccuracy_gnss(wgsPosition.getAccuracy());
-            cartesianPoint.setTimestamp(Double.toString(wgsPosition.getTimestamp()));
+            cartesianPoint.setTimestamp(wgsPosition.getTimestamp());
+
+            cartesianPoint.setSpeed_x_wgs(
+                    wgsPosition.getAmountSpeedGnss() * Math.sin(Math.toRadians(wgsPosition.getBearing_gnss()))
+            );
+
+            cartesianPoint.setSpeed_y_wgs(
+                    wgsPosition.getAmountSpeedGnss() * Math.cos(Math.toRadians(wgsPosition.getBearing_gnss()))
+            );
         }
     }
 

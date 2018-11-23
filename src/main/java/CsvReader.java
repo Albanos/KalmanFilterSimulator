@@ -27,14 +27,17 @@ public class CsvReader {
 
                 // Berücksichtige nur den ersten Teststrecken-Abschnitt, also nur von A -> B.
                 // Lesen wir das Label STOP_.... sind wir fertig
-                if (line[18].contains("STOP")) {
+                //if (line[18].contains("GO_12700_0")) {
+                if(line[18].contains("STOP")) {
                     break;
                 }
 
                 Coordinates c = new Coordinates();
 
-                //m.setTimestamp(Double.valueOf(line[0]));
-                c.setTimestamp(Double.valueOf(line[0]));
+                // Entferne aus dem Timestamp den Punkt
+                String timestampWithoutPoint = line[0].replaceAll("\\.", "");
+                c.setTimestamp(Long.valueOf(timestampWithoutPoint));
+
 
                 // set lat/lon and lat_gt/lon_gt --> FILE 2
                 c.setLongitude(Double.valueOf(line[1]));
@@ -53,13 +56,19 @@ public class CsvReader {
                     ));
                 }
 
+                // Set GNSS-Bearing, amount of GNSS-speed and x- & y-GNSS-speed
+                c.setBearing_gnss(Double.valueOf(line[4]));
+                c.setAmountSpeedGnss(Double.valueOf(line[5]));
+                c.setSpeed_x_gnss(c.getAmountSpeedGnss() * Math.sin(Math.toRadians(c.getBearing_gnss())));
+                c.setSpeed_y_gnss(c.getAmountSpeedGnss() * Math.cos(Math.toRadians(c.getBearing_gnss())));
+
                 saveWgsPositionsAndGlobalsPositions(c);
 
                 // Speiechere die GT-Positionen in einer separaten Liste
                 saveGTPositions(line);
 
                 // set gnss-accuracy --> FILE 2
-                c.setAccuracy(Double.valueOf(line[6]));
+                c.setAccuracy(Double.valueOf(line[8]));
 
                 // Speiechere die IMU-Werte in einer separate Liste
                 saveIMUValuesInPojo(line);
@@ -87,7 +96,7 @@ public class CsvReader {
 
         } else {
             Coordinates lastWGSPosition = Service.getListOfAllWGSPositions().getLast();
-            if (lastWGSPosition.getLatitude() != c.getLatitude()) {
+            if (lastWGSPosition.getLatitude() != c.getLatitude() && lastWGSPosition.getLongitude() != c.getLongitude()) {
                 Service.getListOfAllWGSPositions().add(c);
 
                 // generate globalPositions for all positions
@@ -106,16 +115,16 @@ public class CsvReader {
         // Handle ebenso die GT-Positionen -> in separater Liste abspeichern
         // ANNAHME HIER: Benuter bewegt sich, also keine Position zweimal/mehrmals
         if (Service.getListOfAllGTWgsPositions().isEmpty()) {
-            c.setLongitude_GT(Double.valueOf(line[4]));
-            c.setLatitude_GT(Double.valueOf(line[5]));
+            c.setLongitude_GT(Double.valueOf(line[6]));
+            c.setLatitude_GT(Double.valueOf(line[7]));
 
             Service.getListOfAllGTWgsPositions().add(c);
         }
         else {
             Coordinates lastGtPosition = Service.getListOfAllGTWgsPositions().getLast();
             if(lastGtPosition.getLatitude_GT() != c.getLatitude_GT()) {
-                c.setLongitude_GT(Double.valueOf(line[4]));
-                c.setLatitude_GT(Double.valueOf(line[5]));
+                c.setLongitude_GT(Double.valueOf(line[6]));
+                c.setLatitude_GT(Double.valueOf(line[7]));
 
                 Service.getListOfAllGTWgsPositions().add(c);
             }
@@ -126,23 +135,26 @@ public class CsvReader {
         //Measure m = new Measure();
         ImuValues data = new ImuValues();
         // set IMU-values --> FILE 2
-        data.setAccel_x(Double.valueOf(line[7]));
-        data.setAccel_y(Double.valueOf(line[8]));
-        data.setAccel_z(Double.valueOf(line[9]));
-        data.setMagnitude_x(Double.valueOf(line[10]));
-        data.setMagnitude_y(Double.valueOf(line[11]));
-        data.setMagnitude_z(Double.valueOf(line[12]));
-        data.setGravity_x(Double.valueOf(line[13]));
-        data.setGravity_y(Double.valueOf(line[14]));
-        data.setGravity_z(Double.valueOf(line[15]));
+        data.setAccel_x(Double.valueOf(line[9]));
+        data.setAccel_y(Double.valueOf(line[10]));
+        data.setAccel_z(Double.valueOf(line[11]));
+        data.setMagnitude_x(Double.valueOf(line[12]));
+        data.setMagnitude_y(Double.valueOf(line[13]));
+        data.setMagnitude_z(Double.valueOf(line[14]));
+        data.setGravity_x(Double.valueOf(line[15]));
+        data.setGravity_y(Double.valueOf(line[16]));
+        data.setGravity_z(Double.valueOf(line[17]));
 
         // set GNSS-Speed (amount of speed), GNSS-Bearing and speed in x- and y-orientation --> FILE 2
-        data.setAmountGnss(Double.valueOf(line[16]));
-        data.setBearingGnss(Double.valueOf(line[17]));
-        data.setSpeed_x_wgs(data.getAmountGnss() * Math.sin(Math.toRadians(data.getBearingGnss())));
-        data.setSpeed_y_wgs(data.getAmountGnss() * Math.cos(Math.toRadians(data.getBearingGnss())));
+//        data.setAmountGnss(Double.valueOf(line[16]));
+//        data.setBearingGnss(Double.valueOf(line[17]));
+//        data.setSpeed_x_wgs(data.getAmountGnss() * Math.sin(Math.toRadians(data.getBearingGnss())));
+//        data.setSpeed_y_wgs(data.getAmountGnss() * Math.cos(Math.toRadians(data.getBearingGnss())));
 
-        data.setTimestamp(line[0]);
+
+        // Entferne Punkt aus Timestamp
+        String timestampWithoutPoint = line[0].replaceAll("\\.", "");
+        data.setTimestamp(Long.valueOf(timestampWithoutPoint));
 
         //Service.getOnlyIMUValues().add(m);
         Service.getListOfAllImuValues().add(data);
