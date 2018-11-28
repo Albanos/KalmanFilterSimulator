@@ -15,7 +15,12 @@ public class EstimationFilter {
 
     private KalmanFilter filter;
 
-    final double dt = Service.getDt();
+    final double dt = 0.057312012;
+    //final double dt = Service.getDt();
+    //final double dt = 0.005;
+    //final double dt = 0.06;
+    //final double dt = 0.020894866;
+    //final double dt = 0.02;
 
     // Statische Variablen, von der doku-page
     // position measurement noise (meter)
@@ -52,6 +57,7 @@ public class EstimationFilter {
     private static final int TIME_TO_SLEEP = 100;
     private static long timestamp2;
     private static long timestamp = timestamp2 = System.currentTimeMillis();
+
     private static LinkedList<CartesianPoint> copyListOfAllCartesianPoints = new LinkedList<>();
 
     public EstimationFilter() {
@@ -68,10 +74,12 @@ public class EstimationFilter {
         double coordinate_y = firstCartesianPoint.getY();
         double speed_x = firstCartesianPoint.getSpeed_x_wgs();
         double speed_y = firstCartesianPoint.getSpeed_y_wgs();
+        //copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
 
         ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
-        double accel_x = firstImuValue.getAccel_x_wgs();
-        double accel_y = firstImuValue.getAccel_y_wgs();
+        //ImuValues firstImuValue = Service.getResampledListOfAllImuValues().getFirst();
+        float accel_x = (float)firstImuValue.getAccel_x_wgs();
+        float accel_y = (float)firstImuValue.getAccel_y_wgs();
 
         x = new ArrayRealVector(new double[]{coordinate_x, coordinate_y, speed_x, speed_y});
         u = new ArrayRealVector(new double[]{accel_x, accel_y});
@@ -129,14 +137,21 @@ public class EstimationFilter {
                 {0, 0, 0, 10}
         });
 
-        currentMeasurment = new ArrayRealVector(new double[]{
+//        currentMeasurment = new ArrayRealVector(new double[]{
+//                copyListOfAllCartesianPoints.getFirst().getX(),
+//                copyListOfAllCartesianPoints.getFirst().getY(),
+//                copyListOfAllCartesianPoints.getFirst().getSpeed_x_wgs(),
+//                copyListOfAllCartesianPoints.getFirst().getSpeed_y_wgs()
+//        });
+        z = new ArrayRealVector(new double[]{
                 copyListOfAllCartesianPoints.getFirst().getX(),
                 copyListOfAllCartesianPoints.getFirst().getY(),
                 copyListOfAllCartesianPoints.getFirst().getSpeed_x_wgs(),
                 copyListOfAllCartesianPoints.getFirst().getSpeed_y_wgs()
         });
 
-        //currentMeasurment = z;
+        currentMeasurment = z;
+        copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
 
         pm = new DefaultProcessModel(A, B, Q, x, P);
         mm = new DefaultMeasurementModel(H, R);
@@ -157,10 +172,11 @@ public class EstimationFilter {
 
             System.out.println("Anzahl Punkte in Kopie:  " + copyListOfAllCartesianPoints.size());
 
-
             // Aktualisiere u
-            u.setEntry(0, Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
-            u.setEntry(1, Service.getListOfAllImuValues().get(i).getAccel_y_wgs());
+            u.setEntry(0, (float)Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
+            u.setEntry(1, (float)Service.getListOfAllImuValues().get(i).getAccel_y_wgs());
+//            u.setEntry(0, Service.getResampledListOfAllImuValues().get(i).getAccel_x_wgs());
+//            u.setEntry(1, Service.getResampledListOfAllImuValues().get(i).getAccel_y_wgs());
 
             filter.predict(u);
 
@@ -169,7 +185,9 @@ public class EstimationFilter {
                 timestamp2 = System.currentTimeMillis();
 
                 System.out.println("===================================================================================Aktuelle Position, Zeit:  " + new Timestamp(System.currentTimeMillis()));
-                CartesianPoint currentPosition = copyListOfAllCartesianPoints.get(j);
+                //CartesianPoint currentPosition = copyListOfAllCartesianPoints.get(j);
+                CartesianPoint currentPosition = copyListOfAllCartesianPoints.getFirst();
+                System.out.println("===================================================================================Aktueller kart. Punkt:  " + currentPosition.getX() + " ; " + currentPosition.getY());
 
                 currentMeasurment = new ArrayRealVector(new double[]{
                         currentPosition.getX(),
@@ -178,10 +196,16 @@ public class EstimationFilter {
                         currentPosition.getSpeed_y_wgs()
                 });
 
-                filter.correct(currentMeasurment);
+                //if(!currentMeasurment.equals(z)) {
+                    filter.correct(currentMeasurment);
+                    //z = currentMeasurment;
+                //}
+                double foo = filter.getStateEstimation()[0];
+                double foo2 = filter.getStateEstimation()[1];
 
                 // Entferne die soeben genutzte Position damit Schleife irgendwann terminiert
-                copyListOfAllCartesianPoints.remove(j);
+                //copyListOfAllCartesianPoints.remove(j);
+                copyListOfAllCartesianPoints.remove(currentPosition);
 
             }
 

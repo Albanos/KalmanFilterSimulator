@@ -30,6 +30,7 @@ public class CsvReader {
                 //if (line[18].contains("GO_12700_0")) {
                 if(line[18].contains("STOP")) {
                     break;
+
                 }
 
                 Coordinates c = new Coordinates();

@@ -16,6 +16,7 @@ class Service {
     private static GeodeticCalculator calculator = new GeodeticCalculator();
     private static double dt;
     private static double oldDt = 0;
+    private static LinkedList<Double> allDtValues = new LinkedList<>();
     private static GlobalPosition firstPosition = null;
     private static LinkedList<CartesianPoint> listOfAllCartesianPoints = new LinkedList<CartesianPoint>();
     private static LinkedList<CartesianPoint> listOfAllEstimatedCartesianPoints = new LinkedList<>();
@@ -32,8 +33,18 @@ class Service {
 
     private static LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtDistanceMap = new LinkedHashMap<>();
 
+    private static LinkedList<ImuValues> resampledListOfAllImuValues = new LinkedList<>();
+
     // ====================================================
 
+
+    public static LinkedList<Double> getAllDtValues() {
+        return allDtValues;
+    }
+
+    public static LinkedList<ImuValues> getResampledListOfAllImuValues() {
+        return resampledListOfAllImuValues;
+    }
 
     public static LinkedHashMap<Coordinates, Double> getEstimatedWgsPositionGtDistanceMap() {
         return estimatedWgsPositionGtDistanceMap;
@@ -365,7 +376,7 @@ class Service {
         rhsV.setEntry(2, rhsVec[2]);
         rhsV.setEntry(3, rhsVec[3]);
 
-        RealVector result = lhsM.transpose().preMultiply(rhsV);
+        RealVector result = lhsM.preMultiply(rhsV);
         return result;
     }
 
@@ -373,7 +384,8 @@ class Service {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
 
-        for (int i = 0; i < Service.getListOfAllImuValues().size() - 1; i++) {
+
+        for (int i = 0; i < Service.getListOfAllImuValues().size(); i++) {
             ImuValues currentImu = Service.getListOfAllImuValues().get(i);
             //ImuValues currentImuValue = Service.getListOfAllImuValues().get(i);
 
@@ -381,6 +393,7 @@ class Service {
             Service.setDt(Service.getOldDt() == 0 ? 0.1f : (currentImu.getTimestamp() - Service.getOldDt()) / 1000.0f);
             Service.setOldDt(currentImu.getTimestamp());
             double dt = Service.getDt();
+            Service.getAllDtValues().add(dt);
 
             gravityValues[0] = (float) currentImu.getGravity_x();
             gravityValues[1] = (float) currentImu.getGravity_y();
@@ -403,9 +416,9 @@ class Service {
             float[] inv = new float[16];
             Service.invertM(inv, 0, R, 0);
             RealVector realVector = Service.multiplyMV(inv, deviceRelativeAcceleration);
-            earthAcc[0] = (float) realVector.getEntry(1);
-            earthAcc[1] = (float) realVector.getEntry(2);
-            earthAcc[3] = (float) realVector.getEntry(3);
+            earthAcc[0] = (float) realVector.getEntry(0);
+            earthAcc[1] = (float) realVector.getEntry(1);
+            earthAcc[2] = (float) realVector.getEntry(2);
 
             currentImu.setAccel_x_wgs(earthAcc[0]);
             currentImu.setAccel_y_wgs(earthAcc[1]);
@@ -553,5 +566,53 @@ class Service {
 
         GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, start, end);
         Service.getEstimatedWgsPositionGtDistanceMap().put(estimatedWgsPosition, geodeticCurve.getEllipsoidalDistance());
+    }
+
+    public static void makeDownSamplingOfImu() {
+        int j = 1;
+        int i = 0;
+        double oldDt = 0;
+        double currentDt;
+        //for(int i =0; i < Service.getListOfAllImuValues().size() ; i++) {
+        resampledListOfAllImuValues.add(Service.getListOfAllImuValues().getFirst());
+        for (ImuValues imu : Service.getListOfAllImuValues()) {
+            if(j < Service.getListOfAllImuValues().size()) {
+                ImuValues iIMU = Service.getListOfAllImuValues().get(i);
+                ImuValues jIMU = Service.getListOfAllImuValues().get(j);
+
+                double differenceInSek = (jIMU.getTimestamp() - iIMU.getTimestamp()) / 1000.0f;
+
+                //if ( differenceInSek >= 0.020894866) {
+                // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
+                if(differenceInSek >= 0.057312011) {
+                    resampledListOfAllImuValues.add(jIMU);
+                    i = j;
+                    currentDt = oldDt == 0 ? 0.1f : (jIMU.getTimestamp() - oldDt) / 1000.0f;
+                    oldDt = jIMU.getTimestamp();
+                    Service.getAllDtValues().add(currentDt);
+
+                }
+                j = j + 1;
+            }
+        }
+        LinkedList<ImuValues> foo = Service.getListOfAllImuValues();
+        LinkedList<ImuValues> foo2 = Service.getResampledListOfAllImuValues();
+        long timestampOfLast = foo2.get(foo2.size() - 1).getTimestamp();
+        long timestampOfLastLast = foo2.get(foo2.size() - 2).getTimestamp();
+        double x = (timestampOfLast - timestampOfLastLast) / 1000.0f;
+        Service.setDt(x);
+
+        System.out.println();
+    }
+
+    public static double calculateAverage(LinkedList<Double> values) {
+        double sum = 0;
+        if(!values.isEmpty()) {
+            for (Double mark : values) {
+                sum = sum + mark;
+            }
+            return sum / values.size();
+        }
+        return sum;
     }
 }
