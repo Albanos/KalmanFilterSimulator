@@ -11,6 +11,7 @@ import java.io.IOException;
  */
 public class CsvReader {
     private static CSVReader reader = null;
+    private static long timeWithoutPoint;
 
     public void readCsvDataAndSaveInPojo(String pathToFile) {
         boolean firstIteration = true;
@@ -30,14 +31,14 @@ public class CsvReader {
                 //if (line[18].contains("GO_12700_0")) {
                 if(line[18].contains("STOP")) {
                     break;
-
                 }
 
                 Coordinates c = new Coordinates();
 
                 // Entferne aus dem Timestamp den Punkt
                 String timestampWithoutPoint = line[0].replaceAll("\\.", "");
-                c.setTimestamp(Long.valueOf(timestampWithoutPoint));
+                timeWithoutPoint = Long.valueOf(timestampWithoutPoint);
+                c.setTimestamp(timeWithoutPoint);
 
 
                 // set lat/lon and lat_gt/lon_gt --> FILE 2
@@ -115,6 +116,7 @@ public class CsvReader {
         if (Service.getListOfAllGTWgsPositions().isEmpty()) {
             c.setLongitude_GT(Double.valueOf(line[6]));
             c.setLatitude_GT(Double.valueOf(line[7]));
+            c.setTimestamp(timeWithoutPoint);
 
             Service.getListOfAllGTWgsPositions().add(c);
         }
@@ -123,6 +125,7 @@ public class CsvReader {
             if(lastGtPosition.getLatitude_GT() != c.getLatitude_GT()) {
                 c.setLongitude_GT(Double.valueOf(line[6]));
                 c.setLatitude_GT(Double.valueOf(line[7]));
+                c.setTimestamp(timeWithoutPoint);
 
                 Service.getListOfAllGTWgsPositions().add(c);
             }
@@ -144,8 +147,8 @@ public class CsvReader {
         data.setGravity_z(Double.valueOf(line[17]));
 
         // Entferne Punkt aus Timestamp
-        String timestampWithoutPoint = line[0].replaceAll("\\.", "");
-        data.setTimestamp(Long.valueOf(timestampWithoutPoint));
+        //String timestampWithoutPoint = line[0].replaceAll("\\.", "");
+        data.setTimestamp(timeWithoutPoint);
 
         //Service.getOnlyIMUValues().add(m);
         Service.getListOfAllImuValues().add(data);

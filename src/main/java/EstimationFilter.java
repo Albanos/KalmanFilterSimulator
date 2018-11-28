@@ -15,8 +15,9 @@ public class EstimationFilter {
 
     private KalmanFilter filter;
 
-    final double dt = 0.057312012;
-    //final double dt = Service.getDt();
+    //final double dt = 0.1;
+    //final double dt = 0.057312012;
+    final double dt = Service.getDt();
     //final double dt = 0.005;
     //final double dt = 0.06;
     //final double dt = 0.020894866;
@@ -74,10 +75,10 @@ public class EstimationFilter {
         double coordinate_y = firstCartesianPoint.getY();
         double speed_x = firstCartesianPoint.getSpeed_x_wgs();
         double speed_y = firstCartesianPoint.getSpeed_y_wgs();
-        //copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
+        copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
 
-        ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
-        //ImuValues firstImuValue = Service.getResampledListOfAllImuValues().getFirst();
+        //ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
+        ImuValues firstImuValue = Service.getResampledListOfAllImuValues().getFirst();
         float accel_x = (float)firstImuValue.getAccel_x_wgs();
         float accel_y = (float)firstImuValue.getAccel_y_wgs();
 
@@ -173,10 +174,10 @@ public class EstimationFilter {
             System.out.println("Anzahl Punkte in Kopie:  " + copyListOfAllCartesianPoints.size());
 
             // Aktualisiere u
-            u.setEntry(0, (float)Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
-            u.setEntry(1, (float)Service.getListOfAllImuValues().get(i).getAccel_y_wgs());
-//            u.setEntry(0, Service.getResampledListOfAllImuValues().get(i).getAccel_x_wgs());
-//            u.setEntry(1, Service.getResampledListOfAllImuValues().get(i).getAccel_y_wgs());
+//            u.setEntry(0, (float)Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
+//            u.setEntry(1, (float)Service.getListOfAllImuValues().get(i).getAccel_y_wgs());
+            u.setEntry(0, Service.getResampledListOfAllImuValues().get(i).getAccel_x_wgs());
+            u.setEntry(1, Service.getResampledListOfAllImuValues().get(i).getAccel_y_wgs());
 
             filter.predict(u);
 

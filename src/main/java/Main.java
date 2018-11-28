@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         // Lese Daten von File
         CsvReader reader = new CsvReader();
-        reader.readCsvDataAndSaveInPojo(pathToS7File2);
+        reader.readCsvDataAndSaveInPojo(pathToS7File);
 
         LinkedList<Coordinates> allWGSPositions = Service.getListOfAllWGSPositions();
         LinkedList<ImuValues> allIMUValues = Service.getListOfAllImuValues();
@@ -34,15 +34,15 @@ public class Main {
         Service.setAllOtheParametersOfAllCartesianPoints();
 
         LinkedList<CartesianPoint> allCartesianPoints = Service.getListOfAllCartesianPoints();
+        LinkedList<ImuValues> before = Service.getListOfAllImuValues();
 
         Service.makeDownSamplingOfImu();
+
+        LinkedList<ImuValues> after = Service.getResampledListOfAllImuValues();
 
         // Filter ausführen
         EstimationFilter filter = new EstimationFilter();
         filter.makeEstimation();
-
-        LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtDistanceMap = Service.getEstimatedWgsPositionGtDistanceMap();
-        LinkedHashMap<CartesianPoint, Coordinates> pointToWGSMap = Service.getPointToWGSMap();
 
         // Berechne den durchschnittlichen dt-Wert
         Service.setDt(Service.calculateAverage(Service.getAllDtValues()));

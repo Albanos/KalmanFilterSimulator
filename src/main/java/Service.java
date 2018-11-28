@@ -31,12 +31,26 @@ class Service {
     private static LinkedList<ImuValues> listOfAllImuValues = new LinkedList<>();
     private static LinkedList<Coordinates> listOfAllGTWgsPositions = new LinkedList<>();
 
-    private static LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtDistanceMap = new LinkedHashMap<>();
+    private static LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtLateralDistanceMap = new LinkedHashMap<>();
+    private static LinkedHashMap<Coordinates, Double> estimatedWgsPositionGtLongitudinalDistanceMap = new LinkedHashMap<>();
 
     private static LinkedList<ImuValues> resampledListOfAllImuValues = new LinkedList<>();
+    private static LinkedList<Coordinates> resampledListOfAllGtPositions = new LinkedList<>();
 
     // ====================================================
 
+
+    public static LinkedList<Coordinates> getResampledListOfAllGtPositions() {
+        return resampledListOfAllGtPositions;
+    }
+
+    public static LinkedHashMap<Coordinates, Double> getEstimatedWgsPositionGtLateralDistanceMap() {
+        return estimatedWgsPositionGtLateralDistanceMap;
+    }
+
+    public static LinkedHashMap<Coordinates, Double> getEstimatedWgsPositionGtLongitudinalDistanceMap() {
+        return estimatedWgsPositionGtLongitudinalDistanceMap;
+    }
 
     public static LinkedList<Double> getAllDtValues() {
         return allDtValues;
@@ -44,10 +58,6 @@ class Service {
 
     public static LinkedList<ImuValues> getResampledListOfAllImuValues() {
         return resampledListOfAllImuValues;
-    }
-
-    public static LinkedHashMap<Coordinates, Double> getEstimatedWgsPositionGtDistanceMap() {
-        return estimatedWgsPositionGtDistanceMap;
     }
 
     public static LinkedList<Coordinates> getListOfAllGTWgsPositions() {
@@ -558,15 +568,60 @@ class Service {
      * und speichert diesen in einer globalen map
      */
     static void calculateDistanceBetweenEstimatedAndGTPosition(CartesianPoint currentEsttimatedPoint, int iterationCounter) {
-        Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
+        Coordinates currentGTPosition = Service.getResampledListOfAllGtPositions().get(iterationCounter);
+        //Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
         Coordinates estimatedWgsPosition = Service.getPointToWGSMap().get(currentEsttimatedPoint);
 
-        GlobalPosition start = new GlobalPosition(estimatedWgsPosition.getLatitude(), estimatedWgsPosition.getLongitude(), 0);
-        GlobalPosition end = new GlobalPosition(currentGTPosition.getLatitude_GT(), currentGTPosition.getLongitude_GT(), 0);
+        calculateWgsGtLateralDistanceAndPushToGlobalMap(currentGTPosition, estimatedWgsPosition);
+        calculateWgsGtLongitudinalDistanceAndPushToGlobalMap(currentGTPosition, estimatedWgsPosition);
 
-        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, start, end);
-        Service.getEstimatedWgsPositionGtDistanceMap().put(estimatedWgsPosition, geodeticCurve.getEllipsoidalDistance());
+//        GlobalPosition start = new GlobalPosition(estimatedWgsPosition.getLatitude(), estimatedWgsPosition.getLongitude(), 0);
+//        GlobalPosition end = new GlobalPosition(currentGTPosition.getLatitude_GT(), currentGTPosition.getLongitude_GT(), 0);
+//
+//        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, start, end);
+//        Service.getEstimatedWgsPositionGtDistanceMap().put(estimatedWgsPosition, geodeticCurve.getEllipsoidalDistance());
     }
+
+    /**
+     * Berechnet die laterale Distanz zwischen übergebenem geschätzten- und GT-Punkt. Laterale Distanz
+     * wird in globaler Hash-Map gespeichert. Man beachte die Unterscheidung zur lateralen Distanz bei der
+     * Definition der globalen Koordinaten
+     *
+     * @param currentGTPosition
+     * @param estimatedWgsPosition
+     */
+    private static void calculateWgsGtLongitudinalDistanceAndPushToGlobalMap(Coordinates currentGTPosition, Coordinates estimatedWgsPosition) {
+        double longitudeOfGt = currentGTPosition.getLongitude_GT();
+        double latitudeOfWgs = estimatedWgsPosition.getLatitude();
+        double longitudeOfWgs = estimatedWgsPosition.getLongitude();
+
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitudeOfWgs,longitudeOfWgs);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitudeOfWgs,longitudeOfGt);
+
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
+        Service.getEstimatedWgsPositionGtLongitudinalDistanceMap().put(estimatedWgsPosition,geodeticCurve.getEllipsoidalDistance());
+    }
+
+    /**
+     * Berechnet die laterale Distanz zwischen übergebenem geschätzten- und GT-Punkt. Laterale Distanz
+     * wird in globaler Hash-Map gespeichert. Man beachte die Unterscheidung zur longitudinalen Distanz bei der
+     * Definition der globalen Koordinaten
+     *
+     * @param currentGTPosition
+     * @param estimatedWgsPosition
+     */
+    private static void calculateWgsGtLateralDistanceAndPushToGlobalMap(Coordinates currentGTPosition, Coordinates estimatedWgsPosition) {
+        double latitudeOfGt = currentGTPosition.getLatitude_GT();
+        double latitudeOfWgs = estimatedWgsPosition.getLatitude();
+        double longitudeOfWgs = estimatedWgsPosition.getLongitude();
+
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitudeOfWgs,longitudeOfWgs);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitudeOfGt,longitudeOfWgs);
+
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
+        Service.getEstimatedWgsPositionGtLateralDistanceMap().put(estimatedWgsPosition,geodeticCurve.getEllipsoidalDistance());
+    }
+
 
     public static void makeDownSamplingOfImu() {
         int j = 1;
@@ -585,6 +640,8 @@ class Service {
                 //if ( differenceInSek >= 0.020894866) {
                 // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
                 if(differenceInSek >= 0.057312011) {
+                // 0.1 -> 10 Hz
+                //if(differenceInSek >= 0.1) {
                     resampledListOfAllImuValues.add(jIMU);
                     i = j;
                     currentDt = oldDt == 0 ? 0.1f : (jIMU.getTimestamp() - oldDt) / 1000.0f;
@@ -602,7 +659,34 @@ class Service {
         double x = (timestampOfLast - timestampOfLastLast) / 1000.0f;
         Service.setDt(x);
 
-        System.out.println();
+        makeDownSamplingOfGtPositions();
+    }
+
+    private static void makeDownSamplingOfGtPositions() {
+        int j = 1;
+        int i = 0;
+        double oldDt = 0;
+        double currentDt;
+        resampledListOfAllGtPositions.add(Service.getListOfAllGTWgsPositions().getFirst());
+        for (Coordinates c : Service.getListOfAllGTWgsPositions()) {
+            if(j < Service.getListOfAllGTWgsPositions().size()) {
+                Coordinates iCoord = Service.getListOfAllGTWgsPositions().get(i);
+                Coordinates jCoord = Service.getListOfAllGTWgsPositions().get(j);
+
+                double differenceInSek = (jCoord.getTimestamp() - iCoord.getTimestamp()) / 1000.0f;
+
+                //if ( differenceInSek >= 0.020894866) {
+                // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
+                //if(differenceInSek >= 0.057312011) {
+                // 0.1 -> 10 Hz
+                if(differenceInSek >= 0.1) {
+                    resampledListOfAllGtPositions.add(jCoord);
+                    i = j;
+
+                }
+                j = j + 1;
+            }
+        }
     }
 
     public static double calculateAverage(LinkedList<Double> values) {

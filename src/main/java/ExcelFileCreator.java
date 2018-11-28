@@ -66,7 +66,10 @@ public class ExcelFileCreator {
         cell_2I_sheet2.setCellValue(new HSSFRichTextString("Longitude"));
 
         HSSFCell cell_2J_sheet2 = sheet2_row2.createCell(9);
-        cell_2J_sheet2.setCellValue(new HSSFRichTextString("Distance_Est_GT_[m]"));
+        cell_2J_sheet2.setCellValue(new HSSFRichTextString("Long_Distance_Est_GT_[m]"));
+
+        HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
+        cell_2K_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_Est_GT_[m]"));
 
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
@@ -120,11 +123,20 @@ public class ExcelFileCreator {
             double longitudeOfP = Service.getPointToWGSMap().get(p) == null ? 0 : Service.getPointToWGSMap().get(p).getLongitude();
 
             // Zeichne ausserdem den Abstand zwischen geschätzter- & GT-Position
-            double distanceEstPstGtPst =0;
+            double latDistanceEstPstGtPst =0;
+            double lonDistanceEstPstGtPst = 0;
             Coordinates wgsPositionOfCurrentEstimatedPoint = Service.getPointToWGSMap().get(p);
-            if (Service.getEstimatedWgsPositionGtDistanceMap().get(wgsPositionOfCurrentEstimatedPoint) != 0) {
-                distanceEstPstGtPst = Service.getEstimatedWgsPositionGtDistanceMap().get(wgsPositionOfCurrentEstimatedPoint);
+
+            if(Service.getEstimatedWgsPositionGtLongitudinalDistanceMap().get(wgsPositionOfCurrentEstimatedPoint) != 0) {
+                lonDistanceEstPstGtPst = Service.getEstimatedWgsPositionGtLongitudinalDistanceMap().get(wgsPositionOfCurrentEstimatedPoint);
             }
+
+            if(Service.getEstimatedWgsPositionGtLateralDistanceMap().get(wgsPositionOfCurrentEstimatedPoint) != 0) {
+                latDistanceEstPstGtPst = Service.getEstimatedWgsPositionGtLateralDistanceMap().get(wgsPositionOfCurrentEstimatedPoint);
+            }
+//            if (Service.getEstimatedWgsPositionGtDistanceMap().get(wgsPositionOfCurrentEstimatedPoint) != 0) {
+//                distanceEstPstGtPst = Service.getEstimatedWgsPositionGtDistanceMap().get(wgsPositionOfCurrentEstimatedPoint);
+//            }
 
             HSSFRow currentRow = secondSheet.createRow(i);
             HSSFCell estimatedTimestamp = currentRow.createCell(0);
@@ -136,14 +148,18 @@ public class ExcelFileCreator {
             HSSFCell velocityY = currentRow.createCell(6);
             HSSFCell latitudeOfPoint = currentRow.createCell(7);
             HSSFCell longitudeOfPoint = currentRow.createCell(8);
-            HSSFCell distanceEstGt = currentRow.createCell(9);
+            //HSSFCell distanceEstGt = currentRow.createCell(9);
+            HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
+            HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
 
             estimatedTimestamp.setCellValue(timestamp);
             estimatedX.setCellValue(x);
             estimatedY.setCellValue(y);
             latitudeOfPoint.setCellValue(latitudeOfP);
             longitudeOfPoint.setCellValue(longitudeOfP);
-            distanceEstGt.setCellValue(distanceEstPstGtPst);
+            //distanceEstGt.setCellValue(distanceEstPstGtPst);
+            lonDistanceEstWgs_GT.setCellValue(lonDistanceEstPstGtPst);
+            latDistanceEstWgs_GT.setCellValue(latDistanceEstPstGtPst);
 
             i++;
             j++;
