@@ -60,14 +60,13 @@ public class CsvReader {
                 c.setAmountSpeedGnss(Double.valueOf(line[5]));
                 c.setSpeed_x_gnss(c.getAmountSpeedGnss() * Math.sin(Math.toRadians(c.getBearing_gnss())));
                 c.setSpeed_y_gnss(c.getAmountSpeedGnss() * Math.cos(Math.toRadians(c.getBearing_gnss())));
+                // set gnss-accuracy --> FILE 2
+                c.setAccuracy(Double.valueOf(line[8]));
 
                 saveWgsPositionsAndGlobalsPositions(c);
 
                 // Speiechere die GT-Positionen in einer separaten Liste
                 saveGTPositions(line);
-
-                // set gnss-accuracy --> FILE 2
-                c.setAccuracy(Double.valueOf(line[8]));
 
                 // Speiechere die IMU-Werte in einer separate Liste
                 saveIMUValuesInPojo(line);
@@ -111,25 +110,12 @@ public class CsvReader {
 
     private void saveGTPositions(String[] line) {
         Coordinates c = new Coordinates();
+        c.setLongitude_GT(Double.valueOf(line[6]));
+        c.setLatitude_GT(Double.valueOf(line[7]));
+        c.setTimestamp(timeWithoutPoint);
         // Handle ebenso die GT-Positionen -> in separater Liste abspeichern
         // ANNAHME HIER: Benuter bewegt sich, also keine Position zweimal/mehrmals
-        if (Service.getListOfAllGTWgsPositions().isEmpty()) {
-            c.setLongitude_GT(Double.valueOf(line[6]));
-            c.setLatitude_GT(Double.valueOf(line[7]));
-            c.setTimestamp(timeWithoutPoint);
-
-            Service.getListOfAllGTWgsPositions().add(c);
-        }
-        else {
-            Coordinates lastGtPosition = Service.getListOfAllGTWgsPositions().getLast();
-            if(lastGtPosition.getLatitude_GT() != c.getLatitude_GT()) {
-                c.setLongitude_GT(Double.valueOf(line[6]));
-                c.setLatitude_GT(Double.valueOf(line[7]));
-                c.setTimestamp(timeWithoutPoint);
-
-                Service.getListOfAllGTWgsPositions().add(c);
-            }
-        }
+        Service.getListOfAllGTWgsPositions().add(c);
     }
 
     private void saveIMUValuesInPojo(String[] line) {

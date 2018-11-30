@@ -494,10 +494,10 @@ class Service {
     /**
      * Setzt aktuell nur zusätzlich die GNSS-accuracy und den timestamp
      */
-    public static void setAllOtheParametersOfAllCartesianPoints() {
-        for (int i = 0; i < Service.getListOfAllWGSPositions().size() - 1; i++) {
+    public static void setAllOtherParametersOfAllCartesianPoints() {
+        for (int i = 1; i < Service.getListOfAllWGSPositions().size() - 1; i++) {
             Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i);
-            CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i);
+            CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i - 1);
 
             cartesianPoint.setAccuracy_gnss(wgsPosition.getAccuracy());
             cartesianPoint.setTimestamp(wgsPosition.getTimestamp());
@@ -568,8 +568,8 @@ class Service {
      * und speichert diesen in einer globalen map
      */
     static void calculateDistanceBetweenEstimatedAndGTPosition(CartesianPoint currentEsttimatedPoint, int iterationCounter) {
-        Coordinates currentGTPosition = Service.getResampledListOfAllGtPositions().get(iterationCounter);
-        //Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
+        //Coordinates currentGTPosition = Service.getResampledListOfAllGtPositions().get(iterationCounter);
+        Coordinates currentGTPosition = Service.getListOfAllGTWgsPositions().get(iterationCounter);
         Coordinates estimatedWgsPosition = Service.getPointToWGSMap().get(currentEsttimatedPoint);
 
         calculateWgsGtLateralDistanceAndPushToGlobalMap(currentGTPosition, estimatedWgsPosition);
@@ -623,7 +623,7 @@ class Service {
     }
 
 
-    public static void makeDownSamplingOfImu() {
+    public static void makeDownSamplingOfImu(double dt) {
         int j = 1;
         int i = 0;
         double oldDt = 0;
@@ -639,34 +639,29 @@ class Service {
 
                 //if ( differenceInSek >= 0.020894866) {
                 // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
-                if(differenceInSek >= 0.057312011) {
+                if(differenceInSek >= dt) {
                 // 0.1 -> 10 Hz
                 //if(differenceInSek >= 0.1) {
-                    resampledListOfAllImuValues.add(jIMU);
                     i = j;
-                    currentDt = oldDt == 0 ? 0.1f : (jIMU.getTimestamp() - oldDt) / 1000.0f;
-                    oldDt = jIMU.getTimestamp();
-                    Service.getAllDtValues().add(currentDt);
-
+                    resampledListOfAllImuValues.add(jIMU);
                 }
-                j = j + 1;
+                j++;
             }
         }
-        LinkedList<ImuValues> foo = Service.getListOfAllImuValues();
+
         LinkedList<ImuValues> foo2 = Service.getResampledListOfAllImuValues();
         long timestampOfLast = foo2.get(foo2.size() - 1).getTimestamp();
         long timestampOfLastLast = foo2.get(foo2.size() - 2).getTimestamp();
         double x = (timestampOfLast - timestampOfLastLast) / 1000.0f;
         Service.setDt(x);
 
-        makeDownSamplingOfGtPositions();
+        makeDownSamplingOfGtPositions(dt);
     }
 
-    private static void makeDownSamplingOfGtPositions() {
+    private static void makeDownSamplingOfGtPositions(double dt) {
         int j = 1;
         int i = 0;
-        double oldDt = 0;
-        double currentDt;
+
         resampledListOfAllGtPositions.add(Service.getListOfAllGTWgsPositions().getFirst());
         for (Coordinates c : Service.getListOfAllGTWgsPositions()) {
             if(j < Service.getListOfAllGTWgsPositions().size()) {
@@ -678,13 +673,12 @@ class Service {
                 //if ( differenceInSek >= 0.020894866) {
                 // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
                 //if(differenceInSek >= 0.057312011) {
-                // 0.1 -> 10 Hz
-                if(differenceInSek >= 0.1) {
+                if(differenceInSek >= dt) {
                     resampledListOfAllGtPositions.add(jCoord);
                     i = j;
 
                 }
-                j = j + 1;
+                j++;
             }
         }
     }

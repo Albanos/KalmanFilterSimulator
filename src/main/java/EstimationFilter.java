@@ -75,12 +75,15 @@ public class EstimationFilter {
         double coordinate_y = firstCartesianPoint.getY();
         double speed_x = firstCartesianPoint.getSpeed_x_wgs();
         double speed_y = firstCartesianPoint.getSpeed_y_wgs();
+        // Wir löschen die init-Position, damit sie nicht als Messung genutzt wird
         copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
 
-        //ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
+//        ImuValues firstImuValue = Service.getListOfAllImuValues().getFirst();
         ImuValues firstImuValue = Service.getResampledListOfAllImuValues().getFirst();
-        float accel_x = (float)firstImuValue.getAccel_x_wgs();
-        float accel_y = (float)firstImuValue.getAccel_y_wgs();
+        double accel_x = firstImuValue.getAccel_x_wgs();
+        double accel_y = firstImuValue.getAccel_y_wgs();
+        // Dementsprechend muss auch der jeweillige IMU-Wert passend zur Position gelöscht werden
+        Service.getResampledListOfAllImuValues().remove(firstImuValue);
 
         x = new ArrayRealVector(new double[]{coordinate_x, coordinate_y, speed_x, speed_y});
         u = new ArrayRealVector(new double[]{accel_x, accel_y});
@@ -152,7 +155,6 @@ public class EstimationFilter {
         });
 
         currentMeasurment = z;
-        copyListOfAllCartesianPoints.remove(copyListOfAllCartesianPoints.getFirst());
 
         pm = new DefaultProcessModel(A, B, Q, x, P);
         mm = new DefaultMeasurementModel(H, R);
@@ -201,8 +203,6 @@ public class EstimationFilter {
                     filter.correct(currentMeasurment);
                     //z = currentMeasurment;
                 //}
-                double foo = filter.getStateEstimation()[0];
-                double foo2 = filter.getStateEstimation()[1];
 
                 // Entferne die soeben genutzte Position damit Schleife irgendwann terminiert
                 //copyListOfAllCartesianPoints.remove(j);
@@ -216,7 +216,10 @@ public class EstimationFilter {
             System.out.println("Geschätzter Punkt:  " + estimatedPosition_x + " ; " + estimatedPosition_y + " Zur Zeit (jetzt):  " + new Timestamp(System.currentTimeMillis()) + "\n");
 
             CartesianPoint estimatedPoint = new CartesianPoint(estimatedPosition_x, estimatedPosition_y);
-            estimatedPoint.setTimestamp(System.currentTimeMillis());
+            //estimatedPoint.setTimestamp(System.currentTimeMillis());
+            estimatedPoint.setTimestamp(Service.getResampledListOfAllImuValues().get(i).getTimestamp());
+            //estimatedPoint.setTimestamp(Service.getListOfAllImuValues().get(i).getTimestamp());
+
             Service.getListOfAllEstimatedCartesianPoints().add(estimatedPoint);
 
             // Rechne die geschätzten Punkte wieder in das WGS-System um
@@ -227,7 +230,7 @@ public class EstimationFilter {
             Service.calculateDistanceBetweenEstimatedAndGTPosition(estimatedPoint, i);
 
             // Erhöhe counter
-            i = i + 1;
+            i++;
         }
     }
 }

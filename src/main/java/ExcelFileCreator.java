@@ -71,6 +71,9 @@ public class ExcelFileCreator {
         HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
         cell_2K_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_Est_GT_[m]"));
 
+        HSSFCell cell_2L_sheet2 = sheet2_row2.createCell(11);
+        cell_2L_sheet2.setCellValue(new HSSFRichTextString("Timestamp_GT_Position"));
+
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
         HSSFCell cell_1A_sheet3 = sheet3_row1.createCell(0);
@@ -112,8 +115,8 @@ public class ExcelFileCreator {
         i = 2;
         int j = 0;
         for (CartesianPoint p : Service.getListOfAllEstimatedCartesianPoints()) {
-            String timestamp = Long.toString(p.getTimestamp());
-            //long timestamp = p.getTimestamp();
+            //String timestamp = Long.toString(p.getTimestamp());
+            long timestamp = p.getTimestamp();
             Double x = p.getX();
             Double y = p.getY();
 
@@ -125,7 +128,9 @@ public class ExcelFileCreator {
             // Zeichne ausserdem den Abstand zwischen geschätzter- & GT-Position
             double latDistanceEstPstGtPst =0;
             double lonDistanceEstPstGtPst = 0;
+            long time_GT_position = 0;
             Coordinates wgsPositionOfCurrentEstimatedPoint = Service.getPointToWGSMap().get(p);
+            time_GT_position = wgsPositionOfCurrentEstimatedPoint.getTimestamp();
 
             if(Service.getEstimatedWgsPositionGtLongitudinalDistanceMap().get(wgsPositionOfCurrentEstimatedPoint) != 0) {
                 lonDistanceEstPstGtPst = Service.getEstimatedWgsPositionGtLongitudinalDistanceMap().get(wgsPositionOfCurrentEstimatedPoint);
@@ -151,6 +156,7 @@ public class ExcelFileCreator {
             //HSSFCell distanceEstGt = currentRow.createCell(9);
             HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
             HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
+            HSSFCell timestamp_GT_Position = currentRow.createCell(11);
 
             estimatedTimestamp.setCellValue(timestamp);
             estimatedX.setCellValue(x);
@@ -160,6 +166,7 @@ public class ExcelFileCreator {
             //distanceEstGt.setCellValue(distanceEstPstGtPst);
             lonDistanceEstWgs_GT.setCellValue(lonDistanceEstPstGtPst);
             latDistanceEstWgs_GT.setCellValue(latDistanceEstPstGtPst);
+            timestamp_GT_Position.setCellValue(time_GT_position);
 
             i++;
             j++;

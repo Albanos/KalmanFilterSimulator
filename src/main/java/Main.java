@@ -1,5 +1,3 @@
-import java.sql.Timestamp;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 /**
@@ -21,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
         // Lese Daten von File
         CsvReader reader = new CsvReader();
-        reader.readCsvDataAndSaveInPojo(pathToS7File);
+        reader.readCsvDataAndSaveInPojo(pathToNexus6File2);
 
         LinkedList<Coordinates> allWGSPositions = Service.getListOfAllWGSPositions();
         LinkedList<ImuValues> allIMUValues = Service.getListOfAllImuValues();
@@ -31,14 +29,14 @@ public class Main {
         Service.calculateAllCartesianPoints();
 
         // Setze evtl noch andere Groessen
-        Service.setAllOtheParametersOfAllCartesianPoints();
+        Service.setAllOtherParametersOfAllCartesianPoints();
 
         LinkedList<CartesianPoint> allCartesianPoints = Service.getListOfAllCartesianPoints();
-        LinkedList<ImuValues> before = Service.getListOfAllImuValues();
 
-        Service.makeDownSamplingOfImu();
+        // dt nach dt-Entwicklung /simulation in Android-Studio durch Nexus6
+        Service.makeDownSamplingOfImu(0.057312011);
 
-        LinkedList<ImuValues> after = Service.getResampledListOfAllImuValues();
+        LinkedList<ImuValues> resampledListOfAllImuValues = Service.getResampledListOfAllImuValues();
 
         // Filter ausführen
         EstimationFilter filter = new EstimationFilter();
