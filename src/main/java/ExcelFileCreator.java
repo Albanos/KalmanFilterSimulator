@@ -74,6 +74,12 @@ public class ExcelFileCreator {
         HSSFCell cell_2L_sheet2 = sheet2_row2.createCell(11);
         cell_2L_sheet2.setCellValue(new HSSFRichTextString("Timestamp_GT_Position"));
 
+        HSSFCell cell_2M_sheet2 = sheet2_row2.createCell(12);
+        cell_2M_sheet2.setCellValue(new HSSFRichTextString(("Lat_GT")));
+
+        HSSFCell cell_2N_sheet2 = sheet2_row2.createCell(13);
+        cell_2N_sheet2.setCellValue(new HSSFRichTextString("Lon_GT"));
+
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
         HSSFCell cell_1A_sheet3 = sheet3_row1.createCell(0);
@@ -157,6 +163,8 @@ public class ExcelFileCreator {
             HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
             HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
             HSSFCell timestamp_GT_Position = currentRow.createCell(11);
+            HSSFCell  lat_GT = currentRow.createCell(12);
+            HSSFCell lon_GT = currentRow.createCell(13);
 
             estimatedTimestamp.setCellValue(timestamp);
             estimatedX.setCellValue(x);
@@ -167,6 +175,9 @@ public class ExcelFileCreator {
             lonDistanceEstWgs_GT.setCellValue(lonDistanceEstPstGtPst);
             latDistanceEstWgs_GT.setCellValue(latDistanceEstPstGtPst);
             timestamp_GT_Position.setCellValue(time_GT_position);
+
+            lat_GT.setCellValue(Service.getResampledListOfAllGtPositions().get(j).getLatitude_GT());
+            lon_GT.setCellValue(Service.getResampledListOfAllGtPositions().get(j).getLongitude_GT());
 
             i++;
             j++;

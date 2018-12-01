@@ -495,7 +495,7 @@ class Service {
      * Setzt aktuell nur zusätzlich die GNSS-accuracy und den timestamp
      */
     public static void setAllOtherParametersOfAllCartesianPoints() {
-        for (int i = 1; i < Service.getListOfAllWGSPositions().size() - 1; i++) {
+        for (int i = 1; i < Service.getListOfAllWGSPositions().size(); i++) {
             Coordinates wgsPosition = Service.getListOfAllWGSPositions().get(i);
             CartesianPoint cartesianPoint = Service.getListOfAllCartesianPoints().get(i - 1);
 

@@ -56,10 +56,12 @@ public class EstimationFilter {
     // Variable zum steuern der Erzeugung von Punkten, pro sekunde (in ms).
     // Bsp.: TIME_TO_SLEEP=100 --> 10 Punkte/sek --> 10 Hz
     private static final int TIME_TO_SLEEP = 100;
-    private static long timestamp2;
-    private static long timestamp = timestamp2 = System.currentTimeMillis();
+//    private static long timestamp2;
+//    private static long timestamp = timestamp2 = System.currentTimeMillis();
 
     private static LinkedList<CartesianPoint> copyListOfAllCartesianPoints = new LinkedList<>();
+    private static long timestamp2;
+    private static long timestamp = timestamp2 = Service.getResampledListOfAllImuValues().getFirst().getTimestamp();
 
     public EstimationFilter() {
         // Kopiere alle kartesischen Punkte, damit diese für Schleife gelöscht werden können
@@ -163,17 +165,25 @@ public class EstimationFilter {
     }
 
     public void makeEstimation() {
-        int i = 0;
-        int j = 0;
-        while (!copyListOfAllCartesianPoints.isEmpty()) {
-            // LAZY-WAITING:
-            // Prüfe, ob TIME_TO_SLEEP vergangen ist oder nicht. Wenn nicht, springe zur nächsten Iteration
-            if ((System.currentTimeMillis() - timestamp) < TIME_TO_SLEEP) {
+
+        // Iteriere über Zahl der Positionen und fünfmal weiter
+        for (int i = 0; i < Service.getResampledListOfAllImuValues().size(); i++) {
+            ImuValues currentImu = Service.getResampledListOfAllImuValues().get(i);
+
+            if ((currentImu.getTimestamp() - timestamp) < 100) {
                 continue;
             }
-            timestamp = System.currentTimeMillis();
+            // LAZY-WAITING:
+            // Prüfe, ob TIME_TO_SLEEP vergangen ist oder nicht. Wenn nicht, springe zur nächsten Iteration
+//            if ((System.currentTimeMillis() - timestamp) < TIME_TO_SLEEP) {
+//                continue;
+//            }
 
-            System.out.println("Anzahl Punkte in Kopie:  " + copyListOfAllCartesianPoints.size());
+            //timestamp = System.currentTimeMillis();
+            timestamp = currentImu.getTimestamp();
+
+            //System.out.println("Anzahl Punkte in Kopie:  " + copyListOfAllCartesianPoints.size());
+            System.out.println("Iteration, Nr.:  " + i);
 
             // Aktualisiere u
 //            u.setEntry(0, (float)Service.getListOfAllImuValues().get(i).getAccel_x_wgs());
@@ -184,13 +194,16 @@ public class EstimationFilter {
             filter.predict(u);
 
             // Prüfe ob 1s vergangen ist. Wenn ja, hole nächste bekannte Position und den Speed
-            if ((System.currentTimeMillis() - timestamp2) >= 1000) {
-                timestamp2 = System.currentTimeMillis();
+            //if ((System.currentTimeMillis() - timestamp2) >= 1000) {
+            if ((currentImu.getTimestamp() - timestamp2) >= 1000) {
+                //timestamp2 = System.currentTimeMillis();
+                timestamp2 = currentImu.getTimestamp();
 
-                System.out.println("===================================================================================Aktuelle Position, Zeit:  " + new Timestamp(System.currentTimeMillis()));
+                System.out.println("===================================================================================Aktuelle Position, Zeit:  " + new Timestamp(currentImu.getTimestamp()));
                 //CartesianPoint currentPosition = copyListOfAllCartesianPoints.get(j);
                 CartesianPoint currentPosition = copyListOfAllCartesianPoints.getFirst();
                 System.out.println("===================================================================================Aktueller kart. Punkt:  " + currentPosition.getX() + " ; " + currentPosition.getY());
+                System.out.println("Time, cartesianPoint:  " + currentPosition.getTimestamp() + " ; IMU-TimeSTamp:  " + currentImu.getTimestamp());
 
                 currentMeasurment = new ArrayRealVector(new double[]{
                         currentPosition.getX(),
@@ -199,10 +212,8 @@ public class EstimationFilter {
                         currentPosition.getSpeed_y_wgs()
                 });
 
-                //if(!currentMeasurment.equals(z)) {
-                    filter.correct(currentMeasurment);
-                    //z = currentMeasurment;
-                //}
+                filter.correct(currentMeasurment);
+
 
                 // Entferne die soeben genutzte Position damit Schleife irgendwann terminiert
                 //copyListOfAllCartesianPoints.remove(j);
@@ -230,7 +241,7 @@ public class EstimationFilter {
             Service.calculateDistanceBetweenEstimatedAndGTPosition(estimatedPoint, i);
 
             // Erhöhe counter
-            i++;
+            //i++;
         }
     }
 }

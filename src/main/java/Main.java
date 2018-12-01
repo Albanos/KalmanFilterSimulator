@@ -45,6 +45,8 @@ public class Main {
         // Berechne den durchschnittlichen dt-Wert
         Service.setDt(Service.calculateAverage(Service.getAllDtValues()));
 
+
+        LinkedList<Coordinates> resampledListOfAllGtPositions = Service.getResampledListOfAllGtPositions();
         // Schreibe Daten in ein file
         ExcelFileCreator excelFileCreator = new ExcelFileCreator();
         excelFileCreator.writeCartesianPointsToFile();
