@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class EstimationFilter2 {
     private KalmanFilter filter;
     final double dt = Service2.getDt();
-    //final double dt = 0.005;
+    //final double dt = 0.057312011;
     //final double dt = 0.06;
     //final double dt = 0.020894866;
     //final double dt = 0.02;
@@ -202,6 +202,11 @@ public class EstimationFilter2 {
             // setze den geschätzten kartesischen Punkt in Datensatz
             d.setEstimatedPoint_x(estX);
             d.setEstimatedPoint_y(estY);
+
+            // Rechne geschätzte Kartesische Punkte in WGS-Format um:
+            // erst Abstand und Winkel zum ersten kartesischen Punkt, dann die WGS-Koordinaten
+            Service2.calculateAngleAndDistanceAndWgsPositionByDataPoint(d);
+
         }
     }
 }

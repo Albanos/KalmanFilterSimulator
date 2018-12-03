@@ -1,12 +1,10 @@
-import geodesy.Ellipsoid;
-import geodesy.GeodeticCalculator;
-import geodesy.GeodeticMeasurement;
-import geodesy.GlobalPosition;
+import geodesy.*;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 /**
@@ -18,9 +16,15 @@ public class Service2 {
     private static GlobalPosition firstGlobalPosition = null;
     private static double dt;
     private static double oldDt;
+    // Speichere Winkel und Distanz eines jeden Punktes zum ersten Punkt in der Map
+    private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
 
     //==================================================
 
+
+    public static LinkedHashMap<Data, LinkedList<Double>> getAngleDistanceDataMap() {
+        return angleDistanceDataMap;
+    }
 
     public static void setListOfAllData(LinkedList<Data> listOfAllData) {
         Service2.listOfAllData = listOfAllData;
@@ -449,5 +453,56 @@ public class Service2 {
         long last = Service2.getListOfAllData().get(Service2.getListOfAllData().size() - 1).getTimestamp();
         long lastLast = Service2.getListOfAllData().get(Service2.getListOfAllData().size() - 2).getTimestamp();
         Service2.setDt((last - lastLast) / 1000.0f);
+    }
+
+    public static void calculateAngleAndDistanceAndWgsPositionByDataPoint(Data data) {
+        double estimated_x = data.getEstimatedPoint_x();
+        double estimated_y = data.getEstimatedPoint_y();
+
+        // Berechne Abstand des Geschätzten und des ersten kartesischen Punktes (erste kartesische ist der 16.)
+        double firstCartesian_x = Service2.getListOfAllData().get(16).getCartesian_x();
+        double firstCartesian_y = Service2.getListOfAllData().get(16).getCartesian_y();
+
+        double x = firstCartesian_x - estimated_x;
+        double y = firstCartesian_y - estimated_y;
+
+        // Bestimme zunächst die Distanz zum ersten Punkt, mithilfe von Pythagoras
+        double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+        // Bestimme den Winkel über Atctan, da An- & Gegenkathete über Punkt bekannt
+        double angle = 0;
+        if (y == 0 && x > 0) {
+            angle = Math.toDegrees(Math.PI / 2);
+        } else if (y == 0 && x < 0) {
+            angle = Math.toDegrees((Math.PI / 2) * -1);
+        } else if (y > 0) {
+            angle = Math.toDegrees(Math.atan(x / y) + Math.PI);
+        } else if (y < 0) {
+            angle = Math.toDegrees(Math.atan(x / y));
+        }
+
+        // Speiechere Winkel und Abstand zusammen mit Daten-Punkt in einer Map
+        LinkedList<Double> angleAndDistance = new LinkedList<>();
+        angleAndDistance.add(angle);
+        angleAndDistance.add(distance);
+        Service2.getAngleDistanceDataMap().put(data, angleAndDistance);
+
+        // Berechne nun die WGS-koordinaten
+        calculateWGSCoordinateByDataPoint(data);
+    }
+
+    public static void calculateWGSCoordinateByDataPoint (Data data) {
+        // Ermittle Winkel und Distanz des Daten-Punktes anhand des übergebenen Datenpunktes
+        LinkedList<Double> angleAndDistanceOfDataPoint = Service2.getAngleDistanceDataMap().get(data);
+        Double angleOfDataPoint = angleAndDistanceOfDataPoint.get(0);
+        Double distanceOfDataPoint = angleAndDistanceOfDataPoint.get(1);
+
+        // Berechne neue Koordinaten mittels Geodesy
+        GlobalCoordinates globalCoordinates = calculator.calculateEndingGlobalCoordinates(Ellipsoid.WGS84,
+                Service2.getFirstGlobalPosition(), angleOfDataPoint, distanceOfDataPoint);
+
+        // Setze entsprechende End-koordinaten im Datenpunkt selbst
+        data.setEstimatedLat(globalCoordinates.getLatitude());
+        data.setEstimatedLon(globalCoordinates.getLongitude());
     }
 }

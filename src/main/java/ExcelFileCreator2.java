@@ -1,5 +1,9 @@
 import org.apache.poi.hssf.usermodel.*;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Timestamp;
+
 /**
  * @author Luan Hajzeraj on 12/3/2018.
  */
@@ -93,6 +97,9 @@ public class ExcelFileCreator2 {
         HSSFCell cell_2D_sheet3 = sheet3_row2.createCell(3);
         cell_2D_sheet3.setCellValue(new HSSFRichTextString("Altitude"));
 
+        double oldCartesian_x =0;
+        double oldCartesian_y = 0;
+
         int i =2;
         // ===================================== Originale kartesische Punkte
         for(Data d : Service2.getListOfAllData()) {
@@ -100,6 +107,13 @@ public class ExcelFileCreator2 {
 
             double cartesian_x = d.getCartesian_x();
             double cartesian_y = d.getCartesian_y();
+
+            // Zeiche jede Position nur einmal: wegen aktueller Struktur zeichnen wir Daten mehrmals
+            if(cartesian_x == oldCartesian_x || cartesian_y == oldCartesian_y) {
+                continue;
+            }
+            oldCartesian_x = cartesian_x;
+            oldCartesian_y = cartesian_y;
 
             HSSFRow currentRow = firstSheet.createRow(i);
             HSSFCell originalTimestamp = currentRow.createCell(0);
@@ -117,7 +131,88 @@ public class ExcelFileCreator2 {
         i = 2;
         int j = 0;
         for(Data d : Service2.getListOfAllData()) {
+            long currentTimestamp = d.getTimestamp();
+            double estimatedPoint_x = d.getEstimatedPoint_x();
+            double estimatedPoint_y = d.getEstimatedPoint_y();
 
+            // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
+            // Wir überspringen Punkte, wegen definierter Schätzfrequenz
+            if(estimatedPoint_x == 0 || estimatedPoint_y == 0) {
+                continue;
+            }
+
+            // Schreibe ausserdem die geschätzten WGS-Koordinaten
+            double estimatedLat = d.getEstimatedLat();
+            double estimatedLon = d.getEstimatedLon();
+
+            HSSFRow currentRow = secondSheet.createRow(i);
+            HSSFCell estimatedTimestamp = currentRow.createCell(0);
+            HSSFCell estimatedX = currentRow.createCell(1);
+            HSSFCell estimatedY = currentRow.createCell(2);
+            HSSFCell vectorUX = currentRow.createCell(3);
+            HSSFCell vectorUY = currentRow.createCell(4);
+            HSSFCell velocityX = currentRow.createCell(5);
+            HSSFCell velocityY = currentRow.createCell(6);
+            HSSFCell latitudeOfPoint = currentRow.createCell(7);
+            HSSFCell longitudeOfPoint = currentRow.createCell(8);
+            //HSSFCell distanceEstGt = currentRow.createCell(9);
+            HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
+            HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
+            HSSFCell timestamp_GT_Position = currentRow.createCell(11);
+
+            estimatedTimestamp.setCellValue(currentTimestamp);
+            estimatedX.setCellValue(estimatedPoint_x);
+            estimatedY.setCellValue(estimatedPoint_y);
+            latitudeOfPoint.setCellValue(estimatedLat);
+            longitudeOfPoint.setCellValue(estimatedLon);
+
+            i++;
+        }
+
+        i = 2;
+        double oldLatitude =0;
+        double oldLongitude =0;
+        // ===================================== Schreibe die originalen WGS-Punkte
+        for(Data d : Service2.getListOfAllData()) {
+            long currentTimestamp = d.getTimestamp();
+            double latitude_wgs = d.getLatitude_wgs();
+            double longitude_wgs = d.getLongitude_wgs();
+            double altitude_wgs = d.getAltitude_wgs();
+
+            // Zeiche jede Position nur einmal: wegen aktueller Struktur zeichnen wir Daten mehrmals
+            if(latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
+                continue;
+            }
+
+            oldLatitude = latitude_wgs;
+            oldLongitude = longitude_wgs;
+
+            HSSFRow currentRow = thirdSheet.createRow(i);
+            HSSFCell originalWGS_timestamp = currentRow.createCell(0);
+            HSSFCell originalWGS_latitude = currentRow.createCell(1);
+            HSSFCell originalWGS_longitude = currentRow.createCell(2);
+            HSSFCell originalWGS_altitude = currentRow.createCell(3);
+
+            originalWGS_timestamp.setCellValue(currentTimestamp);
+            originalWGS_latitude.setCellValue(latitude_wgs);
+            originalWGS_longitude.setCellValue(longitude_wgs);
+            originalWGS_altitude.setCellValue(altitude_wgs);
+
+            i++;
+        }
+
+        // ======================Schreibe alles in ein file
+        try {
+            String fileName = "export_" +
+                    new Timestamp(System.currentTimeMillis()).toString()
+                            .replaceAll("\\s", "_")
+                            .replaceAll(":", "-")
+                            .replaceAll("\\.", "-").concat(".xls");
+            FileOutputStream fos = new FileOutputStream(fileName);
+            workbook.write(fos);
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
