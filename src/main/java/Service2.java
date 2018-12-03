@@ -505,4 +505,23 @@ public class Service2 {
         data.setEstimatedLat(globalCoordinates.getLatitude());
         data.setEstimatedLon(globalCoordinates.getLongitude());
     }
+
+    public static void calculateDistanceBetweenEstimatedAndGTPosition(Data data) {
+        double latitude_wgs = data.getLatitude_wgs();
+        double longitude_wgs = data.getLongitude_wgs();
+        double longitude_gt = data.getLongitude_gt();
+        double latitude_gt = data.getLatitude_gt();
+
+        // Berechne zunächste die longitudinale Distanz
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_wgs,longitude_gt);
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
+        data.setLongitudinalDistanceToGt(geodeticCurve.getEllipsoidalDistance());
+
+        // Anschließend die laterale Distanz
+        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
+        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_gt);
+        GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
+        data.setLateralDistanceToGt(geodeticCurve1.getEllipsoidalDistance());
+    }
 }

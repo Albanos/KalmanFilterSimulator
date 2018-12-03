@@ -13,9 +13,6 @@ public class Main {
     private static final String pathToS7File =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\S7Edge_ownFormat_withGT_11_51_42.csv";
 
-    private static final String pathToS7File2 =
-            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\s7Edge_ownFormat_withGT_11_43_43.csv";
-
     public static void main(String[] args) {
 //        // Lese Daten von File
 //        CsvReader reader = new CsvReader();

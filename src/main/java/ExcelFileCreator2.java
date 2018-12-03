@@ -70,15 +70,6 @@ public class ExcelFileCreator2 {
         HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
         cell_2K_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_Est_GT_[m]"));
 
-        HSSFCell cell_2L_sheet2 = sheet2_row2.createCell(11);
-        cell_2L_sheet2.setCellValue(new HSSFRichTextString("Timestamp_GT_Position"));
-
-        HSSFCell cell_2M_sheet2 = sheet2_row2.createCell(12);
-        cell_2M_sheet2.setCellValue(new HSSFRichTextString(("Lat_GT")));
-
-        HSSFCell cell_2N_sheet2 = sheet2_row2.createCell(13);
-        cell_2N_sheet2.setCellValue(new HSSFRichTextString("Lon_GT"));
-
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
         HSSFCell cell_1A_sheet3 = sheet3_row1.createCell(0);
@@ -145,6 +136,10 @@ public class ExcelFileCreator2 {
             double estimatedLat = d.getEstimatedLat();
             double estimatedLon = d.getEstimatedLon();
 
+            // Schreibe auch die longitudinale und laterale Distanz zur GT-Position
+            double lateralDistanceToGt = d.getLateralDistanceToGt();
+            double longitudinalDistanceToGt = d.getLongitudinalDistanceToGt();
+
             HSSFRow currentRow = secondSheet.createRow(i);
             HSSFCell estimatedTimestamp = currentRow.createCell(0);
             HSSFCell estimatedX = currentRow.createCell(1);
@@ -155,16 +150,16 @@ public class ExcelFileCreator2 {
             HSSFCell velocityY = currentRow.createCell(6);
             HSSFCell latitudeOfPoint = currentRow.createCell(7);
             HSSFCell longitudeOfPoint = currentRow.createCell(8);
-            //HSSFCell distanceEstGt = currentRow.createCell(9);
             HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
             HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
-            HSSFCell timestamp_GT_Position = currentRow.createCell(11);
 
             estimatedTimestamp.setCellValue(currentTimestamp);
             estimatedX.setCellValue(estimatedPoint_x);
             estimatedY.setCellValue(estimatedPoint_y);
             latitudeOfPoint.setCellValue(estimatedLat);
             longitudeOfPoint.setCellValue(estimatedLon);
+            lonDistanceEstWgs_GT.setCellValue(longitudinalDistanceToGt);
+            latDistanceEstWgs_GT.setCellValue(lateralDistanceToGt);
 
             i++;
         }

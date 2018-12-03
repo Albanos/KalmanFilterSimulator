@@ -41,7 +41,28 @@ public class Data {
     private double estimatedLat;
     private double estimatedLon;
 
+    // Abstände der geschätzen WGS-Positionen zu WGS-GT-Positionen
+    private double lateralDistanceToGt;
+    private double longitudinalDistanceToGt;
+
     //===============================================
+
+
+    public double getLateralDistanceToGt() {
+        return lateralDistanceToGt;
+    }
+
+    public void setLateralDistanceToGt(double lateralDistanceToGt) {
+        this.lateralDistanceToGt = lateralDistanceToGt;
+    }
+
+    public double getLongitudinalDistanceToGt() {
+        return longitudinalDistanceToGt;
+    }
+
+    public void setLongitudinalDistanceToGt(double longitudinalDistanceToGt) {
+        this.longitudinalDistanceToGt = longitudinalDistanceToGt;
+    }
 
     public long getTimestamp() {
         return timestamp;

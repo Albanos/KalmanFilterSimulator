@@ -207,6 +207,8 @@ public class EstimationFilter2 {
             // erst Abstand und Winkel zum ersten kartesischen Punkt, dann die WGS-Koordinaten
             Service2.calculateAngleAndDistanceAndWgsPositionByDataPoint(d);
 
+            // Berechne auch die longitudinale und laterale Distanz zur GT-Position
+            Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
         }
     }
 }
