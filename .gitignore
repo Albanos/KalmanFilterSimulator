@@ -1,3 +1,4 @@
 /src/main/ressources/*.csv
 *.xls
 .idea/
+*.vik

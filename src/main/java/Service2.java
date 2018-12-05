@@ -4,6 +4,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.io.*;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -523,5 +525,191 @@ public class Service2 {
         GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_gt);
         GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
         data.setLateralDistanceToGt(geodeticCurve1.getEllipsoidalDistance());
+    }
+
+    public static void writeAllDataToVikingFile() {
+        StringBuffer output = new StringBuffer();
+        double firstPosition_lat =0;
+        double firstPosition_lon =0;
+        double lastPosition_lat =0;
+        double lastPosition_lon =0;
+        boolean firstPointSet = false;
+        String präfixOfFile = "#VIKING GPS Data file http://viking.sf.net/\n" +
+                "FILE_VERSION=1\n" +
+                "\n" +
+                "xmpp=0,125000\n" +
+                "ympp=0,125000\n" +
+                "lat=51,339021\n" +
+                "lon=9,449298\n" +
+                "mode=mercator\n" +
+                "color=#cccccc\n" +
+                "highlightcolor=#eea500\n" +
+                "drawscale=t\n" +
+                "drawcentermark=t\n" +
+                "drawhighlight=t\n" +
+                "\n" +
+                "~Layer Map\n" +
+                "name=Standard-Karte\n" +
+                "mode=13\n" +
+                "directory=\n" +
+                "cache_type=1\n" +
+                "mapfile=\n" +
+                "alpha=255\n" +
+                "autodownload=t\n" +
+                "adlonlymissing=f\n" +
+                "mapzoom=0\n" +
+                "~EndLayer\n" +
+                "\n" +
+                "\n" +
+                "~Layer TrackWaypoint\n" +
+                "name=Importierte Datei\n" +
+                "tracks_visible=t\n" +
+                "waypoints_visible=t\n" +
+                "routes_visible=t\n" +
+                "trackdrawlabels=t\n" +
+                "trackfontsize=3\n" +
+                "drawmode=0\n" +
+                "trackcolor=#000000\n" +
+                "drawlines=t\n" +
+                "line_thickness=1\n" +
+                "drawdirections=f\n" +
+                "trkdirectionsize=5\n" +
+                "drawpoints=t\n" +
+                "trkpointsize=2\n" +
+                "drawelevation=f\n" +
+                "elevation_factor=30\n" +
+                "drawstops=f\n" +
+                "stop_length=60\n" +
+                "bg_line_thickness=0\n" +
+                "trackbgcolor=#ffffff\n" +
+                "speed_factor=30,000000\n" +
+                "tracksortorder=0\n" +
+                "drawlabels=t\n" +
+                "wpfontsize=3\n" +
+                "wpcolor=#000000\n" +
+                "wptextcolor=#ffffff\n" +
+                "wpbgcolor=#8383c4\n" +
+                "wpbgand=f\n" +
+                "wpsymbol=0\n" +
+                "wpsize=4\n" +
+                "wpsyms=t\n" +
+                "wpsortorder=0\n" +
+                "drawimages=t\n" +
+                "image_size=64\n" +
+                "image_alpha=255\n" +
+                "image_cache_size=300\n" +
+                "metadatadesc=\n" +
+                "metadataauthor=\n" +
+                "metadatatime=2017-04-11T15:30:19.307Z\n" +
+                "metadatakeywords=\n" +
+                "~LayerData\n" +
+                "type=\"waypointlist\"\n" +
+                "type=\"waypointlistend\"\n" +
+                "type=\"track\" name=\"GT-Points\" color=#ff0000 visible=\"y\"\n";
+
+        // Füge das Präfix dem Ouput hinzu
+        output.append(präfixOfFile);
+
+        // Beginne mit dem schreiben der GT-Positionen (rot)
+        double latitude_gt =0;
+        double longitude_gt =0;
+        for(Data d : Service2.getListOfAllData()) {
+            latitude_gt = d.getLatitude_gt();
+            longitude_gt = d.getLongitude_gt();
+
+            // Setze die erste Position für viking-markierung (erster Punkt A)
+            if(!firstPointSet) {
+                firstPosition_lat = latitude_gt;
+                firstPosition_lon = longitude_gt;
+                firstPointSet = true;
+            }
+
+            String row = "type=\"trackpoint\" latitude=\"" + latitude_gt + "\" longitude=\"" + longitude_gt + "\"\n";
+
+            output.append(row);
+        }
+
+        // Setze die finale Position für viking-markierung (Punktmarkierung B)
+        lastPosition_lat = latitude_gt;
+        lastPosition_lon = longitude_gt;
+
+        // schliesse die track ab
+        output.append("type=\"trackend\"\n");
+
+        // Hänge jede GNSS-Position an (grün)
+        output.append("type=\"route\" name=\"GNSS-Points\" color=#00ff00\n");
+        double oldLatitude =0;
+        double oldLongitude =0;
+        for(Data d : Service2.getListOfAllData()) {
+            double latitude_wgs = d.getLatitude_wgs();
+            double longitude_wgs = d.getLongitude_wgs();
+            double altitude_wgs = d.getAltitude_wgs();
+
+            // Zeiche jede Position nur einmal: wegen aktueller Struktur zeichnen wir Daten mehrmals
+            if(latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
+                continue;
+            }
+            oldLatitude = latitude_wgs;
+            oldLongitude = longitude_wgs;
+
+            String row = "type=\"routepoint\" latitude=\""
+                    + latitude_wgs + "\" longitude=\""
+                    + longitude_wgs + "\" altitude=\"" +altitude_wgs + "\"\n";
+
+            output.append(row);
+        }
+
+        // schliesse die route ab
+        output.append("type=\"routeend\"\n");
+
+        // schreibe die geschätzten Punkte (blau)
+        output.append("type=\"route\" name=\"estimatedPoints\" color=#0000ff\n");
+        for(Data d : Service2.getListOfAllData()) {
+            double estimatedLat = d.getEstimatedLat();
+            double estimatedLon = d.getEstimatedLon();
+
+            if(estimatedLat == 0 || estimatedLon == 0) {
+                continue;
+            }
+
+            String row = "type=\"routepoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\"\n";
+
+            output.append(row);
+        }
+
+        // schliesse die route ab
+        output.append("type=\"routeend\"\n");
+
+        // Füge statisch die Eckpunkte hinzu
+        String suffix = "~LayerData\n" +
+                "type=\"waypointlist\"\n" +
+                "type=\"waypoint\" latitude=\"" + firstPosition_lat + "\" longitude=\"" + firstPosition_lon + "\" name=\"A\"\n" +
+                "type=\"waypoint\" latitude=\"" + lastPosition_lat + "\" longitude=\"" +lastPosition_lon + "\" name=\"B\"\n" +
+                "type=\"waypoint\" latitude=\"51.339037340000004\" longitude=\"9.4473964999999964\" name=\"C\" unixtime=\"1491926179\"\n" +
+                "type=\"waypointlistend\"\n" +
+                "~EndLayerData\n" +
+                "~EndLayer";
+        output.append(suffix);
+
+        String outputAsString = output.toString();
+
+        // schreibe alles in eine Datei
+        OutputStream os = null;
+        try {
+            os = new FileOutputStream(new File("vikingExport_" +
+                    new Timestamp(System.currentTimeMillis()).toString()
+                            .replaceAll("\\s", "_")
+                            .replaceAll(":", "-")
+                            .replaceAll("\\.", "-").concat(".vik")));
+            os.write(outputAsString.getBytes(),0,outputAsString.length());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

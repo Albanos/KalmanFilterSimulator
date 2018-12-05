@@ -67,6 +67,9 @@ public class Main {
         ExcelFileCreator2 excelFileCreator2 = new ExcelFileCreator2();
         excelFileCreator2.writeDataToFile();
 
+        // Schreibe den Inhalt in ein viking-file
+        Service2.writeAllDataToVikingFile();
+
         System.out.println("Hi");
     }
 }
