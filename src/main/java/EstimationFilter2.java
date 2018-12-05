@@ -171,9 +171,6 @@ public class EstimationFilter2 {
             // mache Vorhersageschritt
             filter.predict(u);
 
-            double estX = filter.getStateEstimation()[0];
-            double estY = filter.getStateEstimation()[1];
-
             // Prüfe ob 1s vergangen ist. Wenn ja: Werte kartesische
             // Position aus
             if((currentTimestamp - timestamp2) >= 1000) {
@@ -196,6 +193,9 @@ public class EstimationFilter2 {
                     z = currentMeasurment;
                 }
             }
+
+            double estX = filter.getStateEstimation()[0];
+            double estY = filter.getStateEstimation()[1];
 
             System.out.println("Aktuell geschätzter Punkt:  " + estX + " ; " + estY + "\n");
 

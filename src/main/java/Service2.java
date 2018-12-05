@@ -509,22 +509,30 @@ public class Service2 {
     }
 
     public static void calculateDistanceBetweenEstimatedAndGTPosition(Data data) {
-        double latitude_wgs = data.getLatitude_wgs();
-        double longitude_wgs = data.getLongitude_wgs();
+        double latitude_est = data.getEstimatedLat();
+        double longitude_est = data.getEstimatedLon();
         double longitude_gt = data.getLongitude_gt();
         double latitude_gt = data.getLatitude_gt();
 
         // Berechne zunächste die longitudinale Distanz
-        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
-        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_wgs,longitude_gt);
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_est,longitude_est);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_est,longitude_gt);
         GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
-        data.setLongitudinalDistanceToGt(geodeticCurve.getEllipsoidalDistance());
+        double distanceLon = geodeticCurve.getEllipsoidalDistance();
+        if(longitude_est - longitude_gt < 0) {
+            distanceLon = -distanceLon;
+        }
+        data.setLongitudinalDistanceToGt(distanceLon);
 
         // Anschließend die laterale Distanz
-        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
-        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_gt);
+        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_est,longitude_est);
+        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_est);
         GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
-        data.setLateralDistanceToGt(geodeticCurve1.getEllipsoidalDistance());
+        double distanceLat = geodeticCurve1.getEllipsoidalDistance();
+        if(latitude_est - latitude_gt < 0) {
+            distanceLat = -distanceLat;
+        }
+        data.setLateralDistanceToGt(distanceLat);
     }
 
     public static void writeAllDataToVikingFile() {
