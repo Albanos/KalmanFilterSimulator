@@ -59,7 +59,9 @@ public class EstimationFilter2 {
         // Kopiere alle Daten, damit diese für Schleife gelöscht werden können
         copyListOfAllData.addAll(Service2.getListOfAllData());
 
-        Data firstDataPoint = copyListOfAllData.get(16);
+        // Wir nutzen kein downsampling mehr, frquenz der daten ist etwa 200 Hz,
+        // deshalb erster kartesischer Punkt erst hier vorhanden. Wir wollen nicht mit (0/0) initialisieren
+        Data firstDataPoint = copyListOfAllData.get(197);
         float locationAccurancy = (float) firstDataPoint.getAccuracy_gnss();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
@@ -115,7 +117,7 @@ public class EstimationFilter2 {
         });
 
         double locationVarianz = Math.pow(locationAccurancy, 2);
-        double speedVarianz = Math.pow(0.5, 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
+        double speedVarianz = Math.pow(3, 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
         R = new Array2DRowRealMatrix(new double[][]{
                 {locationVarianz, 0, 0, 0},
                 {0, locationVarianz, 0, 0},

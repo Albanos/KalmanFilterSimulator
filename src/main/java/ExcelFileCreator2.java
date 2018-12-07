@@ -70,6 +70,12 @@ public class ExcelFileCreator2 {
         HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
         cell_2K_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_Est_GT_[m]"));
 
+        HSSFCell cell_2L_sheet2 = sheet2_row2.createCell(11);
+        cell_2L_sheet2.setCellValue(new HSSFRichTextString("Lat_GT"));
+
+        HSSFCell cell_2M_sheet2 = sheet2_row2.createCell(12);
+        cell_2M_sheet2.setCellValue(new HSSFRichTextString("Lon_GT"));
+
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
         HSSFCell cell_1A_sheet3 = sheet3_row1.createCell(0);
@@ -139,6 +145,8 @@ public class ExcelFileCreator2 {
             // Schreibe auch die longitudinale und laterale Distanz zur GT-Position
             double lateralDistanceToGt = d.getLateralDistanceToGt();
             double longitudinalDistanceToGt = d.getLongitudinalDistanceToGt();
+            double latitude_gt = d.getLatitude_gt();
+            double longitude_gt = d.getLongitude_gt();
 
             HSSFRow currentRow = secondSheet.createRow(i);
             HSSFCell estimatedTimestamp = currentRow.createCell(0);
@@ -152,6 +160,8 @@ public class ExcelFileCreator2 {
             HSSFCell longitudeOfPoint = currentRow.createCell(8);
             HSSFCell lonDistanceEstWgs_GT = currentRow.createCell(9);
             HSSFCell latDistanceEstWgs_GT = currentRow.createCell(10);
+            HSSFCell latitudeGt = currentRow.createCell(11);
+            HSSFCell longitudeGt = currentRow.createCell(12);
 
             estimatedTimestamp.setCellValue(currentTimestamp);
             estimatedX.setCellValue(estimatedPoint_x);
@@ -160,6 +170,8 @@ public class ExcelFileCreator2 {
             longitudeOfPoint.setCellValue(estimatedLon);
             lonDistanceEstWgs_GT.setCellValue(longitudinalDistanceToGt);
             latDistanceEstWgs_GT.setCellValue(lateralDistanceToGt);
+            latitudeGt.setCellValue(latitude_gt);
+            longitudeGt.setCellValue(longitude_gt);
 
             i++;
         }

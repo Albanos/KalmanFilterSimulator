@@ -67,4 +67,27 @@ public class FirstTest {
             Assert.assertEquals(2.0294623017182998, cartesianPoint.getY(),0);
         }
     }
+
+    @Test
+    public void longitudinalAndLateralDistanceTest() {
+        double lat_est = 51.3385577616142;
+        double long_est = 9.44964879364966;
+        double lat_gt = 51.33852212;
+        double long_gt = 9.44966451;
+
+        Data d = new Data();
+        d.setEstimatedLat(lat_est);
+        d.setEstimatedLon(long_est);
+        d.setLatitude_gt(lat_gt);
+        d.setLongitude_gt(long_gt);
+
+        Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+
+        double lateralDistanceToGt = d.getLateralDistanceToGt();
+        double longitudinalDistanceToGt = d.getLongitudinalDistanceToGt();
+
+        Assert.assertEquals(-1.09520296701076, longitudinalDistanceToGt,0.0001);
+        Assert.assertEquals(3.96529892704058, lateralDistanceToGt, 0.0001);
+        System.out.println();
+    }
 }
