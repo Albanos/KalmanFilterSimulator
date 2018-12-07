@@ -522,7 +522,7 @@ public class Service2 {
         if(longitude_est - longitude_gt < 0) {
             distanceLon = -distanceLon;
         }
-        data.setLongitudinalDistanceToGt(distanceLon);
+        data.setLongitudinalDistanceEstToGt(distanceLon);
 
         // Anschließend die laterale Distanz
         GlobalCoordinates gc3 = new GlobalCoordinates(latitude_est,longitude_est);
@@ -532,7 +532,37 @@ public class Service2 {
         if(latitude_est - latitude_gt < 0) {
             distanceLat = -distanceLat;
         }
-        data.setLateralDistanceToGt(distanceLat);
+        data.setLateralDistanceEstToGt(distanceLat);
+
+        // Berechne im selben Zug den Abstand zwischen GNSS- & GT-Position
+        calculateDistanceBetweenGNSSAndGTPosition(data);
+    }
+
+    public static void calculateDistanceBetweenGNSSAndGTPosition(Data d) {
+        double latitude_wgs = d.getLatitude_wgs();
+        double longitude_wgs = d.getLongitude_wgs();
+        double latitude_gt = d.getLatitude_gt();
+        double longitude_gt = d.getLongitude_gt();
+
+        // Berechne den longitudinalen Abstand
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_wgs,longitude_gt);
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
+        double distanceLon = geodeticCurve.getEllipsoidalDistance();
+        if(longitude_wgs - longitude_gt < 0) {
+            distanceLon = -distanceLon;
+        }
+        d.setLongitudinalDistanceGNSSToGt(distanceLon);
+
+        // Berechne den lateralen Abstand
+        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
+        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_wgs);
+        GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
+        double distanceLat = geodeticCurve1.getEllipsoidalDistance();
+        if(latitude_wgs - latitude_gt < 0) {
+            distanceLat = -distanceLat;
+        }
+        d.setLateralDistanceGNSSToGt(distanceLat);
     }
 
     public static void writeAllDataToVikingFile() {

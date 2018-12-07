@@ -42,26 +42,45 @@ public class Data {
     private double estimatedLon;
 
     // Abstände der geschätzen WGS-Positionen zu WGS-GT-Positionen
-    private double lateralDistanceToGt;
-    private double longitudinalDistanceToGt;
+    private double lateralDistanceEstToGt;
+    private double longitudinalDistanceEstToGt;
+
+    // Abstände der GNSS-Positionen (vom Smartphone/RAW-Data) zu GT-Positionen
+    private double lateralDistanceGNSSToGt;
+    private double longitudinalDistanceGNSSToGt;
 
     //===============================================
 
-
-    public double getLateralDistanceToGt() {
-        return lateralDistanceToGt;
+    public double getLateralDistanceGNSSToGt() {
+        return lateralDistanceGNSSToGt;
     }
 
-    public void setLateralDistanceToGt(double lateralDistanceToGt) {
-        this.lateralDistanceToGt = lateralDistanceToGt;
+    public void setLateralDistanceGNSSToGt(double lateralDistanceGNSSToGt) {
+        this.lateralDistanceGNSSToGt = lateralDistanceGNSSToGt;
     }
 
-    public double getLongitudinalDistanceToGt() {
-        return longitudinalDistanceToGt;
+    public double getLongitudinalDistanceGNSSToGt() {
+        return longitudinalDistanceGNSSToGt;
     }
 
-    public void setLongitudinalDistanceToGt(double longitudinalDistanceToGt) {
-        this.longitudinalDistanceToGt = longitudinalDistanceToGt;
+    public void setLongitudinalDistanceGNSSToGt(double longitudinalDistanceGNSSToGt) {
+        this.longitudinalDistanceGNSSToGt = longitudinalDistanceGNSSToGt;
+    }
+
+    public double getLateralDistanceEstToGt() {
+        return lateralDistanceEstToGt;
+    }
+
+    public void setLateralDistanceEstToGt(double lateralDistanceEstToGt) {
+        this.lateralDistanceEstToGt = lateralDistanceEstToGt;
+    }
+
+    public double getLongitudinalDistanceEstToGt() {
+        return longitudinalDistanceEstToGt;
+    }
+
+    public void setLongitudinalDistanceEstToGt(double longitudinalDistanceEstToGt) {
+        this.longitudinalDistanceEstToGt = longitudinalDistanceEstToGt;
     }
 
     public long getTimestamp() {

@@ -83,8 +83,8 @@ public class FirstTest {
 
         Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
 
-        double lateralDistanceToGt = d.getLateralDistanceToGt();
-        double longitudinalDistanceToGt = d.getLongitudinalDistanceToGt();
+        double lateralDistanceToGt = d.getLateralDistanceEstToGt();
+        double longitudinalDistanceToGt = d.getLongitudinalDistanceEstToGt();
 
         Assert.assertEquals(-1.09520296701076, longitudinalDistanceToGt,0.0001);
         Assert.assertEquals(3.96529892704058, lateralDistanceToGt, 0.0001);
