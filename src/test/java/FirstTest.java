@@ -29,11 +29,11 @@ public class FirstTest {
 
         float[] R = new float[16], I = new float[16], earthAcc = new float[16];
 
-        Service.getRotationMatrix(R, I, gravityValues, magneticValues);
+        Service2.getRotationMatrix(R, I, gravityValues, magneticValues);
 
         float[] inv = new float[16];
-        Service.invertM(inv, 0, R, 0);
-        RealVector realVector = Service.multiplyMV(inv, deviceRelativeAcceleration);
+        Service2.invertM(inv, 0, R, 0);
+        RealVector realVector = Service2.multiplyMV(inv, deviceRelativeAcceleration);
         earthAcc[0] = (float) realVector.getEntry(0);
         earthAcc[1] = (float) realVector.getEntry(1);
         earthAcc[2] = (float) realVector.getEntry(2);
@@ -53,8 +53,8 @@ public class FirstTest {
         GlobalPosition g = new GlobalPosition(51.195922402218514, 9.729042075412195, 443.44000585766383);
         GlobalPosition firstPosition = new GlobalPosition(51.195904161464625, 9.729047495159477, 443.50095560170564);
 
-        double distance = Service.coordinateDistanceBetweenTwoPoints(firstPosition, g);
-        double angle = Service.coordinateAngleBetweenTwoPoints(firstPosition, g);
+        double distance = Service2.coordinateDistanceBetweenTwoPoints(firstPosition, g);
+        double angle = Service2.coordinateAngleBetweenTwoPoints(firstPosition, g);
 
         // handle the first point: distance and angle between firstPoint and firstPoint is 0
         if (distance != 0.0 && angle != 0.0) {
