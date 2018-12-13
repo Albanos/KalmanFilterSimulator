@@ -176,6 +176,19 @@ public class ExcelFileCreator2 {
             i++;
         }
 
+        // Schreibe die berechneten RMSE-Werte in sheet2, ganz ans Ende
+        HSSFRow lastRowAfterEstPoints = secondSheet.createRow(i);
+        lastRowAfterEstPoints.createCell(4).setCellValue("RMSE-Werte");
+        HSSFCell rmseLonEstGt = lastRowAfterEstPoints.createCell(5);
+        HSSFCell rmseLatEstGt = lastRowAfterEstPoints.createCell(6);
+        HSSFCell rmseLonGnssGt = lastRowAfterEstPoints.createCell(7);
+        HSSFCell rmseLatGnssGt = lastRowAfterEstPoints.createCell(8);
+
+        rmseLonEstGt.setCellValue(Service2.getRmseLongEstGt());
+        rmseLatEstGt.setCellValue(Service2.getRmseLatEstGt());
+        rmseLonGnssGt.setCellValue(Service2.getRmseLongGnssGt());
+        rmseLatGnssGt.setCellValue(Service2.getRmseLatGnssGt());
+
         i = 2;
         double oldLatitude =0;
         double oldLongitude =0;

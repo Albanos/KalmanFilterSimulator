@@ -61,11 +61,11 @@ public class EstimationFilter2 {
 
         // Wir nutzen kein downsampling mehr, frquenz der daten ist etwa 200 Hz,
         // deshalb erster kartesischer Punkt erst hier vorhanden. Wir wollen nicht mit (0/0) initialisieren
-        Data firstDataPoint = copyListOfAllData.get(197);
+        Data firstDataPoint = copyListOfAllData.get(Constants.getPositionOfFirstPointWithCartesianCoordinates());
         float locationAccurancy = (float) firstDataPoint.getAccuracy_gnss();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
-        final float sigmaAccel = 8f;
+        final float sigmaAccel = Constants.getSigmaAccel();
 
         double coordinate_x = firstDataPoint.getCartesian_x();
         double coordinate_y = firstDataPoint.getCartesian_y();
@@ -117,7 +117,7 @@ public class EstimationFilter2 {
         });
 
         double locationVarianz = Math.pow(locationAccurancy, 2);
-        double speedVarianz = Math.pow(3, 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
+        double speedVarianz = Math.pow(Constants.getSigmaGnssSpeed(), 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
         R = new Array2DRowRealMatrix(new double[][]{
                 {locationVarianz, 0, 0, 0},
                 {0, locationVarianz, 0, 0},

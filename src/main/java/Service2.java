@@ -21,8 +21,45 @@ public class Service2 {
     // Speichere Winkel und Distanz eines jeden Punktes zum ersten Punkt in der Map
     private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
 
+    // Speiechere den RMSE global (wird in der Methode calculateRMSEFor10Hearts gesetzt)
+    private static double rmseLongEstGt;
+    private static double rmseLatEstGt;
+    private static double rmseLongGnssGt;
+    private static double rmseLatGnssGt;
+
     //==================================================
 
+    public static double getRmseLongEstGt() {
+        return rmseLongEstGt;
+    }
+
+    public static void setRmseLongEstGt(double rmseLongEstGt) {
+        Service2.rmseLongEstGt = rmseLongEstGt;
+    }
+
+    public static double getRmseLatEstGt() {
+        return rmseLatEstGt;
+    }
+
+    public static void setRmseLatEstGt(double rmseLatEstGt) {
+        Service2.rmseLatEstGt = rmseLatEstGt;
+    }
+
+    public static double getRmseLongGnssGt() {
+        return rmseLongGnssGt;
+    }
+
+    public static void setRmseLongGnssGt(double rmseLongGnssGt) {
+        Service2.rmseLongGnssGt = rmseLongGnssGt;
+    }
+
+    public static double getRmseLatGnssGt() {
+        return rmseLatGnssGt;
+    }
+
+    public static void setRmseLatGnssGt(double rmseLatGnssGt) {
+        Service2.rmseLatGnssGt = rmseLatGnssGt;
+    }
 
     public static LinkedHashMap<Data, LinkedList<Double>> getAngleDistanceDataMap() {
         return angleDistanceDataMap;
@@ -749,5 +786,53 @@ public class Service2 {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * MERKE: die Berechnung setzt voraus, dass wir zuvor den ABSOLUTEN-ABSTAND für est->GT & GNSS->GT berechnet haben,
+     * denn: hier wird nur der Mittelwert über die Abstände berechnet, da Abstand VZ-los ist und somit auch kein
+     * quadrieren und Wurzel-ziehen nötig ist, also:
+     * wir nutzen den ABSOLUTEN-Abstand und mitteln ihn hier nur = RMSE
+     */
+    public static void calculateRMSEFor10Hearts() {
+        //TODO: Repariere die RMSE-Berechnung: wenn wir die Abstände haben,
+        // müssen wir quadrieren, aufsummieren und die Wurzel ziehen
+        double sumOfLongDistancesEstGT = 0;
+        double sumOfLatDistancesEstGT = 0;
+        double sumOfLonDistancesGnssGT = 0;
+        double sumOfLatDistancesGnssGT = 0;
+        int countOfIterations = 0;
+
+        // Berechne die Quadrate der Differenzen
+        for(Data d : Service2.getListOfAllData()) {
+            double estimatedPoint_x = d.getEstimatedPoint_x();
+            double estimatedPoint_y = d.getEstimatedPoint_y();
+
+            // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
+            // Wir überspringen Punkte, wegen definierter Schätzfrequenz
+            if(estimatedPoint_x == 0 || estimatedPoint_y == 0) {
+                continue;
+            }
+
+            countOfIterations++;
+            double longitudinalDistanceEstToGt = d.getLongitudinalDistanceEstToGt();
+            double lateralDistanceEstToGt = d.getLateralDistanceEstToGt();
+
+            sumOfLongDistancesEstGT += longitudinalDistanceEstToGt;
+            sumOfLatDistancesEstGT += lateralDistanceEstToGt;
+
+            double longitudinalDistanceGNSSToGt = d.getLongitudinalDistanceGNSSToGt();
+            double lateralDistanceGNSSToGt = d.getLateralDistanceGNSSToGt();
+
+            sumOfLonDistancesGnssGT += longitudinalDistanceGNSSToGt;
+            sumOfLatDistancesGnssGT += lateralDistanceGNSSToGt;
+        }
+
+        // Setze nun den RMSE
+        Service2.setRmseLatEstGt(sumOfLatDistancesEstGT / countOfIterations);
+        Service2.setRmseLongEstGt(sumOfLongDistancesEstGT / countOfIterations);
+        Service2.setRmseLatGnssGt(sumOfLatDistancesGnssGT / countOfIterations);
+        Service2.setRmseLongGnssGt(sumOfLonDistancesGnssGT / countOfIterations);
+
     }
 }

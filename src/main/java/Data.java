@@ -49,7 +49,19 @@ public class Data {
     private double lateralDistanceGNSSToGt;
     private double longitudinalDistanceGNSSToGt;
 
+    // GT-direction für die Rotation der Punkte (für Abstandsberechnung in und um Bewegungsrichtung)
+    private double gtDirection;
+
     //===============================================
+
+
+    public double getGtDirection() {
+        return gtDirection;
+    }
+
+    public void setGtDirection(double gtDirection) {
+        this.gtDirection = gtDirection;
+    }
 
     public double getLateralDistanceGNSSToGt() {
         return lateralDistanceGNSSToGt;

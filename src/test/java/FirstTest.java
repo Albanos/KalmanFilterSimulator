@@ -90,4 +90,29 @@ public class FirstTest {
         Assert.assertEquals(3.96529892704058, lateralDistanceToGt, 0.0001);
         System.out.println();
     }
+
+    @Test
+    //TODO: Unvollständig
+    public void calculateLatAndLonAbsoluteDistancesToGtTest() {
+        // lateraler Abstand rund 5m
+        double lat = 51.312031;
+        double lon = 9.473930;
+        double lat_gt = 51.312024;
+        double lon_gt = 9.473997;
+
+        Data d = new Data();
+        d.setEstimatedLat(lat);
+        d.setEstimatedLon(lon);
+        // Setze die selben Werte auch für GNSS, da auch diese Methode gecallt wird
+        d.setLatitude_wgs(lat);
+        d.setLongitude_wgs(lon);
+
+        d.setLatitude_gt(lat_gt);
+        d.setLongitude_gt(lon_gt);
+
+        Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+
+        double lateralDistanceEstToGt = d.getLateralDistanceEstToGt();
+        double longitudinalDistanceEstToGt = d.getLongitudinalDistanceEstToGt();
+    }
 }

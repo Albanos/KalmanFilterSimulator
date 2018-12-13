@@ -30,6 +30,9 @@ public class Main {
         EstimationFilter2 filter2 = new EstimationFilter2();
         filter2.makeEstimation();
 
+        // Berechne die RMSE-Werte und speichere sie im Service
+        Service2.calculateRMSEFor10Hearts();
+
         ExcelFileCreator2 excelFileCreator2 = new ExcelFileCreator2();
         excelFileCreator2.writeDataToFile();
 
