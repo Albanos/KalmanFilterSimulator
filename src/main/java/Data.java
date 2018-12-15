@@ -41,19 +41,50 @@ public class Data {
     private double estimatedLat;
     private double estimatedLon;
 
-    // Abstände der geschätzen WGS-Positionen zu WGS-GT-Positionen
-    private double lateralDistanceEstToGt;
-    private double longitudinalDistanceEstToGt;
+    // Abstände der geschätzten WGS-Positionen zur WGS-GT-Position mit Berücksichtigung der Richtung (in und um Bewegungsrichtung)
+    private double latiDistanceEstToGtWithDirection;
+    private double longiDistanceEstToGtWithDirection;
 
-    // Abstände der GNSS-Positionen (vom Smartphone/RAW-Data) zu GT-Positionen
-    private double lateralDistanceGNSSToGt;
-    private double longitudinalDistanceGNSSToGt;
+    // Abstände der GNSS-Positionen zur WGS-GT-Position mit Berücksichtigung der Richtung (in und um Bewegungsrichtung)
+    private double latiDistanceGnssToGtWithDirection;
+    private double longiDistanceGnssToGtWithDirection;
 
     // GT-direction für die Rotation der Punkte (für Abstandsberechnung in und um Bewegungsrichtung)
     private double gtDirection;
 
     //===============================================
 
+    public double getLatiDistanceEstToGtWithDirection() {
+        return latiDistanceEstToGtWithDirection;
+    }
+
+    public void setLatiDistanceEstToGtWithDirection(double latiDistanceEstToGtWithDirection) {
+        this.latiDistanceEstToGtWithDirection = latiDistanceEstToGtWithDirection;
+    }
+
+    public double getLongiDistanceEstToGtWithDirection() {
+        return longiDistanceEstToGtWithDirection;
+    }
+
+    public void setLongiDistanceEstToGtWithDirection(double longiDistanceEstToGtWithDirection) {
+        this.longiDistanceEstToGtWithDirection = longiDistanceEstToGtWithDirection;
+    }
+
+    public double getLatiDistanceGnssToGtWithDirection() {
+        return latiDistanceGnssToGtWithDirection;
+    }
+
+    public void setLatiDistanceGnssToGtWithDirection(double latiDistanceGnssToGtWithDirection) {
+        this.latiDistanceGnssToGtWithDirection = latiDistanceGnssToGtWithDirection;
+    }
+
+    public double getLongiDistanceGnssToGtWithDirection() {
+        return longiDistanceGnssToGtWithDirection;
+    }
+
+    public void setLongiDistanceGnssToGtWithDirection(double longiDistanceGnssToGtWithDirection) {
+        this.longiDistanceGnssToGtWithDirection = longiDistanceGnssToGtWithDirection;
+    }
 
     public double getGtDirection() {
         return gtDirection;
@@ -61,38 +92,6 @@ public class Data {
 
     public void setGtDirection(double gtDirection) {
         this.gtDirection = gtDirection;
-    }
-
-    public double getLateralDistanceGNSSToGt() {
-        return lateralDistanceGNSSToGt;
-    }
-
-    public void setLateralDistanceGNSSToGt(double lateralDistanceGNSSToGt) {
-        this.lateralDistanceGNSSToGt = lateralDistanceGNSSToGt;
-    }
-
-    public double getLongitudinalDistanceGNSSToGt() {
-        return longitudinalDistanceGNSSToGt;
-    }
-
-    public void setLongitudinalDistanceGNSSToGt(double longitudinalDistanceGNSSToGt) {
-        this.longitudinalDistanceGNSSToGt = longitudinalDistanceGNSSToGt;
-    }
-
-    public double getLateralDistanceEstToGt() {
-        return lateralDistanceEstToGt;
-    }
-
-    public void setLateralDistanceEstToGt(double lateralDistanceEstToGt) {
-        this.lateralDistanceEstToGt = lateralDistanceEstToGt;
-    }
-
-    public double getLongitudinalDistanceEstToGt() {
-        return longitudinalDistanceEstToGt;
-    }
-
-    public void setLongitudinalDistanceEstToGt(double longitudinalDistanceEstToGt) {
-        this.longitudinalDistanceEstToGt = longitudinalDistanceEstToGt;
     }
 
     public long getTimestamp() {

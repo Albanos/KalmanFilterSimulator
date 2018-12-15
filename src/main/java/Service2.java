@@ -6,6 +6,7 @@ import org.apache.commons.math3.linear.RealVector;
 
 import java.io.*;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -98,12 +99,12 @@ public class Service2 {
     }
 
     public static void calculateCartesianPointAndWgsAccelForData() {
-        for(Data d : Service2.getListOfAllData()) {
+        for (Data d : Service2.getListOfAllData()) {
             GlobalPosition globalPosition = d.getGlobalPosition();
             double distance = coordinateDistanceBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
             double angle = coordinateAngleBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
 
-            if(distance != 0.0 && angle != 0.0) {
+            if (distance != 0.0 && angle != 0.0) {
                 d.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
                 d.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
             }
@@ -115,7 +116,7 @@ public class Service2 {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
 
-        for(Data d : Service2.getListOfAllData()) {
+        for (Data d : Service2.getListOfAllData()) {
             // Aktualisiere dt
             Service2.setDt(Service2.getOldDt() == 0 ? 0.1 : (Service2.getDt() - Service2.getOldDt()) / 1000.0f);
             Service2.setOldDt(Service2.getDt());
@@ -466,7 +467,7 @@ public class Service2 {
         LinkedList<Data> temp = new LinkedList<>();
         //for(int i =0; i < Service.getListOfAllImuValues().size() ; i++) {
         for (Data d : Service2.getListOfAllData()) {
-            if(j < Service2.getListOfAllData().size()) {
+            if (j < Service2.getListOfAllData().size()) {
                 Data iData = Service2.getListOfAllData().get(i);
                 Data jData = Service2.getListOfAllData().get(j);
 
@@ -474,7 +475,7 @@ public class Service2 {
 
                 //if ( differenceInSek >= 0.020894866) {
                 // Wert stammt statisch von Simulation des Nexus 6 in Android-Studio
-                if(differenceInSek >= dt) {
+                if (differenceInSek >= dt) {
                     // 0.1 -> 10 Hz
                     //if(differenceInSek >= 0.1) {
                     i = j;
@@ -530,7 +531,7 @@ public class Service2 {
         calculateWGSCoordinateByDataPoint(data);
     }
 
-    public static void calculateWGSCoordinateByDataPoint (Data data) {
+    public static void calculateWGSCoordinateByDataPoint(Data data) {
         // Ermittle Winkel und Distanz des Daten-Punktes anhand des übergebenen Datenpunktes
         LinkedList<Double> angleAndDistanceOfDataPoint = Service2.getAngleDistanceDataMap().get(data);
         Double angleOfDataPoint = angleAndDistanceOfDataPoint.get(0);
@@ -552,24 +553,30 @@ public class Service2 {
         double latitude_gt = data.getLatitude_gt();
 
         // Berechne zunächste die longitudinale Distanz
-        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_est,longitude_est);
-        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_est,longitude_gt);
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_est, longitude_est);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_est, longitude_gt);
         GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
         double distanceLon = geodeticCurve.getEllipsoidalDistance();
-        if(longitude_est - longitude_gt < 0) {
+        if (longitude_est - longitude_gt < 0) {
             distanceLon = -distanceLon;
         }
-        data.setLongitudinalDistanceEstToGt(distanceLon);
+
 
         // Anschließend die laterale Distanz
-        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_est,longitude_est);
-        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_est);
+        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_est, longitude_est);
+        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt, longitude_est);
         GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
         double distanceLat = geodeticCurve1.getEllipsoidalDistance();
-        if(latitude_est - latitude_gt < 0) {
+        if (latitude_est - latitude_gt < 0) {
             distanceLat = -distanceLat;
         }
-        data.setLateralDistanceEstToGt(distanceLat);
+        // Berücksichtige die Richtung des Nutzers (Abstand in und um Bewegungsrichtung) und setze diesen Abstand im Daten-punkt
+        HashMap<String, Double> latiLongiDistancesEstToGt =
+                Service2.rotateOnGtDirection(distanceLat, distanceLon, (data.getGtDirection() * (Math.PI / 180)));
+
+        // setze die berechneten lati/longi-Abstände im Datenpunkt
+        data.setLatiDistanceEstToGtWithDirection(latiLongiDistancesEstToGt.get("latiDistance"));
+        data.setLongiDistanceEstToGtWithDirection(latiLongiDistancesEstToGt.get("longiDistance"));
 
         // Berechne im selben Zug den Abstand zwischen GNSS- & GT-Position
         calculateDistanceBetweenGNSSAndGTPosition(data);
@@ -582,32 +589,51 @@ public class Service2 {
         double longitude_gt = d.getLongitude_gt();
 
         // Berechne den longitudinalen Abstand
-        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
-        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_wgs,longitude_gt);
+        GlobalCoordinates gc1 = new GlobalCoordinates(latitude_wgs, longitude_wgs);
+        GlobalCoordinates gc2 = new GlobalCoordinates(latitude_wgs, longitude_gt);
         GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc1, gc2);
         double distanceLon = geodeticCurve.getEllipsoidalDistance();
-        if(longitude_wgs - longitude_gt < 0) {
+        if (longitude_wgs - longitude_gt < 0) {
             distanceLon = -distanceLon;
         }
-        d.setLongitudinalDistanceGNSSToGt(distanceLon);
 
         // Berechne den lateralen Abstand
-        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_wgs,longitude_wgs);
-        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt,longitude_wgs);
+        GlobalCoordinates gc3 = new GlobalCoordinates(latitude_wgs, longitude_wgs);
+        GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt, longitude_wgs);
         GeodeticCurve geodeticCurve1 = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gc3, gc4);
         double distanceLat = geodeticCurve1.getEllipsoidalDistance();
-        if(latitude_wgs - latitude_gt < 0) {
+        if (latitude_wgs - latitude_gt < 0) {
             distanceLat = -distanceLat;
         }
-        d.setLateralDistanceGNSSToGt(distanceLat);
+
+        HashMap<String, Double> latiLongiDistancesGnssToGt =
+                Service2.rotateOnGtDirection(distanceLat, distanceLon, (d.getGtDirection() * (Math.PI / 180)));
+
+        d.setLatiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("latiDistance"));
+        d.setLongiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("longiDistance"));
+    }
+
+    /**
+     * Implementierung von Michel: berücksichtigt einfach die jeweillige Richtung und berechnet
+     * somit den Abstand in und links/rechts zur Bewegungsrichtung des Nutzers
+     */
+    public static HashMap<String, Double> rotateOnGtDirection(double distanceLat, double distanceLon, double rad) {
+        double latiDistance = distanceLon * Math.cos(rad) - distanceLat * Math.sin(rad);
+        double longiDistance = distanceLat * Math.cos(rad) + distanceLon * Math.sin(rad);
+
+        HashMap<String, Double> returnMap = new HashMap<>();
+        returnMap.put("latiDistance",latiDistance);
+        returnMap.put("longiDistance", longiDistance);
+
+        return returnMap;
     }
 
     public static void writeAllDataToVikingFile() {
         StringBuffer output = new StringBuffer();
-        double firstPosition_lat =0;
-        double firstPosition_lon =0;
-        double lastPosition_lat =0;
-        double lastPosition_lon =0;
+        double firstPosition_lat = 0;
+        double firstPosition_lon = 0;
+        double lastPosition_lat = 0;
+        double lastPosition_lon = 0;
         boolean firstPointSet = false;
         String präfixOfFile = "#VIKING GPS Data file http://viking.sf.net/\n" +
                 "FILE_VERSION=1\n" +
@@ -686,14 +712,14 @@ public class Service2 {
         output.append(präfixOfFile);
 
         // Beginne mit dem schreiben der GT-Positionen (rot)
-        double latitude_gt =0;
-        double longitude_gt =0;
-        for(Data d : Service2.getListOfAllData()) {
+        double latitude_gt = 0;
+        double longitude_gt = 0;
+        for (Data d : Service2.getListOfAllData()) {
             latitude_gt = d.getLatitude_gt();
             longitude_gt = d.getLongitude_gt();
 
             // Setze die erste Position für viking-markierung (erster Punkt A)
-            if(!firstPointSet) {
+            if (!firstPointSet) {
                 firstPosition_lat = latitude_gt;
                 firstPosition_lon = longitude_gt;
                 firstPointSet = true;
@@ -713,15 +739,15 @@ public class Service2 {
 
         // Hänge jede GNSS-Position an (grün)
         output.append("type=\"route\" name=\"GNSS-Points\" color=#00ff00\n");
-        double oldLatitude =0;
-        double oldLongitude =0;
-        for(Data d : Service2.getListOfAllData()) {
+        double oldLatitude = 0;
+        double oldLongitude = 0;
+        for (Data d : Service2.getListOfAllData()) {
             double latitude_wgs = d.getLatitude_wgs();
             double longitude_wgs = d.getLongitude_wgs();
             double altitude_wgs = d.getAltitude_wgs();
 
             // Zeiche jede Position nur einmal: wegen aktueller Struktur zeichnen wir Daten mehrmals
-            if(latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
+            if (latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
                 continue;
             }
             oldLatitude = latitude_wgs;
@@ -729,7 +755,7 @@ public class Service2 {
 
             String row = "type=\"routepoint\" latitude=\""
                     + latitude_wgs + "\" longitude=\""
-                    + longitude_wgs + "\" altitude=\"" +altitude_wgs + "\"\n";
+                    + longitude_wgs + "\" altitude=\"" + altitude_wgs + "\"\n";
 
             output.append(row);
         }
@@ -739,11 +765,11 @@ public class Service2 {
 
         // schreibe die geschätzten Punkte (blau)
         output.append("type=\"route\" name=\"estimatedPoints\" color=#0000ff\n");
-        for(Data d : Service2.getListOfAllData()) {
+        for (Data d : Service2.getListOfAllData()) {
             double estimatedLat = d.getEstimatedLat();
             double estimatedLon = d.getEstimatedLon();
 
-            if(estimatedLat == 0 || estimatedLon == 0) {
+            if (estimatedLat == 0 || estimatedLon == 0) {
                 continue;
             }
 
@@ -759,7 +785,7 @@ public class Service2 {
         String suffix = "~LayerData\n" +
                 "type=\"waypointlist\"\n" +
                 "type=\"waypoint\" latitude=\"" + firstPosition_lat + "\" longitude=\"" + firstPosition_lon + "\" name=\"A\"\n" +
-                "type=\"waypoint\" latitude=\"" + lastPosition_lat + "\" longitude=\"" +lastPosition_lon + "\" name=\"B\"\n" +
+                "type=\"waypoint\" latitude=\"" + lastPosition_lat + "\" longitude=\"" + lastPosition_lon + "\" name=\"B\"\n" +
                 "type=\"waypoint\" latitude=\"51.339037340000004\" longitude=\"9.4473964999999964\" name=\"C\" unixtime=\"1491926179\"\n" +
                 "type=\"waypointlistend\"\n" +
                 "~EndLayerData\n" +
@@ -776,10 +802,10 @@ public class Service2 {
                             .replaceAll("\\s", "_")
                             .replaceAll(":", "-")
                             .replaceAll("\\.", "-").concat(".vik")));
-            os.write(outputAsString.getBytes(),0,outputAsString.length());
+            os.write(outputAsString.getBytes(), 0, outputAsString.length());
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 os.close();
             } catch (IOException e) {
@@ -788,15 +814,7 @@ public class Service2 {
         }
     }
 
-    /**
-     * MERKE: die Berechnung setzt voraus, dass wir zuvor den ABSOLUTEN-ABSTAND für est->GT & GNSS->GT berechnet haben,
-     * denn: hier wird nur der Mittelwert über die Abstände berechnet, da Abstand VZ-los ist und somit auch kein
-     * quadrieren und Wurzel-ziehen nötig ist, also:
-     * wir nutzen den ABSOLUTEN-Abstand und mitteln ihn hier nur = RMSE
-     */
     public static void calculateRMSEFor10Hearts() {
-        //TODO: Repariere die RMSE-Berechnung: wenn wir die Abstände haben,
-        // müssen wir quadrieren, aufsummieren und die Wurzel ziehen
         double sumOfLongDistancesEstGT = 0;
         double sumOfLatDistancesEstGT = 0;
         double sumOfLonDistancesGnssGT = 0;
@@ -804,35 +822,34 @@ public class Service2 {
         int countOfIterations = 0;
 
         // Berechne die Quadrate der Differenzen
-        for(Data d : Service2.getListOfAllData()) {
+        for (Data d : Service2.getListOfAllData()) {
             double estimatedPoint_x = d.getEstimatedPoint_x();
             double estimatedPoint_y = d.getEstimatedPoint_y();
 
             // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
             // Wir überspringen Punkte, wegen definierter Schätzfrequenz
-            if(estimatedPoint_x == 0 || estimatedPoint_y == 0) {
+            if (estimatedPoint_x == 0 || estimatedPoint_y == 0) {
                 continue;
             }
 
             countOfIterations++;
-            double longitudinalDistanceEstToGt = d.getLongitudinalDistanceEstToGt();
-            double lateralDistanceEstToGt = d.getLateralDistanceEstToGt();
+            double longitudinalDistanceEstToGt = d.getLongiDistanceEstToGtWithDirection();
+            double lateralDistanceEstToGt = d.getLatiDistanceEstToGtWithDirection();
 
-            sumOfLongDistancesEstGT += longitudinalDistanceEstToGt;
-            sumOfLatDistancesEstGT += lateralDistanceEstToGt;
+            sumOfLongDistancesEstGT += Math.pow(longitudinalDistanceEstToGt,2);
+            sumOfLatDistancesEstGT += Math.pow(lateralDistanceEstToGt,2);
 
-            double longitudinalDistanceGNSSToGt = d.getLongitudinalDistanceGNSSToGt();
-            double lateralDistanceGNSSToGt = d.getLateralDistanceGNSSToGt();
+            double longitudinalDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
+            double lateralDistanceGNSSToGt = d.getLatiDistanceGnssToGtWithDirection();
 
-            sumOfLonDistancesGnssGT += longitudinalDistanceGNSSToGt;
-            sumOfLatDistancesGnssGT += lateralDistanceGNSSToGt;
+            sumOfLonDistancesGnssGT += Math.pow(longitudinalDistanceGNSSToGt,2);
+            sumOfLatDistancesGnssGT += Math.pow(lateralDistanceGNSSToGt,2);
         }
 
         // Setze nun den RMSE
-        Service2.setRmseLatEstGt(sumOfLatDistancesEstGT / countOfIterations);
-        Service2.setRmseLongEstGt(sumOfLongDistancesEstGT / countOfIterations);
-        Service2.setRmseLatGnssGt(sumOfLatDistancesGnssGT / countOfIterations);
-        Service2.setRmseLongGnssGt(sumOfLonDistancesGnssGT / countOfIterations);
-
+        Service2.setRmseLatEstGt(Math.sqrt(sumOfLatDistancesEstGT / countOfIterations));
+        Service2.setRmseLongEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
+        Service2.setRmseLatGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
+        Service2.setRmseLongGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
     }
 }

@@ -25,7 +25,6 @@ public class Main {
 
         // Entferne überschüssige Einträge (downSampling)
         //Service2.makeDownSampling(0.057312011);
-        LinkedList<Data> listOfAllData = Service2.getListOfAllData();
 
         EstimationFilter2 filter2 = new EstimationFilter2();
         filter2.makeEstimation();

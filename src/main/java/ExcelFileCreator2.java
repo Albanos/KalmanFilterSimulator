@@ -65,16 +65,22 @@ public class ExcelFileCreator2 {
         cell_2E_sheet2.setCellValue(new HSSFRichTextString("Longitude"));
 
         HSSFCell cell_2F_sheet2 = sheet2_row2.createCell(5);
-        cell_2F_sheet2.setCellValue(new HSSFRichTextString("Long_Distance_Est_GT_[m]"));
+        cell_2F_sheet2.setCellValue(new HSSFRichTextString("Longi_Distance_Est_GT_[m]"));
 
         HSSFCell cell_2G_sheet2 = sheet2_row2.createCell(6);
-        cell_2G_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_Est_GT_[m]"));
+        cell_2G_sheet2.setCellValue(new HSSFRichTextString("Lati_Distance_Est_GT_[m]"));
 
         HSSFCell cell_2H_sheet2 = sheet2_row2.createCell(7);
-        cell_2H_sheet2.setCellValue(new HSSFRichTextString("Long_Distance_GNSS_GT_[m]"));
+        cell_2H_sheet2.setCellValue(new HSSFRichTextString("Longi_Distance_GNSS_GT_[m]"));
 
         HSSFCell cell_2I_sheet2 = sheet2_row2.createCell(8);
-        cell_2I_sheet2.setCellValue(new HSSFRichTextString("Lat_Distance_GNSS_GT_[m]"));
+        cell_2I_sheet2.setCellValue(new HSSFRichTextString("Lati_Distance_GNSS_GT_[m]"));
+
+        HSSFCell cell_2J_sheet2 = sheet2_row2.createCell(9);
+        cell_2J_sheet2.setCellValue("Latitude_GT");
+
+        HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
+        cell_2K_sheet2.setCellValue("Longitude_GT");
 
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
@@ -143,10 +149,12 @@ public class ExcelFileCreator2 {
             double estimatedLon = d.getEstimatedLon();
 
             // Schreibe auch die longitudinale und laterale Distanz zur GT-Position
-            double lateralDistanceEstToGt = d.getLateralDistanceEstToGt();
-            double longitudinalDistanceEstToGt = d.getLongitudinalDistanceEstToGt();
-            double lateralDistanceGNSSToGt = d.getLateralDistanceGNSSToGt();
-            double longitudinalDistanceGNSSToGt = d.getLongitudinalDistanceGNSSToGt();
+            double latiDistanceEstToGt = d.getLatiDistanceEstToGtWithDirection();
+            double longiDistanceEstToGt = d.getLongiDistanceEstToGtWithDirection();
+            double latiDistanceGNSSToGt = d.getLatiDistanceGnssToGtWithDirection();
+            double longiDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
+            double latitude_gt = d.getLatitude_gt();
+            double longitude_gt = d.getLongitude_gt();
 
             HSSFRow currentRow = secondSheet.createRow(i);
             HSSFCell estimatedTimestamp = currentRow.createCell(0);
@@ -162,16 +170,20 @@ public class ExcelFileCreator2 {
             HSSFCell latDistance_Est_GT = currentRow.createCell(6);
             HSSFCell lonDistance_GNSS_GT = currentRow.createCell(7);
             HSSFCell latDistance_GNSS_GT = currentRow.createCell(8);
+            HSSFCell latitude_GT = currentRow.createCell(9);
+            HSSFCell longitude_GT = currentRow.createCell(10);
 
             estimatedTimestamp.setCellValue(currentTimestamp);
             estimatedX.setCellValue(estimatedPoint_x);
             estimatedY.setCellValue(estimatedPoint_y);
             latitudeOfPoint.setCellValue(estimatedLat);
             longitudeOfPoint.setCellValue(estimatedLon);
-            lonDistance_Est_GT.setCellValue(longitudinalDistanceEstToGt);
-            latDistance_Est_GT.setCellValue(lateralDistanceEstToGt);
-            lonDistance_GNSS_GT.setCellValue(longitudinalDistanceGNSSToGt);
-            latDistance_GNSS_GT.setCellValue(lateralDistanceGNSSToGt);
+            lonDistance_Est_GT.setCellValue(longiDistanceEstToGt);
+            latDistance_Est_GT.setCellValue(latiDistanceEstToGt);
+            lonDistance_GNSS_GT.setCellValue(longiDistanceGNSSToGt);
+            latDistance_GNSS_GT.setCellValue(latiDistanceGNSSToGt);
+            latitude_GT.setCellValue(latitude_gt);
+            longitude_GT.setCellValue(longitude_gt);
 
             i++;
         }
