@@ -196,10 +196,10 @@ public class ExcelFileCreator2 {
         HSSFCell rmseLonGnssGt = lastRowAfterEstPoints.createCell(7);
         HSSFCell rmseLatGnssGt = lastRowAfterEstPoints.createCell(8);
 
-        rmseLonEstGt.setCellValue(Service2.getRmseLongEstGt());
-        rmseLatEstGt.setCellValue(Service2.getRmseLatEstGt());
-        rmseLonGnssGt.setCellValue(Service2.getRmseLongGnssGt());
-        rmseLatGnssGt.setCellValue(Service2.getRmseLatGnssGt());
+        rmseLonEstGt.setCellValue(Service2.getRmseLongiEstGt());
+        rmseLatEstGt.setCellValue(Service2.getRmseLatiEstGt());
+        rmseLonGnssGt.setCellValue(Service2.getRmseLongiGnssGt());
+        rmseLatGnssGt.setCellValue(Service2.getRmseLatiGnssGt());
 
         i = 2;
         double oldLatitude =0;

@@ -23,43 +23,43 @@ public class Service2 {
     private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
 
     // Speiechere den RMSE global (wird in der Methode calculateRMSEFor10Hearts gesetzt)
-    private static double rmseLongEstGt;
-    private static double rmseLatEstGt;
-    private static double rmseLongGnssGt;
-    private static double rmseLatGnssGt;
+    private static double rmseLongiEstGt;
+    private static double rmseLatiEstGt;
+    private static double rmseLongiGnssGt;
+    private static double rmseLatiGnssGt;
 
     //==================================================
 
-    public static double getRmseLongEstGt() {
-        return rmseLongEstGt;
+    public static double getRmseLongiEstGt() {
+        return rmseLongiEstGt;
     }
 
-    public static void setRmseLongEstGt(double rmseLongEstGt) {
-        Service2.rmseLongEstGt = rmseLongEstGt;
+    public static void setRmseLongiEstGt(double rmseLongiEstGt) {
+        Service2.rmseLongiEstGt = rmseLongiEstGt;
     }
 
-    public static double getRmseLatEstGt() {
-        return rmseLatEstGt;
+    public static double getRmseLatiEstGt() {
+        return rmseLatiEstGt;
     }
 
-    public static void setRmseLatEstGt(double rmseLatEstGt) {
-        Service2.rmseLatEstGt = rmseLatEstGt;
+    public static void setRmseLatiEstGt(double rmseLatiEstGt) {
+        Service2.rmseLatiEstGt = rmseLatiEstGt;
     }
 
-    public static double getRmseLongGnssGt() {
-        return rmseLongGnssGt;
+    public static double getRmseLongiGnssGt() {
+        return rmseLongiGnssGt;
     }
 
-    public static void setRmseLongGnssGt(double rmseLongGnssGt) {
-        Service2.rmseLongGnssGt = rmseLongGnssGt;
+    public static void setRmseLongiGnssGt(double rmseLongiGnssGt) {
+        Service2.rmseLongiGnssGt = rmseLongiGnssGt;
     }
 
-    public static double getRmseLatGnssGt() {
-        return rmseLatGnssGt;
+    public static double getRmseLatiGnssGt() {
+        return rmseLatiGnssGt;
     }
 
-    public static void setRmseLatGnssGt(double rmseLatGnssGt) {
-        Service2.rmseLatGnssGt = rmseLatGnssGt;
+    public static void setRmseLatiGnssGt(double rmseLatiGnssGt) {
+        Service2.rmseLatiGnssGt = rmseLatiGnssGt;
     }
 
     public static LinkedHashMap<Data, LinkedList<Double>> getAngleDistanceDataMap() {
@@ -828,28 +828,28 @@ public class Service2 {
 
             // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
             // Wir überspringen Punkte, wegen definierter Schätzfrequenz
-            if (estimatedPoint_x == 0 || estimatedPoint_y == 0) {
+            if (estimatedPoint_x == 0.0 || estimatedPoint_y == 0.0) {
                 continue;
             }
 
             countOfIterations++;
-            double longitudinalDistanceEstToGt = d.getLongiDistanceEstToGtWithDirection();
-            double lateralDistanceEstToGt = d.getLatiDistanceEstToGtWithDirection();
+            double longiDistanceEstToGt = d.getLongiDistanceEstToGtWithDirection();
+            double latiDistanceEstToGt = d.getLatiDistanceEstToGtWithDirection();
 
-            sumOfLongDistancesEstGT += Math.pow(longitudinalDistanceEstToGt,2);
-            sumOfLatDistancesEstGT += Math.pow(lateralDistanceEstToGt,2);
+            sumOfLongDistancesEstGT += Math.pow(longiDistanceEstToGt,2);
+            sumOfLatDistancesEstGT += Math.pow(latiDistanceEstToGt,2);
 
-            double longitudinalDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
-            double lateralDistanceGNSSToGt = d.getLatiDistanceGnssToGtWithDirection();
+            double longiDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
+            double latiDistanceGNSSToGt = d.getLatiDistanceGnssToGtWithDirection();
 
-            sumOfLonDistancesGnssGT += Math.pow(longitudinalDistanceGNSSToGt,2);
-            sumOfLatDistancesGnssGT += Math.pow(lateralDistanceGNSSToGt,2);
+            sumOfLonDistancesGnssGT += Math.pow(longiDistanceGNSSToGt,2);
+            sumOfLatDistancesGnssGT += Math.pow(latiDistanceGNSSToGt,2);
         }
 
         // Setze nun den RMSE
-        Service2.setRmseLatEstGt(Math.sqrt(sumOfLatDistancesEstGT / countOfIterations));
-        Service2.setRmseLongEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
-        Service2.setRmseLatGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
-        Service2.setRmseLongGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
+        Service2.setRmseLatiEstGt(Math.sqrt((sumOfLatDistancesEstGT / countOfIterations)));
+        Service2.setRmseLongiEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
+        Service2.setRmseLatiGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
+        Service2.setRmseLongiGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
     }
 }
