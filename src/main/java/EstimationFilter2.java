@@ -51,11 +51,13 @@ public class EstimationFilter2 {
     // Bsp.: TIME_TO_SLEEP=100 --> 10 Punkte/sek --> 10 Hz
     private static final int TIME_TO_SLEEP = 100;
 
-    private static LinkedList<Data> copyListOfAllData = new LinkedList<>();
+    private LinkedList<Data> copyListOfAllData = new LinkedList<>();
     private static long timestamp2;
-    private static long timestamp = timestamp2 = Service2.getListOfAllData().getFirst().getTimestamp();
+    private static long timestamp;
 
     public EstimationFilter2() {
+        timestamp = timestamp2 = Service2.getListOfAllData().getFirst().getTimestamp();
+
         // Kopiere alle Daten, damit diese für Schleife gelöscht werden können
         copyListOfAllData.addAll(Service2.getListOfAllData());
 
@@ -212,5 +214,6 @@ public class EstimationFilter2 {
             // Berechne auch die longitudinale und laterale Distanz zur GT-Position
             Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
         }
+        System.out.println("=======================Schätzungen abgeschlossen\n");
     }
 }

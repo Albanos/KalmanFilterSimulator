@@ -4,7 +4,7 @@
 public class Constants {
     public static float SIGMA_ACCEL = 8f;
     public static int POSITION_OF_FIRST_POINT_WITH_CARTESIAN_COORDINATES = 197;
-    public static double SIGMA_GNSS_SPEED = 3;
+    public static double SIGMA_GNSS_SPEED = 0.5;
 
     public static float getSigmaAccel() {
         return SIGMA_ACCEL;
