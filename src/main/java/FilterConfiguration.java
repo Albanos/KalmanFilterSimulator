@@ -74,7 +74,7 @@ public class FilterConfiguration {
      */
     public void filterSimulation_01_to_50_1_in_01_onlySigmaAccel() {
         //for (float i = 0.01f; i <= 50.1; i = i + 0.01f) {
-        for (float i = 0.01f; i <= 15.1; i = i + 0.01f) {
+        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             FilterConfiguration currentConfiguration = new FilterConfiguration();
             currentConfiguration.setSigmaAccel(i);
             currentConfiguration.setSigmaGnssSpeed(Constants.getSigmaGnssSpeed());
@@ -89,7 +89,7 @@ public class FilterConfiguration {
      */
     public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed() {
         //for (double i = 0.01; i <= 15.1; i = i + 0.01) {
-        for (double i = 0.01; i <= 5.1; i = i + 0.01) {
+        for (double i = 0.1; i <= 15.1; i = i + 0.1) {
             FilterConfiguration currentConfiguration = new FilterConfiguration();
             currentConfiguration.setSigmaAccel(Constants.getSigmaAccel());
             currentConfiguration.setSigmaGnssSpeed(i);
@@ -105,9 +105,9 @@ public class FilterConfiguration {
      */
     public void filterSimulation_01_to_50_1_in_01_forSigmaAccel_and_01_to_15_1_in_01_forSigmaGnssSpeed() {
         //for (float i = 0.01f; i <= 50.1; i = i + 0.01f) {
-        for (float i = 0.01f; i <= 15.1; i = i + 0.01f) {
+        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             //for (double j = 0.01; j <= 15.1; j = j + 0.01) {
-            for (double j = 0.01; j <= 5.1; j = j + 0.01) {
+            for (double j = 0.1; j <= 15.1; j = j + 0.1) {
                 FilterConfiguration currentConfiguration = new FilterConfiguration();
                 currentConfiguration.setSigmaAccel(i);
                 currentConfiguration.setSigmaGnssSpeed(j);

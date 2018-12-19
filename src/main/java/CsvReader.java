@@ -7,8 +7,9 @@ import java.io.IOException;
 public class CsvReader {
     private static CSVReader reader = null;
     private static long timeWithoutPoint;
+    private boolean readFirstMark = false;
 
-    public void readAllFromCsvFile(String pathToFile) {
+    public void readAllFromCsvFile(String pathToFile, String[] segment) {
         String[] line;
         try {
             reader = new CSVReader(new FileReader(pathToFile));
@@ -16,14 +17,29 @@ public class CsvReader {
 
             while ((line = reader.readNext()) != null) {
                 // ignoriere die rows, wo keine Position vorliegt
-                if(line[1].startsWith("NaN")) {
+                //if(line[1].startsWith("NaN") || !(line[18].startsWith("GO_" + segment[0])) && !(line[18].startsWith("STOP_" + segment[1]))) {
+                if (line[1].startsWith("NaN") || (!(line[18].startsWith("GO_" + segment[0])) && !(line[18].startsWith("STOP_" + segment[1])))) {
+                    continue;
+                }
+
+                if (line[18].startsWith("STOP_" + segment[1]) && !readFirstMark) {
+                    continue;
+                }
+
+                if (line[18].startsWith("GO_" + segment[0]) && !readFirstMark) {
+                    readFirstMark = true;
+                }
+                //TODO: fix me
+                if((segment[0].contains("12700") && segment[1].contains("12078")) && line[18].startsWith("STOP_12694")) {
                     continue;
                 }
 
                 // höre auf zu lesen, wenn du das erste STOP liest = erstes Segment
-                if(line[18].startsWith("STOP")) {
+                //if(line[18].startsWith("STOP_" + segment[1])) {
+                else if (line[18].startsWith("STOP_" + segment[1]) && readFirstMark) {
                     break;
                 }
+
 
                 Data d = new Data();
 

@@ -13,22 +13,28 @@ public class Main {
     private static final String pathToS7File =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\S7Edge_ownFormat_withGT_11_51_42.csv";
 
-    public static void main(String[] args) {
-        readDataOfFileAndCalculateCartesianPoints(pathToNexus6File2);
+    // Segment A = {12078, 12700}
+    // Segment B = {12700, 12694}
+    // Segment C = {12694, 12700}
+    // Segment D = {12700, 12078} --> kaputt!!
+    private static final String[] segment = {"12700", "12694"};
 
-        makeCompleteFilterSimulationClearAllDataAndReadFileAgain(pathToNexus6File2);
+    public static void main(String[] args) {
+        readDataOfFileAndCalculateCartesianPoints(pathToNexus6File);
+
+        makeCompleteFilterSimulationClearAllDataAndReadFileAgain(pathToNexus6File);
 
         // Extrahiere die Filter-Konfi, wo lati und longi-RMSE minimal sind
         FilterConfiguration configurationWithMinimalLatiAndLongiRmse = FilterConfiguration.findConfigurationWithMinimalLatiAndLongiRmse();
 
         // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-        clearAllDataAndReadFileAgain(pathToNexus6File2);
+        clearAllDataAndReadFileAgain(pathToNexus6File);
 
         // Simuliere noch einmal in der Ausgangs-Konfi und exportiere
         simulateFilerWithSpecificParametersWithExcelAndVikExport(8f, 0.5);
 
         // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-        clearAllDataAndReadFileAgain(pathToNexus6File2);
+        clearAllDataAndReadFileAgain(pathToNexus6File);
 
         // Nehme die Konfiguration von configurationWithMinimalLatiAndLongiRmse, simuliere erneut und exportiere
         simulateFilerWithSpecificParametersWithExcelAndVikExport(
@@ -96,7 +102,7 @@ public class Main {
 
     private static void readDataOfFileAndCalculateCartesianPoints(String fileToRead) {
         CsvReader reader = new CsvReader();
-        reader.readAllFromCsvFile(fileToRead);
+        reader.readAllFromCsvFile(fileToRead, segment);
 
         // Berechne für jede WGS-Position die cartesische Position,
         // mit der WGS-Beschleunigung
