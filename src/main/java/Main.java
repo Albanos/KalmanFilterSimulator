@@ -1,5 +1,3 @@
-import java.util.LinkedList;
-
 /**
  * @author Luan Hajzeraj on 12.11.2018.
  */
@@ -20,30 +18,66 @@ public class Main {
     private static final String[] segment = {"12700", "12694"};
 
     public static void main(String[] args) {
-        readDataOfFileAndCalculateCartesianPoints(pathToNexus6File);
+        //readDataOfFileAndCalculateCartesianPoints(pathToNexus6File);
+        readCompleteFileAndCalculateCartesianPoints(pathToNexus6File2);
 
-        makeCompleteFilterSimulationClearAllDataAndReadFileAgain(pathToNexus6File);
+        EstimationFilter2 filter = new EstimationFilter2();
+        filter.makeEstimation();
 
-        // Extrahiere die Filter-Konfi, wo lati und longi-RMSE minimal sind
-        FilterConfiguration configurationWithMinimalLatiAndLongiRmse = FilterConfiguration.findConfigurationWithMinimalLatiAndLongiRmse();
+        Service2.calculateRMSEFor10Hearts();
 
-        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-        clearAllDataAndReadFileAgain(pathToNexus6File);
+        ExcelFileCreator2 creator = new ExcelFileCreator2();
+        creator.writeDataToFile();
+        Service2.writeAllDataToVikingFile();
 
-        // Simuliere noch einmal in der Ausgangs-Konfi und exportiere
-        simulateFilerWithSpecificParametersWithExcelAndVikExport(8f, 0.5);
-
-        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-        clearAllDataAndReadFileAgain(pathToNexus6File);
-
-        // Nehme die Konfiguration von configurationWithMinimalLatiAndLongiRmse, simuliere erneut und exportiere
-        simulateFilerWithSpecificParametersWithExcelAndVikExport(
-                configurationWithMinimalLatiAndLongiRmse.getSigmaAccel(),
-                configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
-
-        System.out.println("Optimale Filter-Konfi:\nsigmaAccel:  "
-                + configurationWithMinimalLatiAndLongiRmse.getSigmaAccel() + " und sigmaSpeed:  "
-                + configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
+//        makeCompleteFilterSimulationClearAllDataAndReadFileAgain(pathToNexus6File2);
+//
+//        // Extrahiere die Filter-Konfi, wo lati und longi-RMSE minimal sind
+//        FilterConfiguration configurationWithMinimalLatiAndLongiRmse = FilterConfiguration.findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints();
+//        FilterConfiguration configurationWithMinimalLongiRmseOfEstPoints = FilterConfiguration.findConfigurationWithMinimalLongiRmseOfEstPoints();
+//        FilterConfiguration configurationWithMinimalLatiRmseOfEstPoints = FilterConfiguration.findConfigurationWithMinimalLatiRmseOfEstPoints();
+//
+//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
+//        clearAllDataAndReadFileAgain(pathToNexus6File2);
+//
+//        // Simuliere noch einmal in der Ausgangs-Konfi und exportiere
+//        //simulateFilerWithSpecificParametersWithExcelAndVikExport(8f, 0.5);
+//
+//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
+//        clearAllDataAndReadFileAgain(pathToNexus6File2);
+//
+//        // simuliere mit minimalem Longi-Abstand
+//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
+//                configurationWithMinimalLongiRmseOfEstPoints.getSigmaAccel(),
+//                configurationWithMinimalLongiRmseOfEstPoints.getSigmaGnssSpeed()
+//        );
+//        System.out.println("Filter-Konfi mit minimalem Longi:\nsigmaAccel:  "
+//                + configurationWithMinimalLongiRmseOfEstPoints.getSigmaAccel() + " und sigmaSpeed:  "
+//                + configurationWithMinimalLongiRmseOfEstPoints.getSigmaGnssSpeed());
+//
+//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
+//        clearAllDataAndReadFileAgain(pathToNexus6File2);
+//
+//        // simuliere mit minimalem lati-Abstand
+//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
+//                configurationWithMinimalLatiRmseOfEstPoints.getSigmaAccel(),
+//                configurationWithMinimalLatiRmseOfEstPoints.getSigmaGnssSpeed()
+//        );
+//        System.out.println("Filter-Konfi mit minimalem Lati:\nsigmaAccel:  "
+//                + configurationWithMinimalLatiRmseOfEstPoints.getSigmaAccel() + " und sigmaSpeed:  "
+//                + configurationWithMinimalLatiRmseOfEstPoints.getSigmaGnssSpeed());
+//
+//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
+//        clearAllDataAndReadFileAgain(pathToNexus6File2);
+//
+//        // Nehme die Konfiguration von configurationWithMinimalLatiAndLongiRmse, simuliere erneut und exportiere
+//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
+//                configurationWithMinimalLatiAndLongiRmse.getSigmaAccel(),
+//                configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
+//
+//        System.out.println("Optimale Filter-Konfi:\nsigmaAccel:  "
+//                + configurationWithMinimalLatiAndLongiRmse.getSigmaAccel() + " und sigmaSpeed:  "
+//                + configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
 
 //        EstimationFilter2 filter2 = new EstimationFilter2();
 //        filter2.makeEstimation();
@@ -60,6 +94,15 @@ public class Main {
         System.out.println("Hi");
     }
 
+    private static void readCompleteFileAndCalculateCartesianPoints(String fileToRead) {
+        CsvReader reader = new CsvReader();
+        reader.readAllSegmentsFromfile(fileToRead);
+
+        // Berechne für jede WGS-Position die cartesische Position,
+        // mit der WGS-Beschleunigung
+        Service2.calculateCartesianPointAndWgsAccelForData();
+    }
+
     private static void clearAllDataAndReadFileAgain(String fileToReadAgain) {
         // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
         Service2.getListOfAllData().clear();
@@ -71,7 +114,8 @@ public class Main {
         Service2.setOldDt(0);
         Service2.setDt(0);
 
-        readDataOfFileAndCalculateCartesianPoints(fileToReadAgain);
+        //readDataOfFileAndCalculateCartesianPoints(fileToReadAgain);
+        readCompleteFileAndCalculateCartesianPoints(fileToReadAgain);
     }
 
     private static void simulateFilerWithSpecificParametersWithExcelAndVikExport(float sigmaAccel, double sigmaSpeed) {

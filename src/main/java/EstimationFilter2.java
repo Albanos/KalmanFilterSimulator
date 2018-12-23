@@ -11,7 +11,8 @@ import java.util.LinkedList;
  */
 public class EstimationFilter2 {
     private KalmanFilter filter;
-    final double dt = Service2.getDt();
+    final double dt = 0.1;
+    //final double dt = Service2.getDt();
     //final double dt = 0.057312011;
     //final double dt = 0.06;
     //final double dt = 0.020894866;
@@ -56,7 +57,7 @@ public class EstimationFilter2 {
     private static long timestamp;
 
     public EstimationFilter2() {
-        timestamp = timestamp2 = Service2.getListOfAllData().getFirst().getTimestamp();
+        //timestamp = timestamp2 = Service2.getListOfAllData().getFirst().getTimestamp();
 
         // Kopiere alle Daten, damit diese für Schleife gelöscht werden können
         copyListOfAllData.addAll(Service2.getListOfAllData());
@@ -64,6 +65,8 @@ public class EstimationFilter2 {
         // Wir nutzen kein downsampling mehr, frquenz der daten ist etwa 200 Hz,
         // deshalb erster kartesischer Punkt erst hier vorhanden. Wir wollen nicht mit (0/0) initialisieren
         Data firstDataPoint = copyListOfAllData.get(Constants.getPositionOfFirstPointWithCartesianCoordinates());
+        timestamp = timestamp2 = firstDataPoint.getTimestamp();
+
         float locationAccurancy = (float) firstDataPoint.getAccuracy_gnss();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen

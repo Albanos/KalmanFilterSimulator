@@ -73,7 +73,7 @@ public class FilterConfiguration {
      * Filter-Simulation mit sigmaAccel = 0.1 bis sigmaAccel = 50.1 in 0.1-Schritten
      */
     public void filterSimulation_01_to_50_1_in_01_onlySigmaAccel() {
-        //for (float i = 0.01f; i <= 50.1; i = i + 0.01f) {
+        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
         for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             FilterConfiguration currentConfiguration = new FilterConfiguration();
             currentConfiguration.setSigmaAccel(i);
@@ -104,7 +104,7 @@ public class FilterConfiguration {
      * gnssSpeed = 5.1 in 0.1-Schritten als jeweilige Kombinationen
      */
     public void filterSimulation_01_to_50_1_in_01_forSigmaAccel_and_01_to_15_1_in_01_forSigmaGnssSpeed() {
-        //for (float i = 0.01f; i <= 50.1; i = i + 0.01f) {
+        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
         for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             //for (double j = 0.01; j <= 15.1; j = j + 0.01) {
             for (double j = 0.1; j <= 15.1; j = j + 0.1) {
@@ -137,7 +137,7 @@ public class FilterConfiguration {
         FilterConfiguration.getAllFilterConfigurations().add(currentConfiguration);
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLatiRmse() {
+    public static FilterConfiguration findConfigurationWithMinimalLatiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double latiRmse = 1000;
 
@@ -151,7 +151,7 @@ public class FilterConfiguration {
         return optConfiguration;
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLongiRmse() {
+    public static FilterConfiguration findConfigurationWithMinimalLongiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double longiRmse = 1000;
 
@@ -165,7 +165,7 @@ public class FilterConfiguration {
         return optConfiguration;
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLatiAndLongiRmse() {
+    public static FilterConfiguration findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double latirmse = 1000;
         double longiRmse = 1000;
