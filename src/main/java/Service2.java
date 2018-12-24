@@ -22,13 +22,34 @@ public class Service2 {
     // Speichere Winkel und Distanz eines jeden Punktes zum ersten Punkt in der Map
     private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
 
-    // Speiechere den RMSE global (wird in der Methode calculateRMSEFor10Hearts gesetzt)
+    // Speiechere den lat/lon-RMSE global (wird in der Methode calculateRMSEOfLatiLongiDistancesFor10Hearts gesetzt)
     private static double rmseLongiEstGt;
     private static double rmseLatiEstGt;
     private static double rmseLongiGnssGt;
     private static double rmseLatiGnssGt;
 
+    // Speichere den RMSE des absoluten Abstands (wird in der Methode
+    // calculateRMSEOfAbsoluteDistanceFor10Hearts gesetzt)
+    private static double rmseAbsoluteDistanceEstGt;
+    private static double rmseAbsoluteDistanceGnssGt;
+
     //==================================================
+
+    public static double getRmseAbsoluteDistanceEstGt() {
+        return rmseAbsoluteDistanceEstGt;
+    }
+
+    public static void setRmseAbsoluteDistanceEstGt(double rmseAbsoluteDistanceEstGt) {
+        Service2.rmseAbsoluteDistanceEstGt = rmseAbsoluteDistanceEstGt;
+    }
+
+    public static double getRmseAbsoluteDistanceGnssGt() {
+        return rmseAbsoluteDistanceGnssGt;
+    }
+
+    public static void setRmseAbsoluteDistanceGnssGt(double rmseAbsoluteDistanceGnssGt) {
+        Service2.rmseAbsoluteDistanceGnssGt = rmseAbsoluteDistanceGnssGt;
+    }
 
     public static double getRmseLongiEstGt() {
         return rmseLongiEstGt;
@@ -546,6 +567,10 @@ public class Service2 {
         data.setEstimatedLon(globalCoordinates.getLongitude());
     }
 
+    /**
+     * Lateraler und longitudinaler Abstand zwischen geschätzten- und GT-Punkten im WGS-System
+     * @param data
+     */
     public static void calculateDistanceBetweenEstimatedAndGTPosition(Data data) {
         double latitude_est = data.getEstimatedLat();
         double longitude_est = data.getEstimatedLon();
@@ -582,6 +607,10 @@ public class Service2 {
         calculateDistanceBetweenGNSSAndGTPosition(data);
     }
 
+    /**
+     * Lateraler und longitudinaler Abstand zwischen Smartphone-GNSS- und GT-Punkten im WGS-System
+     * @param d
+     */
     public static void calculateDistanceBetweenGNSSAndGTPosition(Data d) {
         double latitude_wgs = d.getLatitude_wgs();
         double longitude_wgs = d.getLongitude_wgs();
@@ -611,6 +640,35 @@ public class Service2 {
 
         d.setLatiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("latiDistance"));
         d.setLongiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("longiDistance"));
+    }
+
+    public static void calculateAbsoluteDistanceBetweenEstAndGtPoint(Data d) {
+        double estimatedLon = d.getEstimatedLon();
+        double estimatedLat = d.getEstimatedLat();
+        double longitude_gt = d.getLongitude_gt();
+        double latitude_gt = d.getLatitude_gt();
+
+        GlobalCoordinates gcEst = new GlobalCoordinates(estimatedLat, estimatedLon);
+        GlobalCoordinates gcGt = new GlobalCoordinates(latitude_gt, longitude_gt);
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gcEst, gcGt);
+
+        d.setAbsoluteDistanceEstGt(geodeticCurve.getEllipsoidalDistance());
+
+        // Berechne im selben Zug den absoluten Abstand zwischen GT und Smartphone-GNSS
+        calculateAbsoluteDistanceBetweenGnssAndGtPoint(d);
+    }
+
+    private static void calculateAbsoluteDistanceBetweenGnssAndGtPoint(Data d) {
+        double longitude_wgs = d.getLongitude_wgs();
+        double latitude_wgs = d.getLatitude_wgs();
+        double longitude_gt = d.getLongitude_gt();
+        double latitude_gt = d.getLatitude_gt();
+
+        GlobalCoordinates gcGnss = new GlobalCoordinates(latitude_wgs, longitude_wgs);
+        GlobalCoordinates gcGt = new GlobalCoordinates(latitude_gt, longitude_gt);
+        GeodeticCurve geodeticCurve = calculator.calculateGeodeticCurve(Ellipsoid.WGS84, gcGnss, gcGt);
+
+        d.setAbsoluteDistanceGnssGt(geodeticCurve.getEllipsoidalDistance());
     }
 
     /**
@@ -814,7 +872,7 @@ public class Service2 {
         }
     }
 
-    public static void calculateRMSEFor10Hearts() {
+    public static void calculateRMSEOfLatiLongiDistancesFor10Hearts() {
         double sumOfLongDistancesEstGT = 0;
         double sumOfLatDistancesEstGT = 0;
         double sumOfLonDistancesGnssGT = 0;
@@ -851,5 +909,35 @@ public class Service2 {
         Service2.setRmseLongiEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
         Service2.setRmseLatiGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
         Service2.setRmseLongiGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
+
+        // Berechne auch den RMSE für den absoluten Abstand
+        calculateRMSEOfAbsoluteDistancesFor10Hearts();
+    }
+
+    private static void calculateRMSEOfAbsoluteDistancesFor10Hearts() {
+        double sumOfAbsoluteDistanceEstGt = 0;
+        double sumOfAbsoluteDistanceGnssGt = 0;
+        int countOfIterations = 0;
+
+        // Berechne die Quadrate der Differenzen
+        for(Data d : Service2.getListOfAllData()) {
+            double estimatedPoint_x = d.getEstimatedPoint_x();
+            double estimatedPoint_y = d.getEstimatedPoint_y();
+
+            // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
+            // Wir überspringen Punkte, wegen definierter Schätzfrequenz
+            if (estimatedPoint_x == 0.0 || estimatedPoint_y == 0.0) {
+                continue;
+            }
+
+            countOfIterations++;
+            double absoluteDistanceEstGt = d.getAbsoluteDistanceEstGt();
+            sumOfAbsoluteDistanceEstGt += Math.pow(absoluteDistanceEstGt,2);
+
+            double absoluteDistanceGnssGt = d.getAbsoluteDistanceGnssGt();
+            sumOfAbsoluteDistanceGnssGt += Math.pow(absoluteDistanceGnssGt,2);
+        }
+        Service2.setRmseAbsoluteDistanceEstGt(Math.sqrt(sumOfAbsoluteDistanceEstGt/countOfIterations));
+        Service2.setRmseAbsoluteDistanceGnssGt(Math.sqrt(sumOfAbsoluteDistanceGnssGt/countOfIterations));
     }
 }

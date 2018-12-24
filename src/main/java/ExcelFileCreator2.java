@@ -82,6 +82,12 @@ public class ExcelFileCreator2 {
         HSSFCell cell_2K_sheet2 = sheet2_row2.createCell(10);
         cell_2K_sheet2.setCellValue("Longitude_GT");
 
+        HSSFCell cell_2L_sheet2 = sheet2_row2.createCell(11);
+        cell_2L_sheet2.setCellValue("Absolute_Distance_Est_GT_[m]");
+
+        HSSFCell cell_2M_sheet2 = sheet2_row2.createCell(12);
+        cell_2M_sheet2.setCellValue("Absolute_Distance_GNSS_GT_[m]");
+
         // Originale Punkte (im WGS-Format) in Sheet 3
         HSSFRow sheet3_row1 = thirdSheet.createRow(0);
         HSSFCell cell_1A_sheet3 = sheet3_row1.createCell(0);
@@ -155,6 +161,9 @@ public class ExcelFileCreator2 {
             double longiDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
             double latitude_gt = d.getLatitude_gt();
             double longitude_gt = d.getLongitude_gt();
+            // Schreibe auch den absoluten Abstand zwischen Est <--> GT und GNSS <--> GT
+            double absoluteDistanceEstGtValue = d.getAbsoluteDistanceEstGt();
+            double absoluteDistanceGnssGtValue = d.getAbsoluteDistanceGnssGt();
 
             HSSFRow currentRow = secondSheet.createRow(i);
             HSSFCell estimatedTimestamp = currentRow.createCell(0);
@@ -172,6 +181,8 @@ public class ExcelFileCreator2 {
             HSSFCell latDistance_GNSS_GT = currentRow.createCell(8);
             HSSFCell latitude_GT = currentRow.createCell(9);
             HSSFCell longitude_GT = currentRow.createCell(10);
+            HSSFCell absoluteDistanceEstGt = currentRow.createCell(11);
+            HSSFCell absoluteDistanceGnssGt = currentRow.createCell(12);
 
             estimatedTimestamp.setCellValue(currentTimestamp);
             estimatedX.setCellValue(estimatedPoint_x);
@@ -184,6 +195,8 @@ public class ExcelFileCreator2 {
             latDistance_GNSS_GT.setCellValue(latiDistanceGNSSToGt);
             latitude_GT.setCellValue(latitude_gt);
             longitude_GT.setCellValue(longitude_gt);
+            absoluteDistanceEstGt.setCellValue(absoluteDistanceEstGtValue);
+            absoluteDistanceGnssGt.setCellValue(absoluteDistanceGnssGtValue);
 
             i++;
         }
@@ -195,11 +208,15 @@ public class ExcelFileCreator2 {
         HSSFCell rmseLatEstGt = lastRowAfterEstPoints.createCell(6);
         HSSFCell rmseLonGnssGt = lastRowAfterEstPoints.createCell(7);
         HSSFCell rmseLatGnssGt = lastRowAfterEstPoints.createCell(8);
+        HSSFCell rmseAbsDistanceEstGt = lastRowAfterEstPoints.createCell(11); // Spalte 9 & 10 = la/lon-GT
+        HSSFCell rmseAbsDistanceGnssGt = lastRowAfterEstPoints.createCell(12);
 
         rmseLonEstGt.setCellValue(Service2.getRmseLongiEstGt());
         rmseLatEstGt.setCellValue(Service2.getRmseLatiEstGt());
         rmseLonGnssGt.setCellValue(Service2.getRmseLongiGnssGt());
         rmseLatGnssGt.setCellValue(Service2.getRmseLatiGnssGt());
+        rmseAbsDistanceEstGt.setCellValue(Service2.getRmseAbsoluteDistanceEstGt());
+        rmseAbsDistanceGnssGt.setCellValue(Service2.getRmseAbsoluteDistanceGnssGt());
 
         i = 2;
         double oldLatitude =0;

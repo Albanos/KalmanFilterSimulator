@@ -21,10 +21,12 @@ public class Main {
         //readDataOfFileAndCalculateCartesianPoints(pathToNexus6File);
         readCompleteFileAndCalculateCartesianPoints(pathToNexus6File2);
 
+        Constants.setSigmaAccel(20f);
+        Constants.setSigmaGnssSpeed(4.1);
         EstimationFilter2 filter = new EstimationFilter2();
         filter.makeEstimation();
 
-        Service2.calculateRMSEFor10Hearts();
+        Service2.calculateRMSEOfLatiLongiDistancesFor10Hearts();
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
         creator.writeDataToFile();
@@ -83,7 +85,7 @@ public class Main {
 //        filter2.makeEstimation();
 //
 //        // Berechne die RMSE-Werte und speichere sie im Service
-//        Service2.calculateRMSEFor10Hearts();
+//        Service2.calculateRMSEOfLatiLongiDistancesFor10Hearts();
 //
 //        ExcelFileCreator2 excelFileCreator2 = new ExcelFileCreator2();
 //        excelFileCreator2.writeDataToFile();
@@ -123,7 +125,7 @@ public class Main {
         Constants.setSigmaGnssSpeed(sigmaSpeed);
         EstimationFilter2 filter = new EstimationFilter2();
         filter.makeEstimation();
-        Service2.calculateRMSEFor10Hearts();
+        Service2.calculateRMSEOfLatiLongiDistancesFor10Hearts();
         ExcelFileCreator2 excelFileCreator2 = new ExcelFileCreator2();
         excelFileCreator2.writeDataToFile();
         Service2.writeAllDataToVikingFile();

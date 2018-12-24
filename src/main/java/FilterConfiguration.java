@@ -127,7 +127,7 @@ public class FilterConfiguration {
         EstimationFilter2 filter = new EstimationFilter2();
         filter.makeEstimation();
 
-        Service2.calculateRMSEFor10Hearts();
+        Service2.calculateRMSEOfLatiLongiDistancesFor10Hearts();
 
         currentConfiguration.setRmseLatiDistanceEstGt(Service2.getRmseLatiEstGt());
         currentConfiguration.setRmseLongiDistanceEstGt(Service2.getRmseLongiEstGt());

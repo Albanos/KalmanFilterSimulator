@@ -216,6 +216,9 @@ public class EstimationFilter2 {
 
             // Berechne auch die longitudinale und laterale Distanz zur GT-Position
             Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+
+            // Berechne ausserdem den absoluten Abstand zwischen Est <--> GT (& zwischen GNSS <--> GT)
+            Service2.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
         }
         System.out.println("=======================Schätzungen abgeschlossen\n");
     }

@@ -49,10 +49,32 @@ public class Data {
     private double latiDistanceGnssToGtWithDirection;
     private double longiDistanceGnssToGtWithDirection;
 
+    // Absoluter Abstand (keine lat/lon-Betrachtung), Est <--> GT
+    private double absoluteDistanceEstGt;
+
+    // Absoluter Abstand (keine lat/lon-Betrachtung), GNSS <--> GT
+    private double absoluteDistanceGnssGt;
+
     // GT-direction für die Rotation der Punkte (für Abstandsberechnung in und um Bewegungsrichtung)
     private double gtDirection;
 
     //===============================================
+
+    public double getAbsoluteDistanceEstGt() {
+        return absoluteDistanceEstGt;
+    }
+
+    public void setAbsoluteDistanceEstGt(double absoluteDistanceEstGt) {
+        this.absoluteDistanceEstGt = absoluteDistanceEstGt;
+    }
+
+    public double getAbsoluteDistanceGnssGt() {
+        return absoluteDistanceGnssGt;
+    }
+
+    public void setAbsoluteDistanceGnssGt(double absoluteDistanceGnssGt) {
+        this.absoluteDistanceGnssGt = absoluteDistanceGnssGt;
+    }
 
     public double getLatiDistanceEstToGtWithDirection() {
         return latiDistanceEstToGtWithDirection;
