@@ -89,7 +89,7 @@ public class FilterConfiguration {
      */
     public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed() {
         //for (double i = 0.01; i <= 15.1; i = i + 0.01) {
-        for (double i = 0.1; i <= 15.1; i = i + 0.1) {
+        for (double i = 0.001; i <= 15.1; i = i + 0.001) {
             FilterConfiguration currentConfiguration = new FilterConfiguration();
             currentConfiguration.setSigmaAccel(Constants.getSigmaAccel());
             currentConfiguration.setSigmaGnssSpeed(i);

@@ -177,6 +177,7 @@ public class EstimationFilter2 {
 
             // mache Vorhersageschritt
             filter.predict(u);
+            //filter.predict();
 
             // Prüfe ob 1s vergangen ist. Wenn ja: Werte kartesische
             // Position aus
