@@ -22,7 +22,7 @@ public class Service2 {
     // Speichere Winkel und Distanz eines jeden Punktes zum ersten Punkt in der Map
     private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
 
-    // Speiechere den lat/lon-RMSE global (wird in der Methode calculateRMSEOfLatiLongiDistancesFor10Hearts gesetzt)
+    // Speiechere den lat/lon-RMSE global (wird in der Methode calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts gesetzt)
     private static double rmseLongiEstGt;
     private static double rmseLatiEstGt;
     private static double rmseLongiGnssGt;
@@ -119,8 +119,11 @@ public class Service2 {
         return listOfAllData;
     }
 
-    public static void calculateCartesianPointAndWgsAccelForData() {
-        for (Data d : Service2.getListOfAllData()) {
+    public static void calculateCartesianPointAndWgsAccelForData(String[] segment) {
+        String keyForMap = segment[0] + "_" + segment[1];
+        LinkedList<Data> dataOfCurrentSegment = CsvReader.getOriginalLinesBySegments().get(keyForMap);
+        //for (Data d : Service2.getListOfAllData()) {
+        for(Data d : dataOfCurrentSegment) {
             GlobalPosition globalPosition = d.getGlobalPosition();
             double distance = coordinateDistanceBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
             double angle = coordinateAngleBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
@@ -130,14 +133,16 @@ public class Service2 {
                 d.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
             }
         }
-        calculateWgsAccel();
+        calculateWgsAccel(segment);
     }
 
-    private static void calculateWgsAccel() {
+    private static void calculateWgsAccel(String[] segment) {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
-
-        for (Data d : Service2.getListOfAllData()) {
+        String keyForMap = segment[0] + "_" + segment[1];
+        LinkedList<Data> dataOfCurrentSegment = CsvReader.getOriginalLinesBySegments().get(keyForMap);
+        //for (Data d : Service2.getListOfAllData()) {
+        for (Data d : dataOfCurrentSegment) {
             // Aktualisiere dt
             Service2.setDt(Service2.getOldDt() == 0 ? 0.1 : (Service2.getDt() - Service2.getOldDt()) / 1000.0f);
             Service2.setOldDt(Service2.getDt());
@@ -872,7 +877,7 @@ public class Service2 {
         }
     }
 
-    public static void calculateRMSEOfLatiLongiDistancesFor10Hearts() {
+    public static void calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts() {
         double sumOfLongDistancesEstGT = 0;
         double sumOfLatDistancesEstGT = 0;
         double sumOfLonDistancesGnssGT = 0;

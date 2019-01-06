@@ -3,11 +3,15 @@ import geodesy.GlobalPosition;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class CsvReader {
     private static CSVReader reader = null;
     private static long timeWithoutPoint;
-    private boolean readFirstMark = false;
+    private static LinkedHashMap<String, LinkedList<Data>> originalLinesBySegments = new LinkedHashMap<>();
 
     public void readAllSegmentsFromfile(String pathToFile) {
         String[] line;
@@ -30,10 +34,10 @@ public class CsvReader {
 
     public void readAllFromCsvFile(String pathToFile, String[] segment) {
         String[] line;
+        LinkedList<Data> dataObjects = new LinkedList<>();
         try {
             reader = new CSVReader(new FileReader(pathToFile));
             reader.skip(1);
-
             while ((line = reader.readNext()) != null) {
                 // ignoriere die rows, wo keine Position vorliegt
                 //if(line[1].startsWith("NaN") || !(line[18].startsWith("GO_" + segment[0])) && !(line[18].startsWith("STOP_" + segment[1]))) {
@@ -48,14 +52,19 @@ public class CsvReader {
                     break;
                 }
 
-                generateDataObjectAndSaveAllData(line);
+                dataObjects.add(generateDataObjectAndSaveAllData(line));
             }
+            String key = segment[0].concat("_").concat(segment[1]);
+            if(!originalLinesBySegments.containsKey(key)) {
+                originalLinesBySegments.put(key,dataObjects);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void generateDataObjectAndSaveAllData(String[] line) {
+    private Data generateDataObjectAndSaveAllData(String[] line) {
         Data d = new Data();
 
         // Entferne Punkt aus timestamp
@@ -108,6 +117,11 @@ public class CsvReader {
         // Setze auch die GT-direction für spätere Abstandsberechnung in und um Bewegungsrichtung
         d.setGtDirection(Double.valueOf(line[19]));
 
-        Service2.getListOfAllData().add(d);
+        //Service2.getListOfAllData().add(d);
+        return d;
+    }
+
+    public static LinkedHashMap<String, LinkedList<Data>> getOriginalLinesBySegments() {
+        return originalLinesBySegments;
     }
 }
