@@ -3,40 +3,47 @@ import geodesy.GlobalPosition;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-public class CsvReader {
-    private static CSVReader reader = null;
-    private static long timeWithoutPoint;
-    private static LinkedHashMap<String, LinkedList<Data>> originalLinesBySegments = new LinkedHashMap<>();
-
-    public void readAllSegmentsFromfile(String pathToFile) {
-        String[] line;
-        try {
-            reader = new CSVReader(new FileReader(pathToFile));
-            reader.skip(1);
-
-            while ((line = reader.readNext()) != null) {
-                // Überspringe die Datensätze, die mit stop gelabelt sind
-                if (line[1].startsWith("NaN") || line[18].startsWith("STOP")) {
-                    continue;
-                }
-
-                generateDataObjectAndSaveAllData(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+class CsvReader {
+    private static CsvReader instance = null;
+    private CsvReader(){}
+    static CsvReader getInstance() {
+        if(instance == null) {
+            instance = new CsvReader();
         }
+        return instance;
     }
+    private Map<String, List<Data>> originalLinesBySegments = new LinkedHashMap<>();
 
-    public void readAllFromCsvFile(String pathToFile, String[] segment) {
+//     FIXME: OLD
+//    void readAllSegmentsFromfile(String pathToFile) {
+//        String[] line;
+//        try {
+//            CSVReader reader = new CSVReader(new FileReader(pathToFile));
+//            reader.skip(1);
+//
+//            while ((line = reader.readNext()) != null) {
+//                // Überspringe die Datensätze, die mit stop gelabelt sind
+//                if (line[1].startsWith("NaN") || line[18].startsWith("STOP")) {
+//                    continue;
+//                }
+//
+//                generateDataObjectAndSaveAllData(line);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    void readSegmentFromCsv(final String pathToFile, final String[] segment) {
         String[] line;
-        LinkedList<Data> dataObjects = new LinkedList<>();
+        final List<Data> dataObjects = new LinkedList<>();
         try {
-            reader = new CSVReader(new FileReader(pathToFile));
+            final CSVReader reader = new CSVReader(new FileReader(pathToFile));
             reader.skip(1);
             while ((line = reader.readNext()) != null) {
                 // ignoriere die rows, wo keine Position vorliegt
@@ -54,7 +61,7 @@ public class CsvReader {
 
                 dataObjects.add(generateDataObjectAndSaveAllData(line));
             }
-            String key = segment[0].concat("_").concat(segment[1]);
+            final String key = segment[0].concat("_").concat(segment[1]);
             if(!originalLinesBySegments.containsKey(key)) {
                 originalLinesBySegments.put(key,dataObjects);
             }
@@ -64,26 +71,23 @@ public class CsvReader {
         }
     }
 
-    private Data generateDataObjectAndSaveAllData(String[] line) {
-        Data d = new Data();
-
+    private Data generateDataObjectAndSaveAllData(final String[] line) {
+        final Data d = new Data();
         // Entferne Punkt aus timestamp
-        String timestampWithoutPoint = line[0].replaceAll("\\.", "");
-        timeWithoutPoint = Long.valueOf(timestampWithoutPoint);
-        d.setTimestamp(timeWithoutPoint);
+        d.setTimestamp(Long.valueOf(line[0].replaceAll("\\.", "")));
 
         d.setLongitude_wgs(Double.valueOf(line[1]));
         d.setLatitude_wgs(Double.valueOf(line[2]));
         d.setAltitude_wgs(Double.valueOf(line[3]));
-
-        // setze erste GlobalPosition (for geodesy)
-        if (Service2.getFirstGlobalPosition() == null) {
-            Service2.setFirstGlobalPosition(new GlobalPosition(
-                    d.getLatitude_wgs(),
-                    d.getLongitude_wgs(),
-                    d.getAltitude_wgs()
-            ));
-        }
+//FIXME: gehört hier nicht hin
+//        // setze erste GlobalPosition (for geodesy)
+//        if (Service2.getFirstGlobalPosition() == null) {
+//            Service2.setFirstGlobalPosition(new GlobalPosition(
+//                    d.getLatitude_wgs(),
+//                    d.getLongitude_wgs(),
+//                    d.getAltitude_wgs()
+//            ));
+//        }
 
         // setze ebenso eine globale Position für lat/lon/alt
         d.setGlobalPosition(
@@ -116,12 +120,10 @@ public class CsvReader {
 
         // Setze auch die GT-direction für spätere Abstandsberechnung in und um Bewegungsrichtung
         d.setGtDirection(Double.valueOf(line[19]));
-
-        //Service2.getListOfAllData().add(d);
         return d;
     }
 
-    public static LinkedHashMap<String, LinkedList<Data>> getOriginalLinesBySegments() {
+    Map<String, List<Data>> getOriginalLinesBySegments() {
         return originalLinesBySegments;
     }
 }

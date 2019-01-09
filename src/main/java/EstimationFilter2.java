@@ -10,19 +10,16 @@ import java.util.LinkedList;
  * @author Luan Hajzeraj on 12/1/2018.
  */
 public class EstimationFilter2 {
+    private static final Constants constants = Constants.getInstance();
+    private static final Service2 service = Service2.getInstance();
+
     private KalmanFilter filter;
-    final double dt = 0.1;
-    //final double dt = Service2.getDt();
+    //final double dt = 0.1;
+    final double dt = service.getDt();
     //final double dt = 0.057312011;
     //final double dt = 0.06;
     //final double dt = 0.020894866;
     //final double dt = 0.02;
-
-    // Statische Variablen, von der doku-page
-    // position measurement noise (meter)
-    double measurementNoise = 10d;
-    // acceleration noise (meter/sec^2)
-    double accelNoise = 0.2d;
 
     // Vektoren und Matrizen (nach Notation von Apache Math):
     // x: Zustandsvektor
@@ -48,36 +45,28 @@ public class EstimationFilter2 {
     private ProcessModel pm;
     private MeasurementModel mm;
 
-    // Variable zum steuern der Erzeugung von Punkten, pro sekunde (in ms).
-    // Bsp.: TIME_TO_SLEEP=100 --> 10 Punkte/sek --> 10 Hz
-    private static final int TIME_TO_SLEEP = 100;
-
     private LinkedList<Data> copyListOfAllData = new LinkedList<>();
     private static long timestamp2;
     private static long timestamp;
 
     public EstimationFilter2() {
-        //timestamp = timestamp2 = Service2.getListOfAllData().getFirst().getTimestamp();
-
         // Kopiere alle Daten, damit diese für Schleife gelöscht werden können
-        copyListOfAllData.addAll(Service2.getListOfAllData());
+        copyListOfAllData.addAll(service.getListOfAllData());
 
         // Wir nutzen kein downsampling mehr, frquenz der daten ist etwa 200 Hz,
         // deshalb erster kartesischer Punkt erst hier vorhanden. Wir wollen nicht mit (0/0) initialisieren
-        Data firstDataPoint = copyListOfAllData.get(Constants.getPositionOfFirstPointWithCartesianCoordinates());
+        Data firstDataPoint = copyListOfAllData.get(constants.getPositionOfFirstPointWithCartesianCoordinates());
         timestamp = timestamp2 = firstDataPoint.getTimestamp();
 
         float locationAccurancy = (float) firstDataPoint.getAccuracy_gnss();
 
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
-        final float sigmaAccel = Constants.getSigmaAccel();
+        final float sigmaAccel = constants.getSigmaAccel();
 
         double coordinate_x = firstDataPoint.getCartesian_x();
         double coordinate_y = firstDataPoint.getCartesian_y();
         double speed_x = firstDataPoint.getSpeed_x_wgs();
         double speed_y = firstDataPoint.getSpeed_y_wgs();
-        // Wir löschen die init-Position, damit sie nicht als Messung genutzt wird
-        //copyListOfAllData.remove(firstDataPoint);
 
         double accel_x = firstDataPoint.getAccel_x_wgs();
         double accel_y = firstDataPoint.getAccel_y_wgs();
@@ -122,7 +111,7 @@ public class EstimationFilter2 {
         });
 
         double locationVarianz = Math.pow(locationAccurancy, 2);
-        double speedVarianz = Math.pow(Constants.getSigmaGnssSpeed(), 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
+        double speedVarianz = Math.pow(constants.getSigmaGnssSpeed(), 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
         R = new Array2DRowRealMatrix(new double[][]{
                 {locationVarianz, 0, 0, 0},
                 {0, locationVarianz, 0, 0},
@@ -168,16 +157,13 @@ public class EstimationFilter2 {
             }
             timestamp = currentTimestamp;
 
-            double cartesian_x = d.getCartesian_x();
-            double cartesian_y = d.getCartesian_y();
-
             // Aktualisiere Vektor u
             u.setEntry(0, currentAccelXWgs);
             u.setEntry(1, currentAccelYWgs);
 
             // mache Vorhersageschritt
-            filter.predict(u);
-            //filter.predict();
+            //filter.predict(u);
+            filter.predict();
 
             // Prüfe ob 1s vergangen ist. Wenn ja: Werte kartesische
             // Position aus
@@ -213,13 +199,13 @@ public class EstimationFilter2 {
 
             // Rechne geschätzte Kartesische Punkte in WGS-Format um:
             // erst Abstand und Winkel zum ersten kartesischen Punkt, dann die WGS-Koordinaten
-            Service2.calculateAngleAndDistanceAndWgsPositionByDataPoint(d);
+            service.calculateAngleAndDistanceAndWgsPositionByDataPoint(d);
 
             // Berechne auch die longitudinale und laterale Distanz zur GT-Position
-            Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+            service.calculateDistanceBetweenEstimatedAndGTPosition(d);
 
             // Berechne ausserdem den absoluten Abstand zwischen Est <--> GT (& zwischen GNSS <--> GT)
-            Service2.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
+            service.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
         }
         System.out.println("=======================Schätzungen abgeschlossen\n");
     }

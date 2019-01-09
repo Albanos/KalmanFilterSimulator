@@ -7,111 +7,111 @@ import org.junit.Test;
  * @author Luan Hajzeraj on 11/23/2018.
  */
 public class FirstTest {
-    // Komponente scheint nun korrekt zu rechnen
-    @Test
-    public void wgsAccelTest() {
-        float[] gravityValues = new float[3];
-        float[] magneticValues = new float[3];
-
-        gravityValues[0] = -0.106965736f;
-        gravityValues[1] = -0.03656099f;
-        gravityValues[2] = 9.805999f;
-
-        magneticValues[0] = -7.62f;
-        magneticValues[1] = -15.9f;
-        magneticValues[2] = -48.96f;
-
-        float[] deviceRelativeAcceleration = new float[4];
-        deviceRelativeAcceleration[0] = 0.105348095f;
-        deviceRelativeAcceleration[1] = -0.0071828244f;
-        deviceRelativeAcceleration[2] = 9.79019f;
-        deviceRelativeAcceleration[3] = 0.0f;
-
-        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
-
-        Service2.getRotationMatrix(R, I, gravityValues, magneticValues);
-
-        float[] inv = new float[16];
-        Service2.invertM(inv, 0, R, 0);
-        RealVector realVector = Service2.multiplyMV(inv, deviceRelativeAcceleration);
-        earthAcc[0] = (float) realVector.getEntry(0);
-        earthAcc[1] = (float) realVector.getEntry(1);
-        earthAcc[2] = (float) realVector.getEntry(2);
-
-        float[] exp = {
-                -0.17594706f,
-                -0.12206694f,
-                9.788417f,0,0,0,0,0,0,0,0,0,0,0,0,0
-        };
-
-        Assert.assertArrayEquals(exp, earthAcc, 0.2f);
-    }
-
-    // Scheint ebenfalls zu funktionieren
-    @Test
-    public void cartesianPointTest() {
-        GlobalPosition g = new GlobalPosition(51.195922402218514, 9.729042075412195, 443.44000585766383);
-        GlobalPosition firstPosition = new GlobalPosition(51.195904161464625, 9.729047495159477, 443.50095560170564);
-
-        double distance = Service2.coordinateDistanceBetweenTwoPoints(firstPosition, g);
-        double angle = Service2.coordinateAngleBetweenTwoPoints(firstPosition, g);
-
-        // handle the first point: distance and angle between firstPoint and firstPoint is 0
-        if (distance != 0.0 && angle != 0.0) {
-            CartesianPoint cartesianPoint = new CartesianPoint(
-                    distance * Math.sin(Math.toRadians(angle)),
-                    distance * Math.cos(Math.toRadians(angle))
-            );
-
-            Assert.assertEquals(-0.37887556800336547, cartesianPoint.getX(), 0);
-            Assert.assertEquals(2.0294623017182998, cartesianPoint.getY(),0);
-        }
-    }
-
-    //@Test
-//    public void longitudinalAndLateralDistanceTest() {
-//        double lat_est = 51.3385577616142;
-//        double long_est = 9.44964879364966;
-//        double lat_gt = 51.33852212;
-//        double long_gt = 9.44966451;
+//    // Komponente scheint nun korrekt zu rechnen
+//    @Test
+//    public void wgsAccelTest() {
+//        float[] gravityValues = new float[3];
+//        float[] magneticValues = new float[3];
 //
-//        Data d = new Data();
-//        d.setEstimatedLat(lat_est);
-//        d.setEstimatedLon(long_est);
-//        d.setLatitude_gt(lat_gt);
-//        d.setLongitude_gt(long_gt);
+//        gravityValues[0] = -0.106965736f;
+//        gravityValues[1] = -0.03656099f;
+//        gravityValues[2] = 9.805999f;
 //
-//        Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+//        magneticValues[0] = -7.62f;
+//        magneticValues[1] = -15.9f;
+//        magneticValues[2] = -48.96f;
 //
-//        double lateralDistanceToGt = d.getLateralDistanceEstToGtWihoutUserDirection();
-//        double longitudinalDistanceToGt = d.getLongitudinalDistanceEstToGtWithoutUserDirection();
+//        float[] deviceRelativeAcceleration = new float[4];
+//        deviceRelativeAcceleration[0] = 0.105348095f;
+//        deviceRelativeAcceleration[1] = -0.0071828244f;
+//        deviceRelativeAcceleration[2] = 9.79019f;
+//        deviceRelativeAcceleration[3] = 0.0f;
 //
-//        Assert.assertEquals(-1.09520296701076, longitudinalDistanceToGt,0.0001);
-//        Assert.assertEquals(3.96529892704058, lateralDistanceToGt, 0.0001);
-//        System.out.println();
+//        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
+//
+//        Service2.getRotationMatrix(R, I, gravityValues, magneticValues);
+//
+//        float[] inv = new float[16];
+//        Service2.invertM(inv, 0, R, 0);
+//        RealVector realVector = Service2.multiplyMV(inv, deviceRelativeAcceleration);
+//        earthAcc[0] = (float) realVector.getEntry(0);
+//        earthAcc[1] = (float) realVector.getEntry(1);
+//        earthAcc[2] = (float) realVector.getEntry(2);
+//
+//        float[] exp = {
+//                -0.17594706f,
+//                -0.12206694f,
+//                9.788417f,0,0,0,0,0,0,0,0,0,0,0,0,0
+//        };
+//
+//        Assert.assertArrayEquals(exp, earthAcc, 0.2f);
 //    }
-
-    @Test
-    public void findBestFilterConfigurationTest() {
-        FilterConfiguration confiOne = new FilterConfiguration();
-        FilterConfiguration confiTwo = new FilterConfiguration();
-        FilterConfiguration confiThree = new FilterConfiguration();
-
-        confiOne.setRmseLongiDistanceEstGt(1);
-        confiOne.setRmseLatiDistanceEstGt(1);
-
-        confiTwo.setRmseLongiDistanceEstGt(2);
-        confiTwo.setRmseLatiDistanceEstGt(2);
-
-        confiThree.setRmseLongiDistanceEstGt(0);
-        confiThree.setRmseLatiDistanceEstGt(3);
-
-        FilterConfiguration.getAllFilterConfigurations().add(confiOne);
-        FilterConfiguration.getAllFilterConfigurations().add(confiTwo);
-        FilterConfiguration.getAllFilterConfigurations().add(confiThree);
-
-        FilterConfiguration configurationWithMinimalLatiAndLongiRmse = FilterConfiguration.findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints();
-        System.out.println();
-
-    }
+//
+//    // Scheint ebenfalls zu funktionieren
+//    @Test
+//    public void cartesianPointTest() {
+//        GlobalPosition g = new GlobalPosition(51.195922402218514, 9.729042075412195, 443.44000585766383);
+//        GlobalPosition firstPosition = new GlobalPosition(51.195904161464625, 9.729047495159477, 443.50095560170564);
+//
+//        double distance = Service2.coordinateDistanceBetweenTwoPoints(firstPosition, g);
+//        double angle = Service2.coordinateAngleBetweenTwoPoints(firstPosition, g);
+//
+//        // handle the first point: distance and angle between firstPoint and firstPoint is 0
+//        if (distance != 0.0 && angle != 0.0) {
+//            CartesianPoint cartesianPoint = new CartesianPoint(
+//                    distance * Math.sin(Math.toRadians(angle)),
+//                    distance * Math.cos(Math.toRadians(angle))
+//            );
+//
+//            Assert.assertEquals(-0.37887556800336547, cartesianPoint.getX(), 0);
+//            Assert.assertEquals(2.0294623017182998, cartesianPoint.getY(),0);
+//        }
+//    }
+//
+//    //@Test
+////    public void longitudinalAndLateralDistanceTest() {
+////        double lat_est = 51.3385577616142;
+////        double long_est = 9.44964879364966;
+////        double lat_gt = 51.33852212;
+////        double long_gt = 9.44966451;
+////
+////        Data d = new Data();
+////        d.setEstimatedLat(lat_est);
+////        d.setEstimatedLon(long_est);
+////        d.setLatitude_gt(lat_gt);
+////        d.setLongitude_gt(long_gt);
+////
+////        Service2.calculateDistanceBetweenEstimatedAndGTPosition(d);
+////
+////        double lateralDistanceToGt = d.getLateralDistanceEstToGtWihoutUserDirection();
+////        double longitudinalDistanceToGt = d.getLongitudinalDistanceEstToGtWithoutUserDirection();
+////
+////        Assert.assertEquals(-1.09520296701076, longitudinalDistanceToGt,0.0001);
+////        Assert.assertEquals(3.96529892704058, lateralDistanceToGt, 0.0001);
+////        System.out.println();
+////    }
+//
+//    @Test
+//    public void findBestFilterConfigurationTest() {
+//        FilterConfiguration confiOne = new FilterConfiguration();
+//        FilterConfiguration confiTwo = new FilterConfiguration();
+//        FilterConfiguration confiThree = new FilterConfiguration();
+//
+//        confiOne.setRmseLongiDistanceEstGt(1);
+//        confiOne.setRmseLatiDistanceEstGt(1);
+//
+//        confiTwo.setRmseLongiDistanceEstGt(2);
+//        confiTwo.setRmseLatiDistanceEstGt(2);
+//
+//        confiThree.setRmseLongiDistanceEstGt(0);
+//        confiThree.setRmseLatiDistanceEstGt(3);
+//
+//        FilterConfiguration.getAllFilterConfigurations().add(confiOne);
+//        FilterConfiguration.getAllFilterConfigurations().add(confiTwo);
+//        FilterConfiguration.getAllFilterConfigurations().add(confiThree);
+//
+//        FilterConfiguration configurationWithMinimalLatiAndLongiRmse = FilterConfiguration.findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints();
+//        System.out.println();
+//
+//    }
 }

@@ -3,12 +3,15 @@ import org.apache.poi.hssf.usermodel.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * @author Luan Hajzeraj on 12/3/2018.
  */
 public class ExcelFileCreator2 {
-    public void writeDataToFile() {
+    private static final Service2 service = Service2.getInstance();
+
+    public void writeDataToFile(final List<Data> data, final FilterConfiguration conf, String[] currentSegment) {
         // ======================Grundstruktur für den Excel-Export erzeugen
         HSSFWorkbook workbook = new HSSFWorkbook();
 
@@ -111,7 +114,8 @@ public class ExcelFileCreator2 {
 
         int i =2;
         // ===================================== Originale kartesische Punkte
-        for(Data d : Service2.getListOfAllData()) {
+        //for(Data d : service.getListOfAllData()) {
+        for(Data d : data) {
             long currentTimestamp = d.getTimestamp();
 
             double cartesian_x = d.getCartesian_x();
@@ -139,7 +143,8 @@ public class ExcelFileCreator2 {
         // ===================================== Zeichne die geschätzten Punkte
         i = 2;
         int j = 0;
-        for(Data d : Service2.getListOfAllData()) {
+        //for(Data d : service.getListOfAllData()) {
+        for(Data d : data) {
             long currentTimestamp = d.getTimestamp();
             double estimatedPoint_x = d.getEstimatedPoint_x();
             double estimatedPoint_y = d.getEstimatedPoint_y();
@@ -211,18 +216,25 @@ public class ExcelFileCreator2 {
         HSSFCell rmseAbsDistanceEstGt = lastRowAfterEstPoints.createCell(11); // Spalte 9 & 10 = la/lon-GT
         HSSFCell rmseAbsDistanceGnssGt = lastRowAfterEstPoints.createCell(12);
 
-        rmseLonEstGt.setCellValue(Service2.getRmseLongiEstGt());
-        rmseLatEstGt.setCellValue(Service2.getRmseLatiEstGt());
-        rmseLonGnssGt.setCellValue(Service2.getRmseLongiGnssGt());
-        rmseLatGnssGt.setCellValue(Service2.getRmseLatiGnssGt());
-        rmseAbsDistanceEstGt.setCellValue(Service2.getRmseAbsoluteDistanceEstGt());
-        rmseAbsDistanceGnssGt.setCellValue(Service2.getRmseAbsoluteDistanceGnssGt());
+//        rmseLonEstGt.setCellValue(service.getRmseLongiEstGt());
+//        rmseLatEstGt.setCellValue(service.getRmseLatiEstGt());
+//        rmseLonGnssGt.setCellValue(service.getRmseLongiGnssGt());
+//        rmseLatGnssGt.setCellValue(service.getRmseLatiGnssGt());
+//        rmseAbsDistanceEstGt.setCellValue(service.getRmseAbsoluteDistanceEstGt());
+//        rmseAbsDistanceGnssGt.setCellValue(service.getRmseAbsoluteDistanceGnssGt());
+        rmseLonEstGt.setCellValue(conf.getRmseLongiDistanceEstGt());
+        rmseLatEstGt.setCellValue(conf.getRmseLatiDistanceEstGt());
+        rmseLonGnssGt.setCellValue(conf.getRmseLongiDistanceGnssGt());
+        rmseLatGnssGt.setCellValue(conf.getRmseLatiDistanceGnssGt());
+        rmseAbsDistanceEstGt.setCellValue(conf.getRmseAbsDistanceEstGt());
+        rmseAbsDistanceGnssGt.setCellValue(conf.getRmseAbsDistanceGnssGt());
 
         i = 2;
         double oldLatitude =0;
         double oldLongitude =0;
         // ===================================== Schreibe die originalen WGS-Punkte
-        for(Data d : Service2.getListOfAllData()) {
+        //for(Data d : service.getListOfAllData()) {
+        for(Data d : data) {
             long currentTimestamp = d.getTimestamp();
             double latitude_wgs = d.getLatitude_wgs();
             double longitude_wgs = d.getLongitude_wgs();
@@ -256,7 +268,9 @@ public class ExcelFileCreator2 {
                     new Timestamp(System.currentTimeMillis()).toString()
                             .replaceAll("\\s", "_")
                             .replaceAll(":", "-")
-                            .replaceAll("\\.", "-").concat(".xls");
+                            .replaceAll("\\.", "-")
+                            .concat("_Seg_" + currentSegment[0] + "_" + currentSegment[1])
+                            .concat(".xls");
             FileOutputStream fos = new FileOutputStream(fileName);
             workbook.write(fos);
             fos.close();

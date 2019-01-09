@@ -1,11 +1,26 @@
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * @author Luan Hajzeraj on 15.12.2018.
  */
 public class FilterConfiguration {
+    private static FilterConfiguration instance = null;
+
+    private FilterConfiguration() {
+    }
+
+    static FilterConfiguration getInstance() {
+        if (instance == null) {
+            instance = new FilterConfiguration();
+        }
+        return instance;
+    }
+    private final Constants constants = Constants.getInstance();
+    private final Service2 service = Service2.getInstance();
+    
     private float sigmaAccel;
     private double sigmaGnssSpeed;
     private double rmseLongiDistanceEstGt;
@@ -18,15 +33,15 @@ public class FilterConfiguration {
     private double rmseAbsDistanceGnssGt;
 
     // statische Liste für alle möglichen Filter-Konfigurationen
-    private static LinkedList<FilterConfiguration> allFilterConfigurations = new LinkedList<>();
+    private LinkedList<FilterConfiguration> allFilterConfigurations = new LinkedList<>();
 
     // Map mit FilterKonfigurationen als Key und den Simulationsergebnissen in einer List
-    private static LinkedHashMap<String, ArrayList<FilterConfiguration>> allSimulationsOfOneConfiMap = new LinkedHashMap<>();
+    private LinkedHashMap<String, ArrayList<FilterConfiguration>> allSimulationsOfOneConfiMap = new LinkedHashMap<>();
 
     // ============================================================
 
 
-    public static LinkedHashMap<String, ArrayList<FilterConfiguration>> getAllSimulationsOfOneConfiMap() {
+    public LinkedHashMap<String, ArrayList<FilterConfiguration>> getAllSimulationsOfOneConfiMap() {
         return allSimulationsOfOneConfiMap;
     }
 
@@ -46,7 +61,7 @@ public class FilterConfiguration {
         this.rmseAbsDistanceGnssGt = rmseAbsDistanceGnssGt;
     }
 
-    public static LinkedList<FilterConfiguration> getAllFilterConfigurations() {
+    public LinkedList<FilterConfiguration> getAllFilterConfigurations() {
         return allFilterConfigurations;
     }
 
@@ -101,157 +116,160 @@ public class FilterConfiguration {
     /**
      * Filter-Simulation mit sigmaAccel = 0.1 bis sigmaAccel = 50.1 in 0.1-Schritten
      */
-    public void filterSimulation_01_to_50_1_in_01_onlySigmaAccel() {
-        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
-        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
-            FilterConfiguration currentConfiguration = new FilterConfiguration();
-            currentConfiguration.setSigmaAccel(i);
-            currentConfiguration.setSigmaGnssSpeed(Constants.getSigmaGnssSpeed());
+    // FIXME: OLD
+//    public void filterSimulation_01_to_50_1_in_01_onlySigmaAccel() {
+//        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
+//        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
+//            FilterConfiguration currentConfiguration = new FilterConfiguration();
+//            currentConfiguration.setSigmaAccel(i);
+//            currentConfiguration.setSigmaGnssSpeed(constants.getSigmaGnssSpeed());
+//
+//            constants.setSigmaAccel(i);
+//            simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
+//        }
+//    }
+    // FIXME: OLD
+//    public void filterSimulation_overAllSegments_001_to_20_1_in_001_onlySigmaAccel(String pathToFile) {
+//        for(float i = 0.01f; i <= 20.1; i = i + 0.01f) {
+//            // ===============================================Lese Segment A ein
+//            constants.setCurrentSegment(constants.getSegmentA());
+//            //Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf1 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, constants.getSigmaGnssSpeed());
+//
+//            // Speichere das Filter-Ergebnis in temp-Liste der Konfis
+//            ArrayList<FilterConfiguration> tempListOfCurrentConfi = new ArrayList<>();
+//            tempListOfCurrentConfi.add(conf1);
+//
+//            // ===============================================Lese Segment B ein
+//            constants.setCurrentSegment(constants.getSegmentB());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf2 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, constants.getSigmaGnssSpeed());
+//            tempListOfCurrentConfi.add(conf2);
+//
+//            // ===============================================Lese Segment C ein
+//            constants.setCurrentSegment(constants.getSegmentC());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf3 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, constants.getSigmaGnssSpeed());
+//            tempListOfCurrentConfi.add(conf3);
+//
+//            // ===============================================Lese Segment D ein
+//            constants.setCurrentSegment(constants.getSegmentD());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf4 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, constants.getSigmaGnssSpeed());
+//            tempListOfCurrentConfi.add(conf4);
+//
+//            // Speichere alle Konfis in globaler map
+//            allSimulationsOfOneConfiMap.put(
+//                    String.valueOf(i).concat("_").concat(String.valueOf(constants.getSigmaGnssSpeed())),
+//                    tempListOfCurrentConfi
+//            );
+//        }
+//    }
 
-            Constants.setSigmaAccel(i);
-            simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
-        }
-    }
+    // FIXME: Old
+//    public void filterSimulation_overAllSegments_001_to_15_1_in_001_onlySigmaSpeed(String pathToFile) {
+//        for(double i = 0.1; i <= 15.1; i = i + 0.1) {
+//            // ===============================================Lese Segment A ein
+//            constants.setCurrentSegment(constants.getSegmentA());
+//            Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
+//
+//            FilterConfiguration conf1
+//                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+//
+//            // Speichere das Filter-Ergebnis in temp-Liste der Konfis
+//            ArrayList<FilterConfiguration> tempListOfCurrentConfi = new ArrayList<>();
+//            tempListOfCurrentConfi.add(conf1);
+//
+//            // ===============================================Lese Segment B ein
+//            constants.setCurrentSegment(constants.getSegmentB());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf2
+//                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+//            tempListOfCurrentConfi.add(conf2);
+//
+//            // ===============================================Lese Segment C ein
+//            constants.setCurrentSegment(constants.getSegmentC());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf3
+//                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+//            tempListOfCurrentConfi.add(conf3);
+//
+//            // ===============================================Lese Segment D ein
+//            constants.setCurrentSegment(constants.getSegmentD());
+//            //Main.clearAllDataAndReadFileAgain(pathToFile);
+//            service.setListOfAllDataByGlobalSegment();
+//
+//            FilterConfiguration conf4
+//                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+//            tempListOfCurrentConfi.add(conf4);
+//
+//            // Speichere alle Konfis in globaler map
+//            allSimulationsOfOneConfiMap.put(
+//                    String.valueOf(i).concat("_").concat(String.valueOf(constants.getSigmaGnssSpeed())),
+//                    tempListOfCurrentConfi
+//            );
+//        }
+//    }
 
-    public void filterSimulation_overAllSegments_001_to_20_1_in_001_onlySigmaAccel(String pathToFile) {
-        for(float i = 0.01f; i <= 20.1; i = i + 0.01f) {
-            // ===============================================Lese Segment A ein
-            Constants.setCurrentSegment(Constants.getSegmentA());
-            //Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf1 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, Constants.getSigmaGnssSpeed());
-
-            // Speichere das Filter-Ergebnis in temp-Liste der Konfis
-            ArrayList<FilterConfiguration> tempListOfCurrentConfi = new ArrayList<>();
-            tempListOfCurrentConfi.add(conf1);
-
-            // ===============================================Lese Segment B ein
-            Constants.setCurrentSegment(Constants.getSegmentB());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf2 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, Constants.getSigmaGnssSpeed());
-            tempListOfCurrentConfi.add(conf2);
-
-            // ===============================================Lese Segment C ein
-            Constants.setCurrentSegment(Constants.getSegmentC());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf3 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, Constants.getSigmaGnssSpeed());
-            tempListOfCurrentConfi.add(conf3);
-
-            // ===============================================Lese Segment D ein
-            Constants.setCurrentSegment(Constants.getSegmentD());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf4 = simulateEstimationAndGenerateConfigurationAndreturnThem(i, Constants.getSigmaGnssSpeed());
-            tempListOfCurrentConfi.add(conf4);
-
-            // Speichere alle Konfis in globaler map
-            allSimulationsOfOneConfiMap.put(
-                    String.valueOf(i).concat("_").concat(String.valueOf(Constants.getSigmaGnssSpeed())),
-                    tempListOfCurrentConfi
-            );
-        }
-    }
-
-    public void filterSimulation_overAllSegments_001_to_15_1_in_001_onlySigmaSpeed(String pathToFile) {
-        for(double i = 0.1; i <= 15.1; i = i + 0.1) {
-            // ===============================================Lese Segment A ein
-            Constants.setCurrentSegment(Constants.getSegmentA());
-            Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
-
-            FilterConfiguration conf1
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(Constants.getSigmaAccel(), i);
-
-            // Speichere das Filter-Ergebnis in temp-Liste der Konfis
-            ArrayList<FilterConfiguration> tempListOfCurrentConfi = new ArrayList<>();
-            tempListOfCurrentConfi.add(conf1);
-
-            // ===============================================Lese Segment B ein
-            Constants.setCurrentSegment(Constants.getSegmentB());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf2
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(Constants.getSigmaAccel(), i);
-            tempListOfCurrentConfi.add(conf2);
-
-            // ===============================================Lese Segment C ein
-            Constants.setCurrentSegment(Constants.getSegmentC());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf3
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(Constants.getSigmaAccel(), i);
-            tempListOfCurrentConfi.add(conf3);
-
-            // ===============================================Lese Segment D ein
-            Constants.setCurrentSegment(Constants.getSegmentD());
-            //Main.clearAllDataAndReadFileAgain(pathToFile);
-            Constants.setListOfAllDataByGlobalSegment();
-
-            FilterConfiguration conf4
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(Constants.getSigmaAccel(), i);
-            tempListOfCurrentConfi.add(conf4);
-
-            // Speichere alle Konfis in globaler map
-            allSimulationsOfOneConfiMap.put(
-                    String.valueOf(i).concat("_").concat(String.valueOf(Constants.getSigmaGnssSpeed())),
-                    tempListOfCurrentConfi
-            );
-        }
-    }
-
-    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(String pathToFile) {
+    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed() {
         for(float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             for(double j = 0.1; j <= 15.1; j = j + 0.1) {
+                // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
+                ArrayList<FilterConfiguration> allSegmentResultsForCurrentConfi = new ArrayList<>();
+                
                 // ===============================================Lese Segment A ein
-                Constants.setCurrentSegment(Constants.getSegmentA());
+                constants.setCurrentSegment(constants.getSegmentA());
 //                Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
-                Constants.setListOfAllDataByGlobalSegment();
+                service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf1
                         = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
 
-                // Speichere das Filter-Ergebnis in temp-Liste der Konfis
-                ArrayList<FilterConfiguration> tempListOfCurrentConfi = new ArrayList<>();
-                tempListOfCurrentConfi.add(conf1);
+                allSegmentResultsForCurrentConfi.add(conf1);
 
                 // ===============================================Lese Segment B ein
-                Constants.setCurrentSegment(Constants.getSegmentB());
+                constants.setCurrentSegment(constants.getSegmentB());
                 //Main.clearAllDataAndReadFileAgain(pathToFile);
-                Constants.setListOfAllDataByGlobalSegment();
+                service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf2
                         = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
-                tempListOfCurrentConfi.add(conf2);
+                allSegmentResultsForCurrentConfi.add(conf2);
 
                 // ===============================================Lese Segment C ein
-                Constants.setCurrentSegment(Constants.getSegmentC());
+                constants.setCurrentSegment(constants.getSegmentC());
                 //Main.clearAllDataAndReadFileAgain(pathToFile);
-                Constants.setListOfAllDataByGlobalSegment();
+                service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf3
                         = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
-                tempListOfCurrentConfi.add(conf3);
+                allSegmentResultsForCurrentConfi.add(conf3);
 
                 // ===============================================Lese Segment D ein
-                Constants.setCurrentSegment(Constants.getSegmentD());
+                constants.setCurrentSegment(constants.getSegmentD());
                 //Main.clearAllDataAndReadFileAgain(pathToFile);
-                Constants.setListOfAllDataByGlobalSegment();
+                service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf4
                         = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
-                tempListOfCurrentConfi.add(conf4);
+                allSegmentResultsForCurrentConfi.add(conf4);
 
                 // Speichere alle Konfis in globaler map
                 allSimulationsOfOneConfiMap.put(
-                        String.valueOf(i).concat("_").concat(String.valueOf(Constants.getSigmaGnssSpeed())),
-                        tempListOfCurrentConfi
+                        String.valueOf(i).concat("_").concat(String.valueOf(constants.getSigmaGnssSpeed())),
+                        allSegmentResultsForCurrentConfi
                 );
             }
         }
@@ -261,23 +279,23 @@ public class FilterConfiguration {
         FilterConfiguration returnConfi = null;
         double oldRmse = 1000000;
         // Iteriere über gesamte Map, anhand der listen (=values)
-        for(ArrayList<FilterConfiguration> list : FilterConfiguration.allSimulationsOfOneConfiMap.values()) {
+        for(ArrayList<FilterConfiguration> list : allSimulationsOfOneConfiMap.values()) {
             // Extrahiere alle vier Ergebnisse (immer exakt 4, für 4 Segmente)
-            FilterConfiguration conf1 = list.get(0);
-            FilterConfiguration conf2 = list.get(1);
-            FilterConfiguration conf3 = list.get(2);
-            FilterConfiguration conf4 = list.get(3);
+            FilterConfiguration confSegA = list.get(0);
+            FilterConfiguration confSegB = list.get(1);
+            FilterConfiguration confSegC = list.get(2);
+            FilterConfiguration confSegD = list.get(3);
 
             double sumOfAllAbsrmseValues =
-                    conf1.getRmseAbsDistanceEstGt()
-                            + conf2.getRmseAbsDistanceEstGt()
-                            + conf3.getRmseAbsDistanceEstGt()
-                            + conf4.getRmseAbsDistanceEstGt();
+                    confSegA.getRmseAbsDistanceEstGt()
+                            + confSegB.getRmseAbsDistanceEstGt()
+                            + confSegC.getRmseAbsDistanceEstGt()
+                            + confSegD.getRmseAbsDistanceEstGt();
 
             // Wenn Summe kleiner als vorherige Konfi ist diese besser...
             if(sumOfAllAbsrmseValues < oldRmse) {
                 // Alle Konfis sind gleich, deshalb egal, ob conf1, conf2,...
-                returnConfi = conf1;
+                returnConfi = confSegA;
                 oldRmse = sumOfAllAbsrmseValues;
             }
         }
@@ -288,16 +306,66 @@ public class FilterConfiguration {
      * Filter-Simulation mit gnssSpeed = 0.1 bis gnssSpeed = 5.1 in 0.1-Schritten
      */
     public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed() {
-        //for (double i = 0.01; i <= 15.1; i = i + 0.01) {
-        for (double i = 0.001; i <= 15.1; i = i + 0.001) {
-            FilterConfiguration currentConfiguration = new FilterConfiguration();
-            currentConfiguration.setSigmaAccel(Constants.getSigmaAccel());
-            currentConfiguration.setSigmaGnssSpeed(i);
+        for(double i = 0.1; i < 15.1; i = i + 0.1) {
+            // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
+            ArrayList<FilterConfiguration> allSegmentResultsForCurrentConfi = new ArrayList<>();
 
-            Constants.setSigmaGnssSpeed(i);
-            simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
+            // ===============================================Lese Segment A ein
+            constants.setCurrentSegment(constants.getSegmentA());
+//                Main.readDataOfFileAndCalculateCartesianPoints(pathToFile);
+            service.setListOfAllDataByGlobalSegment();
+
+            FilterConfiguration conf1
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+
+            allSegmentResultsForCurrentConfi.add(conf1);
+
+            // ===============================================Lese Segment B ein
+            constants.setCurrentSegment(constants.getSegmentB());
+            //Main.clearAllDataAndReadFileAgain(pathToFile);
+            service.setListOfAllDataByGlobalSegment();
+
+            FilterConfiguration conf2
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+            allSegmentResultsForCurrentConfi.add(conf2);
+
+            // ===============================================Lese Segment C ein
+            constants.setCurrentSegment(constants.getSegmentC());
+            //Main.clearAllDataAndReadFileAgain(pathToFile);
+            service.setListOfAllDataByGlobalSegment();
+
+            FilterConfiguration conf3
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+            allSegmentResultsForCurrentConfi.add(conf3);
+
+            // ===============================================Lese Segment D ein
+            constants.setCurrentSegment(constants.getSegmentD());
+            //Main.clearAllDataAndReadFileAgain(pathToFile);
+            service.setListOfAllDataByGlobalSegment();
+
+            FilterConfiguration conf4
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+            allSegmentResultsForCurrentConfi.add(conf4);
+
+            // Speichere alle Konfis in globaler map
+            allSimulationsOfOneConfiMap.put(
+                    String.valueOf(i).concat("_").concat(String.valueOf(constants.getSigmaGnssSpeed())),
+                    allSegmentResultsForCurrentConfi
+            );
         }
     }
+    // FIXME: old
+//    public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed() {
+//        //for (double i = 0.01; i <= 15.1; i = i + 0.01) {
+//        for (double i = 0.001; i <= 15.1; i = i + 0.001) {
+//            FilterConfiguration currentConfiguration = new FilterConfiguration();
+//            currentConfiguration.setSigmaAccel(constants.getSigmaAccel());
+//            currentConfiguration.setSigmaGnssSpeed(i);
+//
+//            constants.setSigmaGnssSpeed(i);
+//            simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
+//        }
+//    }
 
     /**
      * Filter-Simulation mit sigmaAccel = 0.1 bis sigmaAccel = 30.1 in 0.1-Schritten und gnssSpeed = 0.1 bis
@@ -312,8 +380,8 @@ public class FilterConfiguration {
                 currentConfiguration.setSigmaAccel(i);
                 currentConfiguration.setSigmaGnssSpeed(j);
 
-                Constants.setSigmaAccel(i);
-                Constants.setSigmaGnssSpeed(j);
+                constants.setSigmaAccel(i);
+                constants.setSigmaGnssSpeed(j);
                 simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
             }
         }
@@ -327,48 +395,50 @@ public class FilterConfiguration {
         EstimationFilter2 filter = new EstimationFilter2();
         filter.makeEstimation();
 
-        Service2.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
+        Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
-        currentConfiguration.setRmseLatiDistanceEstGt(Service2.getRmseLatiEstGt());
-        currentConfiguration.setRmseLongiDistanceEstGt(Service2.getRmseLongiEstGt());
-        currentConfiguration.setRmseLatiDistanceGnssGt(Service2.getRmseLatiGnssGt());
-        currentConfiguration.setRmseLongiDistanceGnssGt(Service2.getRmseLongiGnssGt());
+        currentConfiguration.setRmseLatiDistanceEstGt(allRmseValues.get("latiEstGt"));
+        currentConfiguration.setRmseLongiDistanceEstGt(allRmseValues.get("longiEstGt"));
+        currentConfiguration.setRmseLatiDistanceGnssGt(allRmseValues.get("latiGnssGt"));
+        currentConfiguration.setRmseLongiDistanceGnssGt(allRmseValues.get("longiGnssGt"));
+        currentConfiguration.setRmseAbsDistanceEstGt(allRmseValues.get("absEstGt"));
+        currentConfiguration.setRmseAbsDistanceGnssGt(allRmseValues.get("absGnssGt"));
 
-        FilterConfiguration.getAllFilterConfigurations().add(currentConfiguration);
+        allFilterConfigurations.add(currentConfiguration);
     }
 
-    private FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed) {
+    public FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed) {
         FilterConfiguration currentConfiguration = new FilterConfiguration();
         currentConfiguration.setSigmaAccel(sigmaAccel);
         currentConfiguration.setSigmaGnssSpeed(sigmaSpeed);
 
-        Constants.setSigmaAccel(sigmaAccel);
+        constants.setSigmaAccel(sigmaAccel);
+        constants.setSigmaGnssSpeed(sigmaSpeed);
         // Führe Simulation durch
-        System.out.println("=====================Beginn, simulation mit sigmaAccel:  "
-                + currentConfiguration.getSigmaAccel() + " & sigmaSpeed:  "
-                + currentConfiguration.getSigmaGnssSpeed());
+        System.out.println("=====================Beginn, simulation mit sigmaAccel:  " 
+                + sigmaAccel + " & sigmaSpeed:  " + sigmaSpeed);
 
         EstimationFilter2 filter = new EstimationFilter2();
         filter.makeEstimation();
 
-        Service2.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
+        Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
-        currentConfiguration.setRmseLatiDistanceEstGt(Service2.getRmseLatiEstGt());
-        currentConfiguration.setRmseLongiDistanceEstGt(Service2.getRmseLongiEstGt());
-        currentConfiguration.setRmseLatiDistanceGnssGt(Service2.getRmseLatiGnssGt());
-        currentConfiguration.setRmseLongiDistanceGnssGt(Service2.getRmseLongiGnssGt());
-        currentConfiguration.setRmseAbsDistanceEstGt(Service2.getRmseAbsoluteDistanceEstGt());
-        currentConfiguration.setRmseAbsDistanceGnssGt(Service2.getRmseAbsoluteDistanceGnssGt());
+        currentConfiguration.setRmseLatiDistanceEstGt(allRmseValues.get("latiEstGt"));
+        currentConfiguration.setRmseLongiDistanceEstGt(allRmseValues.get("longiEstGt"));
+        currentConfiguration.setRmseLatiDistanceGnssGt(allRmseValues.get("latiGnssGt"));
+        currentConfiguration.setRmseLongiDistanceGnssGt(allRmseValues.get("longiGnssGt"));
+        currentConfiguration.setRmseAbsDistanceEstGt(allRmseValues.get("absEstGt"));
+        currentConfiguration.setRmseAbsDistanceGnssGt(allRmseValues.get("absGnssGt"));
 
         return currentConfiguration;
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLatiRmseOfEstPoints() {
+    public FilterConfiguration findConfigurationWithMinimalLatiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double latiRmse = 1000;
 
         FilterConfiguration optConfiguration = null;
-        for (FilterConfiguration fc : FilterConfiguration.getAllFilterConfigurations()) {
+        for (FilterConfiguration fc : allFilterConfigurations) {
             if (fc.getRmseLatiDistanceEstGt() < latiRmse) {
                 optConfiguration = fc;
                 latiRmse = fc.getRmseLatiDistanceEstGt();
@@ -377,12 +447,12 @@ public class FilterConfiguration {
         return optConfiguration;
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLongiRmseOfEstPoints() {
+    public FilterConfiguration findConfigurationWithMinimalLongiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double longiRmse = 1000;
 
         FilterConfiguration optConfiguration = null;
-        for (FilterConfiguration fc : FilterConfiguration.getAllFilterConfigurations()) {
+        for (FilterConfiguration fc : allFilterConfigurations) {
             if (fc.getRmseLongiDistanceEstGt() < longiRmse) {
                 optConfiguration = fc;
                 longiRmse = fc.getRmseLongiDistanceEstGt();
@@ -391,13 +461,13 @@ public class FilterConfiguration {
         return optConfiguration;
     }
 
-    public static FilterConfiguration findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints() {
+    public FilterConfiguration findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints() {
         // Wir müssen natürlich nur die Est-Rmse-Werte betrachten, da Gnss gleich bleiben
         double latirmse = 1000;
         double longiRmse = 1000;
 
         FilterConfiguration optConfiguration = null;
-        for(FilterConfiguration fc : FilterConfiguration.getAllFilterConfigurations()) {
+        for(FilterConfiguration fc : allFilterConfigurations) {
             if(fc.getRmseLongiDistanceEstGt() < longiRmse && fc.getRmseLatiDistanceEstGt() < latirmse) {
                 optConfiguration = fc;
                 longiRmse = fc.getRmseLongiDistanceEstGt();

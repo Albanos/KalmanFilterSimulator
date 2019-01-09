@@ -6,184 +6,155 @@ import org.apache.commons.math3.linear.RealVector;
 
 import java.io.*;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * @author Luan Hajzeraj on 12/1/2018.
  */
-public class Service2 {
-    private static LinkedList<Data> listOfAllData = new LinkedList<>();
-    private static GeodeticCalculator calculator = new GeodeticCalculator();
-    private static GlobalPosition firstGlobalPosition = null;
-    private static double dt;
-    private static double oldDt;
-    // Speichere Winkel und Distanz eines jeden Punktes zum ersten Punkt in der Map
-    private static LinkedHashMap<Data, LinkedList<Double>> angleDistanceDataMap = new LinkedHashMap<>();
+class Service2 {
+    private static Service2 instance = null;
 
-    // Speiechere den lat/lon-RMSE global (wird in der Methode calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts gesetzt)
-    private static double rmseLongiEstGt;
-    private static double rmseLatiEstGt;
-    private static double rmseLongiGnssGt;
-    private static double rmseLatiGnssGt;
+    private Service2() {
+    }
 
-    // Speichere den RMSE des absoluten Abstands (wird in der Methode
-    // calculateRMSEOfAbsoluteDistanceFor10Hearts gesetzt)
-    private static double rmseAbsoluteDistanceEstGt;
-    private static double rmseAbsoluteDistanceGnssGt;
+    static Service2 getInstance() {
+        if (instance == null) {
+            instance = new Service2();
+        }
+        return instance;
+    }
+
+    private final Constants constants = Constants.getInstance();
+    private final CsvReader csvReader = CsvReader.getInstance();
+
+    private LinkedList<Data> listOfAllData = new LinkedList<>();
+    private GeodeticCalculator calculator = new GeodeticCalculator();
+    private GlobalPosition firstGlobalPosition = null;
+    private double dt;
+    private double oldDt;
 
     //==================================================
 
-    public static double getRmseAbsoluteDistanceEstGt() {
-        return rmseAbsoluteDistanceEstGt;
+    void setListOfAllDataByGlobalSegment() {
+        // Hole aus der Map diejenige Liste, mit der gearbeitet werden soll (je nach Segment)
+        final String keyForMap = constants.getCurrentSegment()[0].concat("_").concat(constants.getCurrentSegment()[1]);
+        final List<Data> dataOfSegment = csvReader.getOriginalLinesBySegments().get(keyForMap);
+        // Clear die listOfAllData und setze Sie neu
+        getListOfAllData().clear();
+        getListOfAllData().addAll(dataOfSegment);
+        // Aktualisiere die erste Position
+        Data firstData = getListOfAllData().getFirst();
+        setFirstGlobalPosition(new GlobalPosition(
+                firstData.getLatitude_wgs(),
+                firstData.getLongitude_wgs(),
+                firstData.getAltitude_wgs()
+        ));
     }
 
-    public static void setRmseAbsoluteDistanceEstGt(double rmseAbsoluteDistanceEstGt) {
-        Service2.rmseAbsoluteDistanceEstGt = rmseAbsoluteDistanceEstGt;
+    void setListOfAllData(LinkedList<Data> listOfAllData) {
+        this.listOfAllData = listOfAllData;
     }
 
-    public static double getRmseAbsoluteDistanceGnssGt() {
-        return rmseAbsoluteDistanceGnssGt;
-    }
-
-    public static void setRmseAbsoluteDistanceGnssGt(double rmseAbsoluteDistanceGnssGt) {
-        Service2.rmseAbsoluteDistanceGnssGt = rmseAbsoluteDistanceGnssGt;
-    }
-
-    public static double getRmseLongiEstGt() {
-        return rmseLongiEstGt;
-    }
-
-    public static void setRmseLongiEstGt(double rmseLongiEstGt) {
-        Service2.rmseLongiEstGt = rmseLongiEstGt;
-    }
-
-    public static double getRmseLatiEstGt() {
-        return rmseLatiEstGt;
-    }
-
-    public static void setRmseLatiEstGt(double rmseLatiEstGt) {
-        Service2.rmseLatiEstGt = rmseLatiEstGt;
-    }
-
-    public static double getRmseLongiGnssGt() {
-        return rmseLongiGnssGt;
-    }
-
-    public static void setRmseLongiGnssGt(double rmseLongiGnssGt) {
-        Service2.rmseLongiGnssGt = rmseLongiGnssGt;
-    }
-
-    public static double getRmseLatiGnssGt() {
-        return rmseLatiGnssGt;
-    }
-
-    public static void setRmseLatiGnssGt(double rmseLatiGnssGt) {
-        Service2.rmseLatiGnssGt = rmseLatiGnssGt;
-    }
-
-    public static LinkedHashMap<Data, LinkedList<Double>> getAngleDistanceDataMap() {
-        return angleDistanceDataMap;
-    }
-
-    public static void setListOfAllData(LinkedList<Data> listOfAllData) {
-        Service2.listOfAllData = listOfAllData;
-    }
-
-    public static double getDt() {
+    double getDt() {
         return dt;
     }
 
-    public static void setDt(double dt) {
-        Service2.dt = dt;
+    void setDt(double dt) {
+        this.dt = dt;
     }
 
-    public static double getOldDt() {
+    double getOldDt() {
         return oldDt;
     }
 
-    public static void setOldDt(double oldDt) {
-        Service2.oldDt = oldDt;
+    void setOldDt(double oldDt) {
+        this.oldDt = oldDt;
     }
 
-    public static GlobalPosition getFirstGlobalPosition() {
+    GlobalPosition getFirstGlobalPosition() {
         return firstGlobalPosition;
     }
 
-    public static void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
-        Service2.firstGlobalPosition = firstGlobalPosition;
+    void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
+        this.firstGlobalPosition = firstGlobalPosition;
     }
 
-    public static LinkedList<Data> getListOfAllData() {
+    LinkedList<Data> getListOfAllData() {
         return listOfAllData;
     }
 
-    public static void calculateCartesianPointAndWgsAccelForData(String[] segment) {
-        String keyForMap = segment[0] + "_" + segment[1];
-        LinkedList<Data> dataOfCurrentSegment = CsvReader.getOriginalLinesBySegments().get(keyForMap);
-        //for (Data d : Service2.getListOfAllData()) {
-        for(Data d : dataOfCurrentSegment) {
-            GlobalPosition globalPosition = d.getGlobalPosition();
-            double distance = coordinateDistanceBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
-            double angle = coordinateAngleBetweenTwoPoints(Service2.getFirstGlobalPosition(), globalPosition);
+    void calculateCartesianPointAndWgsAccelForData(final String[] segment) {
+        final String keyForMap = segment[0] + "_" + segment[1];
+        final List<Data> dataOfCurrentSegment = csvReader.getOriginalLinesBySegments().get(keyForMap);
+        final GlobalPosition firstGlobalPosition;
+        if(!dataOfCurrentSegment.isEmpty()) {
+            final Data firstDataRow = dataOfCurrentSegment.get(0);
+            firstGlobalPosition = new GlobalPosition(
+                        firstDataRow.getLatitude_wgs(),
+                        firstDataRow.getLongitude_wgs(),
+                        firstDataRow.getAltitude_wgs()
+                );
+        } else {
+            firstGlobalPosition = null;
+        }
+
+        for (Data row : dataOfCurrentSegment) {
+            final GlobalPosition globalPosition = row.getGlobalPosition();
+            final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
+            final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
 
             if (distance != 0.0 && angle != 0.0) {
-                d.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
-                d.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
+                row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
+                row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
             }
+
+            // Aktualisiere dt
+            setDt(getOldDt() == 0 ? 0.1 : (getDt() - getOldDt()) / 1000.0f);
+            setOldDt(getDt());
+            float[] earthAcc = calculateWgsAccel(row);
+            row.setAccel_x_wgs(earthAcc[0]);
+            row.setAccel_y_wgs(earthAcc[1]);
         }
-        calculateWgsAccel(segment);
     }
 
-    private static void calculateWgsAccel(String[] segment) {
+    private float[] calculateWgsAccel(Data row) {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
-        String keyForMap = segment[0] + "_" + segment[1];
-        LinkedList<Data> dataOfCurrentSegment = CsvReader.getOriginalLinesBySegments().get(keyForMap);
-        //for (Data d : Service2.getListOfAllData()) {
-        for (Data d : dataOfCurrentSegment) {
-            // Aktualisiere dt
-            Service2.setDt(Service2.getOldDt() == 0 ? 0.1 : (Service2.getDt() - Service2.getOldDt()) / 1000.0f);
-            Service2.setOldDt(Service2.getDt());
 
-            gravityValues[0] = (float) d.getGravitiy_x_imu();
-            gravityValues[1] = (float) d.getGravitiy_y_imu();
-            gravityValues[2] = (float) d.getGravitiy_z_imu();
+        gravityValues[0] = (float) row.getGravitiy_x_imu();
+        gravityValues[1] = (float) row.getGravitiy_y_imu();
+        gravityValues[2] = (float) row.getGravitiy_z_imu();
 
-            magneticValues[0] = (float) d.getMagnetic_x_imu();
-            magneticValues[1] = (float) d.getMagnetic_y_imu();
-            magneticValues[2] = (float) d.getMagnetic_z_imu();
+        magneticValues[0] = (float) row.getMagnetic_x_imu();
+        magneticValues[1] = (float) row.getMagnetic_y_imu();
+        magneticValues[2] = (float) row.getMagnetic_z_imu();
 
-            float[] deviceRelativeAcceleration = new float[4];
-            deviceRelativeAcceleration[0] = (float) d.getAccel_x_imu();
-            deviceRelativeAcceleration[1] = (float) d.getAccel_y_imu();
-            deviceRelativeAcceleration[2] = (float) d.getAccel_z_imu();
-            deviceRelativeAcceleration[3] = 0;
+        float[] deviceRelativeAcceleration = new float[4];
+        deviceRelativeAcceleration[0] = (float) row.getAccel_x_imu();
+        deviceRelativeAcceleration[1] = (float) row.getAccel_y_imu();
+        deviceRelativeAcceleration[2] = (float) row.getAccel_z_imu();
+        deviceRelativeAcceleration[3] = 0;
 
-            float[] R = new float[16], I = new float[16], earthAcc = new float[16];
-            Service2.getRotationMatrix(R, I, gravityValues, magneticValues);
+        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
+        getRotationMatrix(R, I, gravityValues, magneticValues);
 
-            float[] inv = new float[16];
-            Service2.invertM(inv, 0, R, 0);
-            RealVector realVector = Service2.multiplyMV(inv, deviceRelativeAcceleration);
-            earthAcc[0] = (float) realVector.getEntry(0);
-            earthAcc[1] = (float) realVector.getEntry(1);
-            earthAcc[2] = (float) realVector.getEntry(2);
-
-            d.setAccel_x_wgs(earthAcc[0]);
-            d.setAccel_y_wgs(earthAcc[1]);
-        }
+        float[] inv = new float[16];
+        invertM(inv, 0, R, 0);
+        RealVector realVector = multiplyMV(inv, deviceRelativeAcceleration);
+        earthAcc[0] = (float) realVector.getEntry(0);
+        earthAcc[1] = (float) realVector.getEntry(1);
+        earthAcc[2] = (float) realVector.getEntry(2);
+        return earthAcc;
     }
 
     /**
      * Berechnet die Distanz zwischen zwei globalPositions
      *
-     * @param g1
-     * @param g2
-     * @return
+     * @param g1 -
+     * @param g2 -
+     * @return -
      */
-    static double coordinateDistanceBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
+    double coordinateDistanceBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
             GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
@@ -197,11 +168,11 @@ public class Service2 {
      * Berechnet den Winkel zwischen zwei globalPositions im Gradmaß (Winkel ist am Noden
      * ausgerichtet ; Winkelrichtung ist im Uhrzeigersinn)
      *
-     * @param g1
-     * @param g2
-     * @return
+     * @param g1 -
+     * @param g2 -
+     * @return -
      */
-    static double coordinateAngleBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
+    double coordinateAngleBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
             GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
@@ -214,14 +185,14 @@ public class Service2 {
     /**
      * Implementierung der Rotations-Matrix aus Android
      *
-     * @param R
-     * @param I
-     * @param gravity
-     * @param geomagnetic
-     * @return
+     * @param R           -
+     * @param I           -
+     * @param gravity     -
+     * @param geomagnetic -
+     * @return -
      */
-    public static boolean getRotationMatrix(float[] R, float[] I,
-                                            float[] gravity, float[] geomagnetic) {
+    boolean getRotationMatrix(float[] R, float[] I,
+                              float[] gravity, float[] geomagnetic) {
         // TODO: move this to native code for efficiency
         float Ax = gravity[0];
         float Ay = gravity[1];
@@ -326,14 +297,14 @@ public class Service2 {
     /**
      * Invertieren einer Matrix aus Android-Bibliothek
      *
-     * @param mInv
-     * @param mInvOffset
-     * @param m
-     * @param mOffset
-     * @return
+     * @param mInv       -
+     * @param mInvOffset -
+     * @param m          -
+     * @param mOffset    -
+     * @return -
      */
-    public static boolean invertM(float[] mInv, int mInvOffset, float[] m,
-                                  int mOffset) {
+    boolean invertM(float[] mInv, int mInvOffset, float[] m,
+                    int mOffset) {
         // Invert a 4 x 4 matrix using Cramer's Rule
 
         // transpose matrix
@@ -454,8 +425,8 @@ public class Service2 {
         return true;
     }
 
-    public static RealVector multiplyMV(float[] lhsMat,
-                                        float[] rhsVec) {
+    RealVector multiplyMV(float[] lhsMat,
+                          float[] rhsVec) {
         RealMatrix lhsM = new Array2DRowRealMatrix(4, 4);
         RealVector rhsV = new ArrayRealVector(4, 0);
 
@@ -485,17 +456,17 @@ public class Service2 {
         return result;
     }
 
-    public static void makeDownSampling(double dt) {
+    void makeDownSampling(double dt) {
         int j = 1;
         int i = 0;
         double oldDt = 0;
         double currentDt;
         LinkedList<Data> temp = new LinkedList<>();
         //for(int i =0; i < Service.getListOfAllImuValues().size() ; i++) {
-        for (Data d : Service2.getListOfAllData()) {
-            if (j < Service2.getListOfAllData().size()) {
-                Data iData = Service2.getListOfAllData().get(i);
-                Data jData = Service2.getListOfAllData().get(j);
+        for (Data d : getListOfAllData()) {
+            if (j < getListOfAllData().size()) {
+                Data iData = getListOfAllData().get(i);
+                Data jData = getListOfAllData().get(j);
 
                 double differenceInSek = (jData.getTimestamp() - iData.getTimestamp()) / 1000.0f;
 
@@ -513,21 +484,21 @@ public class Service2 {
         // Die in temp gespeicherten Einträge sind die übrigen, mit
         // denen wir weiter arbeiten wollen. Deshalb setze wir die
         // statische/globale Liste neu
-        Service2.setListOfAllData(temp);
+        setListOfAllData(temp);
 
         // Aktualisiere dt, entsprechend dem letzte und vorletztem timestamp
-        long last = Service2.getListOfAllData().get(Service2.getListOfAllData().size() - 1).getTimestamp();
-        long lastLast = Service2.getListOfAllData().get(Service2.getListOfAllData().size() - 2).getTimestamp();
-        Service2.setDt((last - lastLast) / 1000.0f);
+        long last = getListOfAllData().get(getListOfAllData().size() - 1).getTimestamp();
+        long lastLast = getListOfAllData().get(getListOfAllData().size() - 2).getTimestamp();
+        setDt((last - lastLast) / 1000.0f);
     }
 
-    public static void calculateAngleAndDistanceAndWgsPositionByDataPoint(Data data) {
+    void calculateAngleAndDistanceAndWgsPositionByDataPoint(Data data) {
         double estimated_x = data.getEstimatedPoint_x();
         double estimated_y = data.getEstimatedPoint_y();
 
         // Berechne Abstand des Geschätzten und des ersten kartesischen Punktes (erste kartesische ist der 16.)
-        double firstCartesian_x = Service2.getListOfAllData().get(16).getCartesian_x();
-        double firstCartesian_y = Service2.getListOfAllData().get(16).getCartesian_y();
+        double firstCartesian_x = getListOfAllData().get(16).getCartesian_x();
+        double firstCartesian_y = getListOfAllData().get(16).getCartesian_y();
 
         double x = firstCartesian_x - estimated_x;
         double y = firstCartesian_y - estimated_y;
@@ -547,25 +518,19 @@ public class Service2 {
             angle = Math.toDegrees(Math.atan(x / y));
         }
 
-        // Speiechere Winkel und Abstand zusammen mit Daten-Punkt in einer Map
-        LinkedList<Double> angleAndDistance = new LinkedList<>();
-        angleAndDistance.add(angle);
-        angleAndDistance.add(distance);
-        Service2.getAngleDistanceDataMap().put(data, angleAndDistance);
-
         // Berechne nun die WGS-koordinaten
-        calculateWGSCoordinateByDataPoint(data);
+        calculateWGSCoordinateByDataPoint(data, angle, distance);
     }
 
-    public static void calculateWGSCoordinateByDataPoint(Data data) {
-        // Ermittle Winkel und Distanz des Daten-Punktes anhand des übergebenen Datenpunktes
-        LinkedList<Double> angleAndDistanceOfDataPoint = Service2.getAngleDistanceDataMap().get(data);
-        Double angleOfDataPoint = angleAndDistanceOfDataPoint.get(0);
-        Double distanceOfDataPoint = angleAndDistanceOfDataPoint.get(1);
+    void calculateWGSCoordinateByDataPoint(Data data, double angle, double distance) {
+//        // Ermittle Winkel und Distanz des Daten-Punktes anhand des übergebenen Datenpunktes
+//        LinkedList<Double> angleAndDistanceOfDataPoint = getAngleDistanceDataMap().get(data);
+//        Double angleOfDataPoint = angleAndDistanceOfDataPoint.get(0);
+//        Double distanceOfDataPoint = angleAndDistanceOfDataPoint.get(1);
 
         // Berechne neue Koordinaten mittels Geodesy
         GlobalCoordinates globalCoordinates = calculator.calculateEndingGlobalCoordinates(Ellipsoid.WGS84,
-                Service2.getFirstGlobalPosition(), angleOfDataPoint, distanceOfDataPoint);
+                getFirstGlobalPosition(), angle, distance);
 
         // Setze entsprechende End-koordinaten im Datenpunkt selbst
         data.setEstimatedLat(globalCoordinates.getLatitude());
@@ -574,9 +539,10 @@ public class Service2 {
 
     /**
      * Lateraler und longitudinaler Abstand zwischen geschätzten- und GT-Punkten im WGS-System
+     *
      * @param data
      */
-    public static void calculateDistanceBetweenEstimatedAndGTPosition(Data data) {
+    void calculateDistanceBetweenEstimatedAndGTPosition(Data data) {
         double latitude_est = data.getEstimatedLat();
         double longitude_est = data.getEstimatedLon();
         double longitude_gt = data.getLongitude_gt();
@@ -602,7 +568,7 @@ public class Service2 {
         }
         // Berücksichtige die Richtung des Nutzers (Abstand in und um Bewegungsrichtung) und setze diesen Abstand im Daten-punkt
         HashMap<String, Double> latiLongiDistancesEstToGt =
-                Service2.rotateOnGtDirection(distanceLat, distanceLon, (data.getGtDirection() * (Math.PI / 180)));
+                rotateOnGtDirection(distanceLat, distanceLon, (data.getGtDirection() * (Math.PI / 180)));
 
         // setze die berechneten lati/longi-Abstände im Datenpunkt
         data.setLatiDistanceEstToGtWithDirection(latiLongiDistancesEstToGt.get("latiDistance"));
@@ -614,9 +580,10 @@ public class Service2 {
 
     /**
      * Lateraler und longitudinaler Abstand zwischen Smartphone-GNSS- und GT-Punkten im WGS-System
+     *
      * @param d
      */
-    public static void calculateDistanceBetweenGNSSAndGTPosition(Data d) {
+    void calculateDistanceBetweenGNSSAndGTPosition(Data d) {
         double latitude_wgs = d.getLatitude_wgs();
         double longitude_wgs = d.getLongitude_wgs();
         double latitude_gt = d.getLatitude_gt();
@@ -641,13 +608,13 @@ public class Service2 {
         }
 
         HashMap<String, Double> latiLongiDistancesGnssToGt =
-                Service2.rotateOnGtDirection(distanceLat, distanceLon, (d.getGtDirection() * (Math.PI / 180)));
+                rotateOnGtDirection(distanceLat, distanceLon, (d.getGtDirection() * (Math.PI / 180)));
 
         d.setLatiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("latiDistance"));
         d.setLongiDistanceGnssToGtWithDirection(latiLongiDistancesGnssToGt.get("longiDistance"));
     }
 
-    public static void calculateAbsoluteDistanceBetweenEstAndGtPoint(Data d) {
+    void calculateAbsoluteDistanceBetweenEstAndGtPoint(Data d) {
         double estimatedLon = d.getEstimatedLon();
         double estimatedLat = d.getEstimatedLat();
         double longitude_gt = d.getLongitude_gt();
@@ -663,7 +630,7 @@ public class Service2 {
         calculateAbsoluteDistanceBetweenGnssAndGtPoint(d);
     }
 
-    private static void calculateAbsoluteDistanceBetweenGnssAndGtPoint(Data d) {
+    private void calculateAbsoluteDistanceBetweenGnssAndGtPoint(Data d) {
         double longitude_wgs = d.getLongitude_wgs();
         double latitude_wgs = d.getLatitude_wgs();
         double longitude_gt = d.getLongitude_gt();
@@ -680,18 +647,18 @@ public class Service2 {
      * Implementierung von Michel: berücksichtigt einfach die jeweillige Richtung und berechnet
      * somit den Abstand in und links/rechts zur Bewegungsrichtung des Nutzers
      */
-    public static HashMap<String, Double> rotateOnGtDirection(double distanceLat, double distanceLon, double rad) {
+    HashMap<String, Double> rotateOnGtDirection(double distanceLat, double distanceLon, double rad) {
         double latiDistance = distanceLon * Math.cos(rad) - distanceLat * Math.sin(rad);
         double longiDistance = distanceLat * Math.cos(rad) + distanceLon * Math.sin(rad);
 
         HashMap<String, Double> returnMap = new HashMap<>();
-        returnMap.put("latiDistance",latiDistance);
+        returnMap.put("latiDistance", latiDistance);
         returnMap.put("longiDistance", longiDistance);
 
         return returnMap;
     }
 
-    public static void writeAllDataToVikingFile() {
+    void writeAllDataToVikingFile(String[] currentSegment) {
         StringBuffer output = new StringBuffer();
         double firstPosition_lat = 0;
         double firstPosition_lon = 0;
@@ -777,7 +744,7 @@ public class Service2 {
         // Beginne mit dem schreiben der GT-Positionen (rot)
         double latitude_gt = 0;
         double longitude_gt = 0;
-        for (Data d : Service2.getListOfAllData()) {
+        for (Data d : getListOfAllData()) {
             latitude_gt = d.getLatitude_gt();
             longitude_gt = d.getLongitude_gt();
 
@@ -804,7 +771,7 @@ public class Service2 {
         output.append("type=\"route\" name=\"GNSS-Points\" color=#00ff00\n");
         double oldLatitude = 0;
         double oldLongitude = 0;
-        for (Data d : Service2.getListOfAllData()) {
+        for (Data d : getListOfAllData()) {
             double latitude_wgs = d.getLatitude_wgs();
             double longitude_wgs = d.getLongitude_wgs();
             double altitude_wgs = d.getAltitude_wgs();
@@ -828,7 +795,7 @@ public class Service2 {
 
         // schreibe die geschätzten Punkte (blau)
         output.append("type=\"route\" name=\"estimatedPoints\" color=#0000ff\n");
-        for (Data d : Service2.getListOfAllData()) {
+        for (Data d : getListOfAllData()) {
             double estimatedLat = d.getEstimatedLat();
             double estimatedLon = d.getEstimatedLon();
 
@@ -864,7 +831,9 @@ public class Service2 {
                     new Timestamp(System.currentTimeMillis()).toString()
                             .replaceAll("\\s", "_")
                             .replaceAll(":", "-")
-                            .replaceAll("\\.", "-").concat(".vik")));
+                            .replaceAll("\\.", "-")
+                            .concat("_Seg_" + currentSegment[0] + "_" + currentSegment[1])
+                            .concat(".vik")));
             os.write(outputAsString.getBytes(), 0, outputAsString.length());
         } catch (IOException e) {
             e.printStackTrace();
@@ -877,15 +846,18 @@ public class Service2 {
         }
     }
 
-    public static void calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts() {
+    public Map<String, Double> calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts() {
         double sumOfLongDistancesEstGT = 0;
         double sumOfLatDistancesEstGT = 0;
         double sumOfLonDistancesGnssGT = 0;
         double sumOfLatDistancesGnssGT = 0;
+        double sumOfAbsoluteDistanceEstGt = 0;
+        double sumOfAbsoluteDistanceGnssGt = 0;
         int countOfIterations = 0;
+        Map<String, Double> rmseMap = new LinkedHashMap<>();
 
         // Berechne die Quadrate der Differenzen
-        for (Data d : Service2.getListOfAllData()) {
+        for (Data d : getListOfAllData()) {
             double estimatedPoint_x = d.getEstimatedPoint_x();
             double estimatedPoint_y = d.getEstimatedPoint_y();
 
@@ -899,50 +871,34 @@ public class Service2 {
             double longiDistanceEstToGt = d.getLongiDistanceEstToGtWithDirection();
             double latiDistanceEstToGt = d.getLatiDistanceEstToGtWithDirection();
 
-            sumOfLongDistancesEstGT += Math.pow(longiDistanceEstToGt,2);
-            sumOfLatDistancesEstGT += Math.pow(latiDistanceEstToGt,2);
+            sumOfLongDistancesEstGT += Math.pow(longiDistanceEstToGt, 2);
+            sumOfLatDistancesEstGT += Math.pow(latiDistanceEstToGt, 2);
 
             double longiDistanceGNSSToGt = d.getLongiDistanceGnssToGtWithDirection();
             double latiDistanceGNSSToGt = d.getLatiDistanceGnssToGtWithDirection();
 
-            sumOfLonDistancesGnssGT += Math.pow(longiDistanceGNSSToGt,2);
-            sumOfLatDistancesGnssGT += Math.pow(latiDistanceGNSSToGt,2);
+            sumOfLonDistancesGnssGT += Math.pow(longiDistanceGNSSToGt, 2);
+            sumOfLatDistancesGnssGT += Math.pow(latiDistanceGNSSToGt, 2);
+
+            double absoluteDistanceEstGt = d.getAbsoluteDistanceEstGt();
+            sumOfAbsoluteDistanceEstGt += Math.pow(absoluteDistanceEstGt, 2);
+
+            double absoluteDistanceGnssGt = d.getAbsoluteDistanceGnssGt();
+            sumOfAbsoluteDistanceGnssGt += Math.pow(absoluteDistanceGnssGt, 2);
         }
 
         // Setze nun den RMSE
-        Service2.setRmseLatiEstGt(Math.sqrt((sumOfLatDistancesEstGT / countOfIterations)));
-        Service2.setRmseLongiEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
-        Service2.setRmseLatiGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
-        Service2.setRmseLongiGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
+        rmseMap.put("latiEstGt", Math.sqrt((sumOfLatDistancesEstGT / countOfIterations)));
+        //setRmseLatiEstGt(Math.sqrt((sumOfLatDistancesEstGT / countOfIterations)));
+        rmseMap.put("longiEstGt", Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
+        //setRmseLongiEstGt(Math.sqrt(sumOfLongDistancesEstGT / countOfIterations));
+        rmseMap.put("latiGnssGt", Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
+        //setRmseLatiGnssGt(Math.sqrt(sumOfLatDistancesGnssGT / countOfIterations));
+        rmseMap.put("longiGnssGt", Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
+        //setRmseLongiGnssGt(Math.sqrt(sumOfLonDistancesGnssGT / countOfIterations));
+        rmseMap.put("absEstGt", Math.sqrt(sumOfAbsoluteDistanceEstGt / countOfIterations));
+        rmseMap.put("absGnssGt", Math.sqrt(sumOfAbsoluteDistanceGnssGt / countOfIterations));
 
-        // Berechne auch den RMSE für den absoluten Abstand
-        calculateRMSEOfAbsoluteDistancesFor10Hearts();
-    }
-
-    private static void calculateRMSEOfAbsoluteDistancesFor10Hearts() {
-        double sumOfAbsoluteDistanceEstGt = 0;
-        double sumOfAbsoluteDistanceGnssGt = 0;
-        int countOfIterations = 0;
-
-        // Berechne die Quadrate der Differenzen
-        for(Data d : Service2.getListOfAllData()) {
-            double estimatedPoint_x = d.getEstimatedPoint_x();
-            double estimatedPoint_y = d.getEstimatedPoint_y();
-
-            // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
-            // Wir überspringen Punkte, wegen definierter Schätzfrequenz
-            if (estimatedPoint_x == 0.0 || estimatedPoint_y == 0.0) {
-                continue;
-            }
-
-            countOfIterations++;
-            double absoluteDistanceEstGt = d.getAbsoluteDistanceEstGt();
-            sumOfAbsoluteDistanceEstGt += Math.pow(absoluteDistanceEstGt,2);
-
-            double absoluteDistanceGnssGt = d.getAbsoluteDistanceGnssGt();
-            sumOfAbsoluteDistanceGnssGt += Math.pow(absoluteDistanceGnssGt,2);
-        }
-        Service2.setRmseAbsoluteDistanceEstGt(Math.sqrt(sumOfAbsoluteDistanceEstGt/countOfIterations));
-        Service2.setRmseAbsoluteDistanceGnssGt(Math.sqrt(sumOfAbsoluteDistanceGnssGt/countOfIterations));
+        return rmseMap;
     }
 }
