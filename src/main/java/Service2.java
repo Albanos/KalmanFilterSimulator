@@ -104,7 +104,8 @@ class Service2 {
             final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
             final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
 
-            if (distance != 0.0 && angle != 0.0) {
+            //if (distance != 0.0 && angle != 0.0) {
+            if (distance != 0.0 && !Double.isNaN(angle)) {
                 row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
                 row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
             }
@@ -114,7 +115,8 @@ class Service2 {
             final double distanceGt = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
             final double angleGt = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
 
-            if(distanceGt != 0.0 && angle != 0.0) {
+            //if (distanceGt != 0.0 && angleGt != 0.0) {
+            if (distanceGt != 0.0 && !Double.isNaN(angleGt)) {
                 row.setCartesian_x_gt(distanceGt * Math.sin(Math.toRadians(angleGt)));
                 row.setCartesian_y_gt(distanceGt * Math.cos(Math.toRadians(angleGt)));
             }
