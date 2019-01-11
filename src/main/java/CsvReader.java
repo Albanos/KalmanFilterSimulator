@@ -10,13 +10,17 @@ import java.util.Map;
 
 class CsvReader {
     private static CsvReader instance = null;
-    private CsvReader(){}
+
+    private CsvReader() {
+    }
+
     static CsvReader getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new CsvReader();
         }
         return instance;
     }
+
     private Map<String, List<Data>> originalLinesBySegments = new LinkedHashMap<>();
 
 //     FIXME: OLD
@@ -62,8 +66,8 @@ class CsvReader {
                 dataObjects.add(generateDataObjectAndSaveAllData(line));
             }
             final String key = segment[0].concat("_").concat(segment[1]);
-            if(!originalLinesBySegments.containsKey(key)) {
-                originalLinesBySegments.put(key,dataObjects);
+            if (!originalLinesBySegments.containsKey(key)) {
+                originalLinesBySegments.put(key, dataObjects);
             }
 
         } catch (IOException e) {
@@ -117,6 +121,15 @@ class CsvReader {
         d.setGravitiy_x_imu(Double.valueOf(line[15]));
         d.setGravitiy_y_imu(Double.valueOf(line[16]));
         d.setGravitiy_z_imu(Double.valueOf(line[17]));
+
+        // setze auch die Global-Position für GT-Position (um in kartesischen Punkt umrechnen zu können)
+        d.setGlobalPositionsGt(
+                new GlobalPosition(
+                        d.getLatitude_gt(),
+                        d.getLongitude_gt(),
+                        0.0
+                )
+        );
 
         // Setze auch die GT-direction für spätere Abstandsberechnung in und um Bewegungsrichtung
         d.setGtDirection(Double.valueOf(line[19]));

@@ -99,6 +99,7 @@ class Service2 {
         }
 
         for (Data row : dataOfCurrentSegment) {
+            // Berechne die kartesischen Punkte für die "normalen" Positionen
             final GlobalPosition globalPosition = row.getGlobalPosition();
             final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
             final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
@@ -106,6 +107,16 @@ class Service2 {
             if (distance != 0.0 && angle != 0.0) {
                 row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
                 row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
+            }
+
+            // Berechne die kartesischen Punkte für die GT-Positionen
+            final GlobalPosition globalPositionsGt = row.getGlobalPositionsGt();
+            final double distanceGt = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
+            final double angleGt = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
+
+            if(distanceGt != 0.0 && angle != 0.0) {
+                row.setCartesian_x_gt(distanceGt * Math.sin(Math.toRadians(angleGt)));
+                row.setCartesian_y_gt(distanceGt * Math.cos(Math.toRadians(angleGt)));
             }
 
             // Aktualisiere dt
@@ -827,12 +838,21 @@ class Service2 {
         // schreibe alles in eine Datei
         OutputStream os = null;
         try {
+            // Ermittle das aktuelle Segment und baue Suffix für Dateiname
+            String segmentSuffix = "";
+            switch(String.join(",",constants.getCurrentSegment())) {
+                case "12078,12700": segmentSuffix = "SegA"; break;
+                case "12700_First,12694": segmentSuffix = "SegB"; break;
+                case "12694,12700": segmentSuffix = "SegC"; break;
+                case "12700_Second,12078": segmentSuffix = "SegD"; break;
+            }
+
             os = new FileOutputStream(new File("vikingExport_" +
                     new Timestamp(System.currentTimeMillis()).toString()
                             .replaceAll("\\s", "_")
                             .replaceAll(":", "-")
                             .replaceAll("\\.", "-")
-                            .concat("_Seg_" + currentSegment[0] + "_" + currentSegment[1])
+                            .concat("_" + segmentSuffix)
                             .concat(".vik")));
             os.write(outputAsString.getBytes(), 0, outputAsString.length());
         } catch (IOException e) {

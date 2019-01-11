@@ -24,7 +24,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         FilterConfiguration startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -35,7 +35,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
 
         creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -46,7 +46,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
 
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
@@ -56,13 +56,13 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
 
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
 
 
-//        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi();
+//        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(true);
 //        System.out.println("Beste Kofi:\nsigmaAccel:  "
 //                + bestConfi.getSigmaAccel()
 //                + "\nsigmaSpeed:  " + bestConfi.getSigmaGnssSpeed());
@@ -86,10 +86,10 @@ public class Main {
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
     }
 
-    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi() {
+    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement) {
         // Simuliere alle Konfigurationen:
-        filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed();
-        //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed();
+        filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
+        //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(withGtAsFakeMeasurement);
 
         // Gebe beste Konfiguration zurück
         return filterConfiguration.findBestConfigurationBySumOfAbsRmse();

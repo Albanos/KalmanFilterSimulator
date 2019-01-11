@@ -58,7 +58,38 @@ public class Data {
     // GT-direction für die Rotation der Punkte (für Abstandsberechnung in und um Bewegungsrichtung)
     private double gtDirection;
 
+    // Um auch die Auswirkungen von GT-Positionen während schätzung zu simulieren werden auch GTs kartesische gemacht
+    // dafür sind auch Global-Positions nötig, um sie in kartesische Punkte umrechnen zu können
+    private double cartesian_x_gt;
+    private double cartesian_y_gt;
+    private GlobalPosition globalPositionsGt;
+
     //===============================================
+
+
+    public GlobalPosition getGlobalPositionsGt() {
+        return globalPositionsGt;
+    }
+
+    public void setGlobalPositionsGt(GlobalPosition globalPositionsGt) {
+        this.globalPositionsGt = globalPositionsGt;
+    }
+
+    public double getCartesian_x_gt() {
+        return cartesian_x_gt;
+    }
+
+    public void setCartesian_x_gt(double cartesian_x_gt) {
+        this.cartesian_x_gt = cartesian_x_gt;
+    }
+
+    public double getCartesian_y_gt() {
+        return cartesian_y_gt;
+    }
+
+    public void setCartesian_y_gt(double cartesian_y_gt) {
+        this.cartesian_y_gt = cartesian_y_gt;
+    }
 
     public double getAbsoluteDistanceEstGt() {
         return absoluteDistanceEstGt;

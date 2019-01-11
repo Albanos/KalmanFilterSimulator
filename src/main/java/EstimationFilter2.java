@@ -145,7 +145,8 @@ public class EstimationFilter2 {
         filter = new KalmanFilter(pm, mm);
     }
 
-    public void makeEstimation() {
+    public void makeEstimation(boolean withGtAsMeasurement) {
+        int iterationCounter = 0;
         for(Data d : copyListOfAllData) {
             long currentTimestamp = d.getTimestamp();
             double currentAccelXWgs = d.getAccel_x_wgs();
@@ -179,7 +180,63 @@ public class EstimationFilter2 {
                         d.getSpeed_x_wgs(),
                         d.getSpeed_y_wgs()
                 });
+                // Nutze GT-Position auf halber Strecke, wenn gewünscht
+                if(withGtAsMeasurement) {
+                    iterationCounter++;
+                    switch (String.join(",", constants.getCurrentSegment())) {
+                        case "12078,12700":
+                            if (iterationCounter == 24) {
+                                currentMeasurment = new ArrayRealVector(new double[]{
+                                        d.getCartesian_x_gt(),
+                                        d.getCartesian_y_gt(),
+                                        d.getSpeed_x_wgs(),
+                                        d.getSpeed_y_wgs()
+                                });
+                                System.out.println("====================GT-Position für SegmentA genutzt!");
+                            }
+                            System.out.println("Iteration:  " + iterationCounter);
+                            break;
+                        case "12700_First,12694":
+                            if (iterationCounter == 61) {
+                                currentMeasurment = new ArrayRealVector(new double[]{
+                                        d.getCartesian_x_gt(),
+                                        d.getCartesian_y_gt(),
+                                        d.getSpeed_x_wgs(),
+                                        d.getSpeed_y_wgs()
+                                });
+                                System.out.println("====================GT-Position für SegmentB genutzt!");
+                            }
+                            System.out.println("Iteration:  " + iterationCounter);
+                            break;
 
+                        case "12694,12700":
+                            if (iterationCounter == 57) {
+                                currentMeasurment = new ArrayRealVector(new double[]{
+                                        d.getCartesian_x_gt(),
+                                        d.getCartesian_y_gt(),
+                                        d.getSpeed_x_wgs(),
+                                        d.getSpeed_y_wgs()
+                                });
+                                System.out.println("====================GT-Position für SegmentC genutzt!");
+                            }
+                            System.out.println("Iteration:  " + iterationCounter);
+                            break;
+
+                        case "12700_Second,12078":
+                            if (iterationCounter == 24) {
+                                currentMeasurment = new ArrayRealVector(new double[]{
+                                        d.getCartesian_x_gt(),
+                                        d.getCartesian_y_gt(),
+                                        d.getSpeed_x_wgs(),
+                                        d.getSpeed_y_wgs()
+                                });
+                                System.out.println("====================GT-Position für SegmentD genutzt!");
+                            }
+                            System.out.println("Iteration:  " + iterationCounter);
+                            break;
+
+                    }
+                }
                 // Vergleiche currentMesasurement mit z. Wenn ungleich
                 // liegt eine neue Messung vor, die wir auswerten
                 if( !currentMeasurment.equals(z) ) {

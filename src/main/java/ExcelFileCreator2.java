@@ -9,7 +9,8 @@ import java.util.List;
  * @author Luan Hajzeraj on 12/3/2018.
  */
 public class ExcelFileCreator2 {
-    private static final Service2 service = Service2.getInstance();
+    private final Service2 service = Service2.getInstance();
+    private final Constants constants = Constants.getInstance();
 
     public void writeDataToFile(final List<Data> data, final FilterConfiguration conf, String[] currentSegment) {
         // ======================Grundstruktur für den Excel-Export erzeugen
@@ -264,12 +265,20 @@ public class ExcelFileCreator2 {
 
         // ======================Schreibe alles in ein file
         try {
+            // Ermittle das aktuelle Segment und baue Suffix für Dateiname
+            String segmentSuffix = "";
+            switch(String.join(",",constants.getCurrentSegment())) {
+                case "12078,12700": segmentSuffix = "SegA"; break;
+                case "12700_First,12694": segmentSuffix = "SegB"; break;
+                case "12694,12700": segmentSuffix = "SegC"; break;
+                case "12700_Second,12078": segmentSuffix = "SegD"; break;
+            }
             String fileName = "export_" +
                     new Timestamp(System.currentTimeMillis()).toString()
                             .replaceAll("\\s", "_")
                             .replaceAll(":", "-")
                             .replaceAll("\\.", "-")
-                            .concat("_Seg_" + currentSegment[0] + "_" + currentSegment[1])
+                            .concat("_" + segmentSuffix)
                             .concat(".xls");
             FileOutputStream fos = new FileOutputStream(fileName);
             workbook.write(fos);

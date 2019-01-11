@@ -223,7 +223,7 @@ public class FilterConfiguration {
 //        }
 //    }
 
-    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed() {
+    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(boolean withGtAsFakeMeasurement) {
         for(float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             for(double j = 0.1; j <= 15.1; j = j + 0.1) {
                 // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
@@ -235,7 +235,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf1
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
 
                 allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -245,7 +245,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf2
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
                 allSegmentResultsForCurrentConfi.add(conf2);
 
                 // ===============================================Lese Segment C ein
@@ -254,7 +254,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf3
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
                 allSegmentResultsForCurrentConfi.add(conf3);
 
                 // ===============================================Lese Segment D ein
@@ -263,7 +263,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf4
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
                 allSegmentResultsForCurrentConfi.add(conf4);
 
                 // Speichere alle Konfis in globaler map
@@ -305,7 +305,7 @@ public class FilterConfiguration {
     /**
      * Filter-Simulation mit gnssSpeed = 0.1 bis gnssSpeed = 5.1 in 0.1-Schritten
      */
-    public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed() {
+    public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(boolean withGtAsFakeMeasurement) {
         for(double i = 0.1; i < 15.1; i = i + 0.1) {
             // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
             ArrayList<FilterConfiguration> allSegmentResultsForCurrentConfi = new ArrayList<>();
@@ -316,7 +316,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf1
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
 
             allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -326,7 +326,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf2
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
             allSegmentResultsForCurrentConfi.add(conf2);
 
             // ===============================================Lese Segment C ein
@@ -335,7 +335,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf3
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
             allSegmentResultsForCurrentConfi.add(conf3);
 
             // ===============================================Lese Segment D ein
@@ -344,7 +344,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf4
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
             allSegmentResultsForCurrentConfi.add(conf4);
 
             // Speichere alle Konfis in globaler map
@@ -371,29 +371,30 @@ public class FilterConfiguration {
      * Filter-Simulation mit sigmaAccel = 0.1 bis sigmaAccel = 30.1 in 0.1-Schritten und gnssSpeed = 0.1 bis
      * gnssSpeed = 5.1 in 0.1-Schritten als jeweilige Kombinationen
      */
-    public void filterSimulation_01_to_50_1_in_01_forSigmaAccel_and_01_to_15_1_in_01_forSigmaGnssSpeed() {
-        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
-        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
-            //for (double j = 0.01; j <= 15.1; j = j + 0.01) {
-            for (double j = 0.1; j <= 15.1; j = j + 0.1) {
-                FilterConfiguration currentConfiguration = new FilterConfiguration();
-                currentConfiguration.setSigmaAccel(i);
-                currentConfiguration.setSigmaGnssSpeed(j);
+    // FIXME: OLD
+//    public void filterSimulation_01_to_50_1_in_01_forSigmaAccel_and_01_to_15_1_in_01_forSigmaGnssSpeed() {
+//        //for (float i = 0.01f; i <= 20.1; i = i + 0.01f) {
+//        for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
+//            //for (double j = 0.01; j <= 15.1; j = j + 0.01) {
+//            for (double j = 0.1; j <= 15.1; j = j + 0.1) {
+//                FilterConfiguration currentConfiguration = new FilterConfiguration();
+//                currentConfiguration.setSigmaAccel(i);
+//                currentConfiguration.setSigmaGnssSpeed(j);
+//
+//                constants.setSigmaAccel(i);
+//                constants.setSigmaGnssSpeed(j);
+//                simulateEstimationAndSaveResultInGlobalList(currentConfiguration, true);
+//            }
+//        }
+//    }
 
-                constants.setSigmaAccel(i);
-                constants.setSigmaGnssSpeed(j);
-                simulateEstimationAndSaveResultInGlobalList(currentConfiguration);
-            }
-        }
-    }
-
-    private void simulateEstimationAndSaveResultInGlobalList(FilterConfiguration currentConfiguration) {
+    private void simulateEstimationAndSaveResultInGlobalList(FilterConfiguration currentConfiguration, boolean withGtAsFakeMeasurement) {
         System.out.println("=====================Beginn, simulation mit sigmaAccel:  "
                 + currentConfiguration.getSigmaAccel() + " & sigmaSpeed:  "
                 + currentConfiguration.getSigmaGnssSpeed());
 
         EstimationFilter2 filter = new EstimationFilter2();
-        filter.makeEstimation();
+        filter.makeEstimation(withGtAsFakeMeasurement);
 
         Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
@@ -407,7 +408,7 @@ public class FilterConfiguration {
         allFilterConfigurations.add(currentConfiguration);
     }
 
-    public FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed) {
+    public FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed, boolean withGtAsFakeMeasurement) {
         FilterConfiguration currentConfiguration = new FilterConfiguration();
         currentConfiguration.setSigmaAccel(sigmaAccel);
         currentConfiguration.setSigmaGnssSpeed(sigmaSpeed);
@@ -419,7 +420,7 @@ public class FilterConfiguration {
                 + sigmaAccel + " & sigmaSpeed:  " + sigmaSpeed);
 
         EstimationFilter2 filter = new EstimationFilter2();
-        filter.makeEstimation();
+        filter.makeEstimation(withGtAsFakeMeasurement);
 
         Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
