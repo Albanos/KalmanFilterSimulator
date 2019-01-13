@@ -71,11 +71,11 @@ class Service2 {
         this.oldDt = oldDt;
     }
 
-    GlobalPosition getFirstGlobalPosition() {
+    public GlobalPosition getFirstGlobalPosition() {
         return firstGlobalPosition;
     }
 
-    void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
+    private void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
         this.firstGlobalPosition = firstGlobalPosition;
     }
 

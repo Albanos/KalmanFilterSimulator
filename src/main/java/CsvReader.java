@@ -22,6 +22,8 @@ class CsvReader {
     }
 
     private Map<String, List<Data>> originalLinesBySegments = new LinkedHashMap<>();
+    // Anzahl an GNSS-Positionen, pro Segment (für GT-Pos als Messung in Filter)
+    private Map<String, Integer> gnssCounterBySegments = new LinkedHashMap<>();
 
 //     FIXME: OLD
 //    void readAllSegmentsFromfile(String pathToFile) {
@@ -45,6 +47,10 @@ class CsvReader {
 
     void readSegmentFromCsv(final String pathToFile, final String[] segment) {
         String[] line;
+        // Wir haben eine kartesische Position weniger als WGS-Positionen!
+        int positionCounter = -1;
+        Double oldLongitude = null;
+        Double oldLatitude = null;
         final List<Data> dataObjects = new LinkedList<>();
         try {
             final CSVReader reader = new CSVReader(new FileReader(pathToFile));
@@ -64,11 +70,21 @@ class CsvReader {
                 }
 
                 dataObjects.add(generateDataObjectAndSaveAllData(line));
+                // Zähle die GNSS-Positionen und speichere für akt. Segment (für GT-Auswertung im Filter)
+                Double currentLongitude = Double.valueOf(line[1]);
+                Double currentLatitude = Double.valueOf(line[2]);
+                if(!currentLongitude.equals(oldLongitude) && !currentLatitude.equals(oldLatitude)) {
+                    positionCounter++;
+                    oldLongitude = currentLongitude;
+                    oldLatitude = currentLatitude;
+                }
+
             }
             final String key = segment[0].concat("_").concat(segment[1]);
             if (!originalLinesBySegments.containsKey(key)) {
                 originalLinesBySegments.put(key, dataObjects);
             }
+            getGnssCounterBySegments().put(key, positionCounter);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,5 +154,8 @@ class CsvReader {
 
     Map<String, List<Data>> getOriginalLinesBySegments() {
         return originalLinesBySegments;
+    }
+    public Map<String, Integer> getGnssCounterBySegments() {
+        return gnssCounterBySegments;
     }
 }

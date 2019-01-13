@@ -10,8 +10,9 @@ import java.util.LinkedList;
  * @author Luan Hajzeraj on 12/1/2018.
  */
 public class EstimationFilter2 {
-    private static final Constants constants = Constants.getInstance();
-    private static final Service2 service = Service2.getInstance();
+    private final Constants constants = Constants.getInstance();
+    private final Service2 service = Service2.getInstance();
+    private final CsvReader csvReader = CsvReader.getInstance();
 
     private KalmanFilter filter;
     //final double dt = 0.1;
@@ -55,7 +56,10 @@ public class EstimationFilter2 {
 
         // Wir nutzen kein downsampling mehr, frquenz der daten ist etwa 200 Hz,
         // deshalb erster kartesischer Punkt erst hier vorhanden. Wir wollen nicht mit (0/0) initialisieren
-        Data firstDataPoint = copyListOfAllData.get(constants.getPositionOfFirstPointWithCartesianCoordinates());
+        Data firstDataPoint = copyListOfAllData.getFirst();
+//        Data firstDataPoint = copyListOfAllData.stream()
+//                .filter(d -> d.getCartesian_x() != 0.0)
+//                .findFirst().orElse(new Data());
         timestamp = timestamp2 = firstDataPoint.getTimestamp();
 
         float locationAccurancy = (float) firstDataPoint.getAccuracy_gnss();
@@ -63,8 +67,8 @@ public class EstimationFilter2 {
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
         final float sigmaAccel = constants.getSigmaAccel();
 
-        double coordinate_x = firstDataPoint.getCartesian_x();
-        double coordinate_y = firstDataPoint.getCartesian_y();
+        double coordinate_x = firstDataPoint.getCartesian_x_gt();
+        double coordinate_y = firstDataPoint.getCartesian_y_gt();
         double speed_x = firstDataPoint.getSpeed_x_wgs();
         double speed_y = firstDataPoint.getSpeed_y_wgs();
 
@@ -127,15 +131,6 @@ public class EstimationFilter2 {
                 {0, 0, 0, 10}
         });
 
-        z = new ArrayRealVector(new double[]{
-                firstDataPoint.getCartesian_x(),
-                firstDataPoint.getCartesian_y(),
-                firstDataPoint.getSpeed_x_wgs(),
-                firstDataPoint.getSpeed_y_wgs()
-        });
-
-        currentMeasurment = z;
-
         // Lösche nun den ersten Punkt aus der Listen-Kopie,
         // damit dieser Datensatz nicht als Messung zum Einsatz kommt
         copyListOfAllData.remove(firstDataPoint);
@@ -183,9 +178,10 @@ public class EstimationFilter2 {
                 // Nutze GT-Position auf halber Strecke, wenn gewünscht
                 if(withGtAsMeasurement) {
                     iterationCounter++;
-                    switch (String.join(",", constants.getCurrentSegment())) {
-                        case "12078,12700":
-                            if (iterationCounter == 24) {
+                    String key = String.join("_", constants.getCurrentSegment());
+                    switch (key) {
+                        case "12078_12700":
+                            if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                                 currentMeasurment = new ArrayRealVector(new double[]{
                                         d.getCartesian_x_gt(),
                                         d.getCartesian_y_gt(),
@@ -196,8 +192,8 @@ public class EstimationFilter2 {
                             }
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
-                        case "12700_First,12694":
-                            if (iterationCounter == 61) {
+                        case "12700_First_12694":
+                            if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                                 currentMeasurment = new ArrayRealVector(new double[]{
                                         d.getCartesian_x_gt(),
                                         d.getCartesian_y_gt(),
@@ -209,8 +205,8 @@ public class EstimationFilter2 {
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
 
-                        case "12694,12700":
-                            if (iterationCounter == 57) {
+                        case "12694_12700":
+                            if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                                 currentMeasurment = new ArrayRealVector(new double[]{
                                         d.getCartesian_x_gt(),
                                         d.getCartesian_y_gt(),
@@ -222,8 +218,8 @@ public class EstimationFilter2 {
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
 
-                        case "12700_Second,12078":
-                            if (iterationCounter == 24) {
+                        case "12700_Second_12078":
+                            if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                                 currentMeasurment = new ArrayRealVector(new double[]{
                                         d.getCartesian_x_gt(),
                                         d.getCartesian_y_gt(),

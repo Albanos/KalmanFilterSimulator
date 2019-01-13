@@ -12,7 +12,6 @@ public class Constants {
     }
 
     private float SIGMA_ACCEL = 8f;
-    private int POSITION_OF_FIRST_POINT_WITH_CARTESIAN_COORDINATES = 197;
     private double SIGMA_GNSS_SPEED = 0.5;
 
     // Einzelne Segment
@@ -35,14 +34,6 @@ public class Constants {
 
     void setSigmaAccel(float sigmaAccel) {
         SIGMA_ACCEL = sigmaAccel;
-    }
-
-    int getPositionOfFirstPointWithCartesianCoordinates() {
-        return POSITION_OF_FIRST_POINT_WITH_CARTESIAN_COORDINATES;
-    }
-
-    public void setPositionOfFirstPointWithCartesianCoordinates(int positionOfFirstPointWithCartesianCoordinates) {
-        POSITION_OF_FIRST_POINT_WITH_CARTESIAN_COORDINATES = positionOfFirstPointWithCartesianCoordinates;
     }
 
     double getSigmaGnssSpeed() {
