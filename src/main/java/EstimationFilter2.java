@@ -37,6 +37,7 @@ public class EstimationFilter2 {
     private RealMatrix A;
     private RealMatrix B;
     private RealMatrix Q;
+    private RealMatrix G;
     private RealMatrix R;
     private RealMatrix P;
     private RealMatrix H;
@@ -107,11 +108,15 @@ public class EstimationFilter2 {
         // Standardabweichung für Beschleunigung ist statisch 1, deshalb ignoriert
         // Standardabweichung soll bei zusätzlicher Messung von Geschwindigkeit mitberücksichtigt,
         // deshalb wird sigma nachobengesetzt
+        G = new Array2DRowRealMatrix(new double[]{0.5 * Math.pow(this.dt, 2), 0.5 * Math.pow(this.dt, 2), this.dt, this.dt});
+        RealMatrix Q2 = G.multiply(G.transpose());
+        Q2.setEntry(2, 2, Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2));
+        Q2.setEntry(3, 3, Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2));
         Q = new Array2DRowRealMatrix(new double[][]{
-                {1 / 4 * Math.pow(this.dt, 4), 1 / 4 * Math.pow(this.dt, 4), 1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3)},
-                {1 / 4 * Math.pow(this.dt, 4), 1 / 4 * Math.pow(this.dt, 4), 1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3)},
-                {1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2), Math.pow(this.dt, 2)},
-                {1 / 2 * Math.pow(this.dt, 3), 1 / 2 * Math.pow(this.dt, 3), Math.pow(this.dt, 2), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2)}
+                {0.25 * Math.pow(this.dt, 4), 0.25 * Math.pow(this.dt, 4), 0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3)},
+                {0.25 * Math.pow(this.dt, 4), 0.25 * Math.pow(this.dt, 4), 0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3)},
+                {0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2), Math.pow(this.dt, 2)},
+                {0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3), Math.pow(this.dt, 2), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2)}
         });
 
         double locationVarianz = Math.pow(locationAccurancy, 2);

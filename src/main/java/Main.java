@@ -1,5 +1,3 @@
-import java.util.Map;
-
 /**
  * @author Luan Hajzeraj on 12.11.2018.
  */
@@ -26,7 +24,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         FilterConfiguration startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -37,7 +35,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
 
         creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -48,7 +46,7 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
 
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
@@ -58,13 +56,13 @@ public class Main {
         service.setListOfAllDataByGlobalSegment();
 
         startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 3.9, true);
+                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
 
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
 
 
-//        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(true);
+//        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(false);
 //        System.out.println("Beste Kofi:\nsigmaAccel:  "
 //                + bestConfi.getSigmaAccel()
 //                + "\nsigmaSpeed:  " + bestConfi.getSigmaGnssSpeed());
