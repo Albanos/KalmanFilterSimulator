@@ -511,16 +511,20 @@ class Service2 {
 
         // Berechne Abstand des Geschätzten und des ersten kartesischen Punktes (erste kartesische ist der 16.)
         // TODO: der erste kartesische Punkt ist definitiv nicht mehr der 16. Punkt. Hier kommt sicher auch das Richtungsproblem her!
-        double firstCartesian_x = getListOfAllData().get(16).getCartesian_x();
-        double firstCartesian_y = getListOfAllData().get(16).getCartesian_y();
+//        double firstCartesian_x = getListOfAllData().get(16).getCartesian_x();
+//        double firstCartesian_y = getListOfAllData().get(16).getCartesian_y();
 //        Data firstDataPoint = getListOfAllData().stream()
 //                .filter(d -> d.getCartesian_x() != 0.0 && d.getCartesian_y() != 0.0)
 //                .findFirst().orElse(new Data());
 //        double firstCartesian_x = firstDataPoint.getCartesian_x();
 //        double firstCartesian_y = firstDataPoint.getCartesian_y();
+//        double firstCartesian_x = getListOfAllData().getFirst().getCartesian_x_gt();
+//        double firstCartesian_y = getListOfAllData().getFirst().getCartesian_y_gt();
+        double x = 0 - estimated_x;
+        double y = 0 - estimated_y;
 
-        double x = firstCartesian_x - estimated_x;
-        double y = firstCartesian_y - estimated_y;
+//        double x = firstCartesian_x - estimated_x;
+//        double y = firstCartesian_y - estimated_y;
 
         // Bestimme zunächst die Distanz zum ersten Punkt, mithilfe von Pythagoras
         double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
