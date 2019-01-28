@@ -11,6 +11,30 @@ import java.util.Map;
 class CsvReader {
     private static CsvReader instance = null;
 
+    // statische variablen für die jeweilligen Spaltenpositionen innerhalb eines bestimmten files
+    private static boolean firstIteration = true;
+    private static int timestampPosition = -1;
+    private static int latitudePosition = -1;
+    private static int longitudePosition = -1;
+    private static int altitudePosition = -1;
+    private static int bearingPosition = -1;
+    private static int gnssSpeedPosition = -1;
+    private static int longitudeGtPosition = -1;
+    private static int latitudeGtPosition = -1;
+    private static int gpsAccuracyPosition = -1;
+    private static int accelXPosition = -1;
+    private static int accelYPosition = -1;
+    private static int accelZPosition = -1;
+    private static int magneticXPosition = -1;
+    private static int magneticYPosition = -1;
+    private static int magneticZPosition = -1;
+    private static int gravityXPosition = -1;
+    private static int gravityYPosition = -1;
+    private static int gravityZPosition = -1;
+    private static int gt_directionPosition = -1;
+    private static int labelPosition = -1;
+
+
     private CsvReader() {
     }
 
@@ -55,24 +79,29 @@ class CsvReader {
         try {
             final CSVReader reader = new CSVReader(new FileReader(pathToFile));
             reader.skip(1);
+            // Ermittle die Spaltennummern der einzulesenden Datei genau einmal und speichere sie statisch
+            if(firstIteration) {
+                setColumnPositionValuesOfFile(pathToFile);
+                firstIteration = false;
+            }
             while ((line = reader.readNext()) != null) {
                 // ignoriere die rows, wo keine Position vorliegt
                 //if(line[1].startsWith("NaN") || !(line[18].startsWith("GO_" + segment[0])) && !(line[18].startsWith("STOP_" + segment[1]))) {
-                if (line[1].startsWith("NaN") ||
-                        !((line[18].startsWith("GO_" + segment[0])))) {
+                if (line[longitudePosition].startsWith("NaN") ||
+                        !((line[labelPosition].startsWith("GO_" + segment[0])))) {
                     continue;
                 }
 
                 // höre auf zu lesen, wenn du das erste STOP liest = erstes Segment
                 //if(line[18].startsWith("STOP_" + segment[1])) {
-                else if (line[18].startsWith("STOP_" + segment[1])) {
+                else if (line[labelPosition].startsWith("STOP_" + segment[1])) {
                     break;
                 }
 
-                dataObjects.add(generateDataObjectAndSaveAllData(line));
+                dataObjects.add(generateDataObjectAndSaveAllData(line, pathToFile));
                 // Zähle die GNSS-Positionen und speichere für akt. Segment (für GT-Auswertung im Filter)
-                Double currentLongitude = Double.valueOf(line[1]);
-                Double currentLatitude = Double.valueOf(line[2]);
+                Double currentLongitude = Double.valueOf(line[longitudePosition]);
+                Double currentLatitude = Double.valueOf(line[latitudePosition]);
                 if(!currentLongitude.equals(oldLongitude) && !currentLatitude.equals(oldLatitude)) {
                     positionCounter++;
                     oldLongitude = currentLongitude;
@@ -91,14 +120,30 @@ class CsvReader {
         }
     }
 
-    private Data generateDataObjectAndSaveAllData(final String[] line) {
-        final Data d = new Data();
-        // Entferne Punkt aus timestamp
-        d.setTimestamp(Long.valueOf(line[0].replaceAll("\\.", "")));
+    private int findSpecificColumnByName(String nameOfColumn, String pathToFile) {
+        try {
+            final CSVReader reader = new CSVReader(new FileReader(pathToFile));
+            String[] firstLineOfFile = reader.readNext();
+            for(int i =0; i < firstLineOfFile.length; i++) {
+                if(firstLineOfFile[i].equals(nameOfColumn)) {
+                    return i;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
-        d.setLongitude_wgs(Double.valueOf(line[1]));
-        d.setLatitude_wgs(Double.valueOf(line[2]));
-        d.setAltitude_wgs(Double.valueOf(line[3]));
+    private Data generateDataObjectAndSaveAllData(final String[] line, String pathToFile) {
+        final Data d = new Data();
+
+        // Entferne Punkt aus timestamp
+        d.setTimestamp(Long.valueOf(line[timestampPosition].replaceAll("\\.", "")));
+
+        d.setLongitude_wgs(Double.valueOf(line[longitudePosition]));
+        d.setLatitude_wgs(Double.valueOf(line[latitudePosition]));
+        d.setAltitude_wgs(Double.valueOf(line[altitudePosition]));
 //FIXME: gehört hier nicht hin
 //        // setze erste GlobalPosition (for geodesy)
 //        if (Service2.getFirstGlobalPosition() == null) {
@@ -118,25 +163,25 @@ class CsvReader {
                 )
         );
 
-        d.setBearing_wgs(Double.valueOf(line[4]));
-        d.setAmountSpeed_wgs(Double.valueOf(line[5]));
 
+        d.setBearing_wgs(Double.valueOf(line[bearingPosition]));
+        d.setAmountSpeed_wgs(Double.valueOf(line[gnssSpeedPosition]));
         // Berechne auf Basis des Winkels und dem Betrag d. Geschw. den x- & y-Speed
         d.setSpeed_x_wgs(d.getAmountSpeed_wgs() * Math.sin(Math.toRadians(d.getBearing_wgs())));
         d.setSpeed_y_wgs(d.getAmountSpeed_wgs() * Math.cos(Math.toRadians(d.getBearing_wgs())));
 
-        d.setLongitude_gt(Double.valueOf(line[6]));
-        d.setLatitude_gt(Double.valueOf(line[7]));
-        d.setAccuracy_gnss(Double.valueOf(line[8]));
-        d.setAccel_x_imu(Double.valueOf(line[9]));
-        d.setAccel_y_imu(Double.valueOf(line[10]));
-        d.setAccel_z_imu(Double.valueOf(line[11]));
-        d.setMagnetic_x_imu(Double.valueOf(line[12]));
-        d.setMagnetic_y_imu(Double.valueOf(line[13]));
-        d.setMagnetic_z_imu(Double.valueOf(line[14]));
-        d.setGravitiy_x_imu(Double.valueOf(line[15]));
-        d.setGravitiy_y_imu(Double.valueOf(line[16]));
-        d.setGravitiy_z_imu(Double.valueOf(line[17]));
+        d.setLongitude_gt(Double.valueOf(line[longitudeGtPosition]));
+        d.setLatitude_gt(Double.valueOf(line[latitudeGtPosition]));
+        d.setAccuracy_gnss(Double.valueOf(line[gpsAccuracyPosition]));
+        d.setAccel_x_imu(Double.valueOf(line[accelXPosition]));
+        d.setAccel_y_imu(Double.valueOf(line[accelYPosition]));
+        d.setAccel_z_imu(Double.valueOf(line[accelZPosition]));
+        d.setMagnetic_x_imu(Double.valueOf(line[magneticXPosition]));
+        d.setMagnetic_y_imu(Double.valueOf(line[magneticYPosition]));
+        d.setMagnetic_z_imu(Double.valueOf(line[magneticZPosition]));
+        d.setGravitiy_x_imu(Double.valueOf(line[gravityXPosition]));
+        d.setGravitiy_y_imu(Double.valueOf(line[gravityYPosition]));
+        d.setGravitiy_z_imu(Double.valueOf(line[gravityZPosition]));
 
         // setze auch die Global-Position für GT-Position (um in kartesischen Punkt umrechnen zu können)
         d.setGlobalPositionsGt(
@@ -148,8 +193,31 @@ class CsvReader {
         );
 
         // Setze auch die GT-direction für spätere Abstandsberechnung in und um Bewegungsrichtung
-        d.setGtDirection(Double.valueOf(line[19]));
+        d.setGtDirection(Double.valueOf(line[gt_directionPosition]));
         return d;
+    }
+
+    private void setColumnPositionValuesOfFile(String pathToFile) {
+        timestampPosition = findSpecificColumnByName("Timestamp", pathToFile);
+        longitudePosition = findSpecificColumnByName("TYPE_GPS-Longitude", pathToFile);
+        latitudePosition = findSpecificColumnByName("TYPE_GPS-Latitude", pathToFile);
+        altitudePosition = findSpecificColumnByName("TYPE_GPS-Altitude", pathToFile);
+        bearingPosition = findSpecificColumnByName("TYPE_GPS-Bearing", pathToFile);
+        gnssSpeedPosition = findSpecificColumnByName("TYPE_GPS-Speed", pathToFile);
+        longitudeGtPosition = findSpecificColumnByName("TYPE_GPS-Longitude_GT", pathToFile);
+        latitudeGtPosition = findSpecificColumnByName("TYPE_GPS-Latitude_GT", pathToFile);
+        gpsAccuracyPosition = findSpecificColumnByName("TYPE_GPS-Accuracy", pathToFile);
+        accelXPosition = findSpecificColumnByName("TYPE_ACCELEROMETER-X", pathToFile);
+        accelYPosition = findSpecificColumnByName("TYPE_ACCELEROMETER-Y", pathToFile);
+        accelZPosition = findSpecificColumnByName("TYPE_ACCELEROMETER-Z", pathToFile);
+        magneticXPosition = findSpecificColumnByName("TYPE_MAGNETIC_FIELD-X", pathToFile);
+        magneticYPosition = findSpecificColumnByName("TYPE_MAGNETIC_FIELD-Y", pathToFile);
+        magneticZPosition = findSpecificColumnByName("TYPE_MAGNETIC_FIELD-Z", pathToFile);
+        gravityXPosition = findSpecificColumnByName("TYPE_GRAVITY-X", pathToFile);
+        gravityYPosition = findSpecificColumnByName("TYPE_GRAVITY-Y", pathToFile);
+        gravityZPosition = findSpecificColumnByName("TYPE_GRAVITY-Z", pathToFile);
+        labelPosition = findSpecificColumnByName("label", pathToFile);
+        gt_directionPosition = findSpecificColumnByName("GT_Direction", pathToFile);
     }
 
     Map<String, List<Data>> getOriginalLinesBySegments() {

@@ -15,8 +15,8 @@ public class EstimationFilter2 {
     private final CsvReader csvReader = CsvReader.getInstance();
 
     private KalmanFilter filter;
-    //final double dt = 0.1;
-    final double dt = service.getDt();
+    final double dt = 0.1;
+    //final double dt = service.getDt();
     //final double dt = 0.057312011;
     //final double dt = 0.06;
     //final double dt = 0.020894866;
@@ -108,10 +108,16 @@ public class EstimationFilter2 {
         // Standardabweichung für Beschleunigung ist statisch 1, deshalb ignoriert
         // Standardabweichung soll bei zusätzlicher Messung von Geschwindigkeit mitberücksichtigt,
         // deshalb wird sigma nachobengesetzt
-        G = new Array2DRowRealMatrix(new double[]{0.5 * Math.pow(this.dt, 2), 0.5 * Math.pow(this.dt, 2), this.dt, this.dt});
+        G = new Array2DRowRealMatrix(new double[]{
+                constants.getG1() * Math.pow(this.dt, 2),
+                constants.getG2() * Math.pow(this.dt, 2),
+                constants.getG3() * this.dt,
+                constants.getG4() * this.dt});
         RealMatrix Q2 = G.multiply(G.transpose());
         Q2.setEntry(2, 2, Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2));
         Q2.setEntry(3, 3, Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2));
+
+        // Bemerkung: Die Abweichung zwischen Q und Q2 ergeben sich in der fünfzehnten nachkommastelle
         Q = new Array2DRowRealMatrix(new double[][]{
                 {0.25 * Math.pow(this.dt, 4), 0.25 * Math.pow(this.dt, 4), 0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3)},
                 {0.25 * Math.pow(this.dt, 4), 0.25 * Math.pow(this.dt, 4), 0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3)},
@@ -119,7 +125,9 @@ public class EstimationFilter2 {
                 {0.5 * Math.pow(this.dt, 3), 0.5 * Math.pow(this.dt, 3), Math.pow(this.dt, 2), Math.pow(this.dt, 2) * Math.pow(sigmaAccel, 2)}
         });
 
-        double locationVarianz = Math.pow(locationAccurancy, 2);
+        Q = Q2;
+
+        double locationVarianz = Math.pow(constants.getSIGMA_POSITION_ACC(), 2);
         double speedVarianz = Math.pow(constants.getSigmaGnssSpeed(), 2); // speedVarianz wird statisch festgelegt, da Geschw.-Genauigkeit nicht verfügbar
         R = new Array2DRowRealMatrix(new double[][]{
                 {locationVarianz, 0, 0, 0},
@@ -194,6 +202,8 @@ public class EstimationFilter2 {
                                         d.getSpeed_y_wgs()
                                 });
                                 System.out.println("====================GT-Position für SegmentA genutzt!");
+                                // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
+                                //saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
@@ -206,6 +216,8 @@ public class EstimationFilter2 {
                                         d.getSpeed_y_wgs()
                                 });
                                 System.out.println("====================GT-Position für SegmentB genutzt!");
+                                // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
+//                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
@@ -219,6 +231,8 @@ public class EstimationFilter2 {
                                         d.getSpeed_y_wgs()
                                 });
                                 System.out.println("====================GT-Position für SegmentC genutzt!");
+                                // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
+//                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
                             System.out.println("Iteration:  " + iterationCounter);
                             break;
@@ -232,6 +246,8 @@ public class EstimationFilter2 {
                                         d.getSpeed_y_wgs()
                                 });
                                 System.out.println("====================GT-Position für SegmentD genutzt!");
+                                // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
+                                //saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
                             System.out.println("Iteration:  " + iterationCounter);
                             break;

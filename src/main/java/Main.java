@@ -16,56 +16,103 @@ public class Main {
     private static final String pathToS7File =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\S7Edge_ownFormat_withGT_11_51_42.csv";
 
+    private static final String pathToNexus5File =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Car2X-ADN_nexus5-messung-21_2017-06-01_09-56-40.0_formatted_addedColumns.csv";
+
+    private static final String pathToNexus5File2 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Car2X-ADN_nexus5-messung-210_2017-06-01_11-21-25.0_formatted_addedColumns.csv";
+
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(pathToNexus6File2);
+        readAllSegmentsFromCsv(pathToNexus5File2);
+//        double sumOfAllRmseValuesEstGt = 0;
+//        double sumOfAllRmseValuesGnssGt = 0;
+//        // Segment A
+//        constants.setCurrentSegment(constants.getSegmentA());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        FilterConfiguration startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true);
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        ExcelFileCreator2 creator = new ExcelFileCreator2();
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+//
+//        // Segment B
+//        constants.setCurrentSegment(constants.getSegmentB());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true);
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        creator = new ExcelFileCreator2();
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+//
+//        // Segment C
+//        constants.setCurrentSegment(constants.getSegmentC());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true);
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+//
+//        // Segment D
+//        constants.setCurrentSegment(constants.getSegmentD());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true);
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+//        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt);
+//        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt);
 
-        // Segment A
-        constants.setCurrentSegment(constants.getSegmentA());
-        service.setListOfAllDataByGlobalSegment();
-
-        FilterConfiguration startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
-
-        ExcelFileCreator2 creator = new ExcelFileCreator2();
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-
-        // Segment B
-        constants.setCurrentSegment(constants.getSegmentB());
-        service.setListOfAllDataByGlobalSegment();
-
-        startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
-
-        creator = new ExcelFileCreator2();
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-
-        // Segment C
-        constants.setCurrentSegment(constants.getSegmentC());
-        service.setListOfAllDataByGlobalSegment();
-
-        startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
-
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-
-        // Segment D
-        constants.setCurrentSegment(constants.getSegmentD());
-        service.setListOfAllDataByGlobalSegment();
-
-        startConf
-                = filterConfiguration.simulateEstimationAndGenerateConfigurationAndreturnThem(20f, 2.4, true);
-
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
 
 
-//        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(false);
-//        System.out.println("Beste Kofi:\nsigmaAccel:  "
-//                + bestConfi.getSigmaAccel()
-//                + "\nsigmaSpeed:  " + bestConfi.getSigmaGnssSpeed());
+        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(false);
+        System.out.println("Beste Kofi:\n" +
+                "sigmaGnssSpeed:  " + bestConfi.getSigmaGnssSpeed() + "\n"
+                + "sigmaPosAccuracy:  " + bestConfi.getSigmaPosAccuracy() + "\n"
+                + "G1:  " + bestConfi.getG1() + "\n"
+                + "G2:  " + bestConfi.getG2() + "\n"
+                + "G3:  " + bestConfi.getG3() + "\n"
+                + "G4:  " + bestConfi.getG4()
+        );
 
 
         System.out.println("Hi");
@@ -88,8 +135,10 @@ public class Main {
 
     private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement) {
         // Simuliere alle Konfigurationen:
-        filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
+        //filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
         //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(withGtAsFakeMeasurement);
+        filterConfiguration.filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(withGtAsFakeMeasurement);
+        //filterConfiguration.filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(withGtAsFakeMeasurement);
 
         // Gebe beste Konfiguration zurück
         return filterConfiguration.findBestConfigurationBySumOfAbsRmse();
