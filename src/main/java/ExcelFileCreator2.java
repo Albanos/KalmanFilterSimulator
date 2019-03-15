@@ -268,10 +268,14 @@ public class ExcelFileCreator2 {
             // Ermittle das aktuelle Segment und baue Suffix für Dateiname
             String segmentSuffix = "";
             switch(String.join(",",constants.getCurrentSegment())) {
-                case "12078,12700": segmentSuffix = "SegA"; break;
+                //case "12078,12700": segmentSuffix = "SegA"; break;
+                // MERKE: Für zweite Messung anderen Startpunkt gewählt
+                case "12079,12700": segmentSuffix = "SegA"; break;
                 case "12700_First,12694": segmentSuffix = "SegB"; break;
                 case "12694,12700": segmentSuffix = "SegC"; break;
-                case "12700_Second,12078": segmentSuffix = "SegD"; break;
+                //case "12700_Second,12078": segmentSuffix = "SegD"; break;
+                // Ebenso wie oben...
+                case "12700_Second,12079": segmentSuffix = "SegD"; break;
             }
             String fileName = "export_" +
                     new Timestamp(System.currentTimeMillis()).toString()

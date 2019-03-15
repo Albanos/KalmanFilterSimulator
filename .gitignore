@@ -1,4 +1,5 @@
 /src/main/ressources/*.csv
+/src/main/ressources/dataWithStepDetection/*.csv
 /target
 *.xls
 .idea/

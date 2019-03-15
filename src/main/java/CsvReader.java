@@ -33,6 +33,7 @@ class CsvReader {
     private static int gravityZPosition = -1;
     private static int gt_directionPosition = -1;
     private static int labelPosition = -1;
+    private static int typeOrientation_x = -1;
 
 
     private CsvReader() {
@@ -165,6 +166,7 @@ class CsvReader {
 
 
         d.setBearing_wgs(Double.valueOf(line[bearingPosition]));
+        //d.setBearing_wgs(Double.valueOf(line[typeOrientation_x]));
         d.setAmountSpeed_wgs(Double.valueOf(line[gnssSpeedPosition]));
         // Berechne auf Basis des Winkels und dem Betrag d. Geschw. den x- & y-Speed
         d.setSpeed_x_wgs(d.getAmountSpeed_wgs() * Math.sin(Math.toRadians(d.getBearing_wgs())));
@@ -218,6 +220,7 @@ class CsvReader {
         gravityZPosition = findSpecificColumnByName("TYPE_GRAVITY-Z", pathToFile);
         labelPosition = findSpecificColumnByName("label", pathToFile);
         gt_directionPosition = findSpecificColumnByName("GT_Direction", pathToFile);
+        typeOrientation_x = findSpecificColumnByName("TYPE_ORIENTATION-X",pathToFile);
     }
 
     Map<String, List<Data>> getOriginalLinesBySegments() {

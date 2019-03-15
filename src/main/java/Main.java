@@ -86,8 +86,39 @@ public class Main {
     private static final String pathToNexus5File5 =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\Car2X-ADN_nexus5-messung-22_2017-06-01_10-06-06.0_formatted_addedColumns.csv";
 
+    // ===================================================================NEUE DATEN, MIT STEP_DETECTOR
+    private static final String nexus6_luan1 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_luan-1_2019-03-08_15-34-32.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_luan2 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_luan-2_2019-03-08_15-48-04.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_luan3 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_luan-3_2019-03-08_15-55-25.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_luan4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_luan-4_2019-03-08_16-05-01.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_luan5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_luan-5_2019-03-08_16-13-41.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_rovi1 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-1_2019-03-08_16-25-31.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_rovi2 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-2_2019-03-08_16-41-17.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_rovi3 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-3_2019-03-08_16-49-35.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_rovi4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-4_2019-03-08_16-57-30.0_formatted_addedColumns.csv";
+
+    private static final String nexus6_rovi5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-5_2019-03-08_17-05-06.0_formatted_addedColumns.csv";
+
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(pathToNexus6File3);
+        readAllSegmentsFromCsv(nexus6_luan1);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -101,7 +132,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true);
+                0.5, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -120,7 +151,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true);
+                0.5, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -139,7 +170,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true);
+                0.5, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -157,7 +188,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true);
+                0.5, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 

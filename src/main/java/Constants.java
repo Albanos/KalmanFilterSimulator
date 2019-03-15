@@ -34,10 +34,14 @@ public class Constants {
     private String[] currentSegment;
 
     // statische Werte für Segmente
-    private final String[] segmentA = new String[]{"12078", "12700"};
+    //private final String[] segmentA = new String[]{"12078", "12700"};
+    // MERKE: bei zweiter Vermessung anderen Startpunkt gewählt
+    private final String[] segmentA = new String[]{"12079", "12700"};
     private final String[] segmentB = new String[]{"12700_First", "12694"};
     private final String[] segmentC = new String[]{"12694", "12700"};
-    private final String[] segmentD = new String[]{"12700_Second", "12078"};
+    //private final String[] segmentD = new String[]{"12700_Second", "12078"};
+    // Ebenso...
+    private final String[] segmentD = new String[]{"12700_Second", "12079"};
 
     public double getSIGMA_POSITION_ACC() {
         return SIGMA_POSITION_ACC;
