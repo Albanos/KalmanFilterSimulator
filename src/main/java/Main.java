@@ -118,7 +118,7 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-5_2019-03-08_17-05-06.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6_luan1);
+        readAllSegmentsFromCsv(nexus6_rovi3);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -132,7 +132,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -151,7 +151,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -170,7 +170,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -188,7 +188,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 

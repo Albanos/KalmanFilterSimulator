@@ -87,8 +87,7 @@ class CsvReader {
             }
             while ((line = reader.readNext()) != null) {
                 // ignoriere die rows, wo keine Position vorliegt
-                //if(line[1].startsWith("NaN") || !(line[18].startsWith("GO_" + segment[0])) && !(line[18].startsWith("STOP_" + segment[1]))) {
-                if (line[longitudePosition].startsWith("NaN") ||
+                if ((line[longitudePosition].startsWith("NaN")) ||
                         !((line[labelPosition].startsWith("GO_" + segment[0])))) {
                     continue;
                 }
@@ -101,14 +100,17 @@ class CsvReader {
 
                 dataObjects.add(generateDataObjectAndSaveAllData(line, pathToFile));
                 // Zähle die GNSS-Positionen und speichere für akt. Segment (für GT-Auswertung im Filter)
-                Double currentLongitude = Double.valueOf(line[longitudePosition]);
-                Double currentLatitude = Double.valueOf(line[latitudePosition]);
-                if(!currentLongitude.equals(oldLongitude) && !currentLatitude.equals(oldLatitude)) {
-                    positionCounter++;
-                    oldLongitude = currentLongitude;
-                    oldLatitude = currentLatitude;
+                // Nur, wenn es auch eine gültige, also KEINE NaN-Position ist
+                if(!Double.isNaN( ((LinkedList<Data>) dataObjects).getLast().getLongitude_wgs())
+                        && !Double.isNaN( ((LinkedList<Data>) dataObjects).getLast().getLatitude_wgs())) {
+                    Double currentLongitude = Double.valueOf(line[longitudePosition]);
+                    Double currentLatitude = Double.valueOf(line[latitudePosition]);
+                    if (!currentLongitude.equals(oldLongitude) && !currentLatitude.equals(oldLatitude)) {
+                        positionCounter++;
+                        oldLongitude = currentLongitude;
+                        oldLatitude = currentLatitude;
+                    }
                 }
-
             }
             final String key = segment[0].concat("_").concat(segment[1]);
             if (!originalLinesBySegments.containsKey(key)) {
@@ -154,24 +156,27 @@ class CsvReader {
 //                    d.getAltitude_wgs()
 //            ));
 //        }
+        // Berechne nur, wenn Location vorhanden ist. Für die Datensätze, wo keine Location vorhanden ist
+        // benötigen wir auch keine Geschwindigkeit, weil dies eh keine gültige Messung ist (eben keine location). Wir
+        // wollen aber gern darüber iterieren
+        if(!Double.isNaN(d.getLongitude_wgs()) && !Double.isNaN(d.getLatitude_wgs()) && !Double.isNaN(d.getAltitude_wgs())) {
+            // setze ebenso eine globale Position für lat/lon/alt
+            d.setGlobalPosition(
+                    new GlobalPosition(
+                            d.getLatitude_wgs(),
+                            d.getLongitude_wgs(),
+                            d.getAltitude_wgs()
+                    )
+            );
 
-        // setze ebenso eine globale Position für lat/lon/alt
-        d.setGlobalPosition(
-                new GlobalPosition(
-                        d.getLatitude_wgs(),
-                        d.getLongitude_wgs(),
-                        d.getAltitude_wgs()
-                )
-        );
 
-
-        d.setBearing_wgs(Double.valueOf(line[bearingPosition]));
-        //d.setBearing_wgs(Double.valueOf(line[typeOrientation_x]));
-        d.setAmountSpeed_wgs(Double.valueOf(line[gnssSpeedPosition]));
-        // Berechne auf Basis des Winkels und dem Betrag d. Geschw. den x- & y-Speed
-        d.setSpeed_x_wgs(d.getAmountSpeed_wgs() * Math.sin(Math.toRadians(d.getBearing_wgs())));
-        d.setSpeed_y_wgs(d.getAmountSpeed_wgs() * Math.cos(Math.toRadians(d.getBearing_wgs())));
-
+            d.setBearing_wgs(Double.valueOf(line[bearingPosition]));
+            //d.setBearing_wgs(Double.valueOf(line[typeOrientation_x]));
+            d.setAmountSpeed_wgs(Double.valueOf(line[gnssSpeedPosition]));
+            // Berechne auf Basis des Winkels und dem Betrag d. Geschw. den x- & y-Speed
+            d.setSpeed_x_wgs(d.getAmountSpeed_wgs() * Math.sin(Math.toRadians(d.getBearing_wgs())));
+            d.setSpeed_y_wgs(d.getAmountSpeed_wgs() * Math.cos(Math.toRadians(d.getBearing_wgs())));
+        }
         d.setLongitude_gt(Double.valueOf(line[longitudeGtPosition]));
         d.setLatitude_gt(Double.valueOf(line[latitudeGtPosition]));
         d.setAccuracy_gnss(Double.valueOf(line[gpsAccuracyPosition]));

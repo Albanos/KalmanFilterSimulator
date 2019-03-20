@@ -249,6 +249,13 @@ public class ExcelFileCreator2 {
             oldLatitude = latitude_wgs;
             oldLongitude = longitude_wgs;
 
+            // Da NaN irgendwie nicht als Zahl geschrieben werden kann, setzen wir für beide -1 als value
+            if(Double.isNaN(latitude_wgs) && Double.isNaN(longitude_wgs)) {
+                latitude_wgs = -1;
+                longitude_wgs = -1;
+                altitude_wgs = -1;
+            }
+
             HSSFRow currentRow = thirdSheet.createRow(i);
             HSSFCell originalWGS_timestamp = currentRow.createCell(0);
             HSSFCell originalWGS_latitude = currentRow.createCell(1);

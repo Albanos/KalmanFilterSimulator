@@ -99,17 +99,19 @@ class Service2 {
         }
 
         for (Data row : dataOfCurrentSegment) {
-            // Berechne die kartesischen Punkte für die "normalen" Positionen
-            final GlobalPosition globalPosition = row.getGlobalPosition();
-            final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
-            final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
+            // Berechne nur einen kartesischen Punkt, wenn lat_wgs und lon_wgs != NaN
+            if(!Double.isNaN(row.getLatitude_wgs()) && !Double.isNaN(row.getLongitude_wgs())) {
+                // Berechne die kartesischen Punkte für die "normalen" Positionen
+                final GlobalPosition globalPosition = row.getGlobalPosition();
+                final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
+                final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
 
-            //if (distance != 0.0 && angle != 0.0) {
-            if (distance != 0.0 && !Double.isNaN(angle)) {
-                row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
-                row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
+                //if (distance != 0.0 && angle != 0.0) {
+                if (distance != 0.0 && !Double.isNaN(angle)) {
+                    row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
+                    row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
+                }
             }
-
             // Berechne die kartesischen Punkte für die GT-Positionen
             final GlobalPosition globalPositionsGt = row.getGlobalPositionsGt();
             final double distanceGt = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
@@ -598,7 +600,10 @@ class Service2 {
         data.setLongiDistanceEstToGtWithDirection(latiLongiDistancesEstToGt.get("longiDistance"));
 
         // Berechne im selben Zug den Abstand zwischen GNSS- & GT-Position
-        calculateDistanceBetweenGNSSAndGTPosition(data);
+        // Allerdings nur, wenn die jeweilige Position NICHT NaN ist
+        if( !Double.isNaN(data.getLatitude_wgs()) && !Double.isNaN(data.getLongitude_wgs())) {
+            calculateDistanceBetweenGNSSAndGTPosition(data);
+        }
     }
 
     /**
@@ -800,7 +805,7 @@ class Service2 {
             double altitude_wgs = d.getAltitude_wgs();
 
             // Zeiche jede Position nur einmal: wegen aktueller Struktur zeichnen wir Daten mehrmals
-            if (latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
+            if ((Double.isNaN(latitude_wgs) && Double.isNaN(longitude_wgs)) || latitude_wgs == oldLatitude || longitude_wgs == oldLongitude) {
                 continue;
             }
             oldLatitude = latitude_wgs;
