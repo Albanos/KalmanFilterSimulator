@@ -34,6 +34,7 @@ class CsvReader {
     private static int gt_directionPosition = -1;
     private static int labelPosition = -1;
     private static int typeOrientation_x = -1;
+    private static double oldTimeFromStepdetector = 0;
 
 
     private CsvReader() {
@@ -176,6 +177,11 @@ class CsvReader {
             // Berechne auf Basis des Winkels und dem Betrag d. Geschw. den x- & y-Speed
             d.setSpeed_x_wgs(d.getAmountSpeed_wgs() * Math.sin(Math.toRadians(d.getBearing_wgs())));
             d.setSpeed_y_wgs(d.getAmountSpeed_wgs() * Math.cos(Math.toRadians(d.getBearing_wgs())));
+
+            // Berechne die Geschwindigkeit (Betrag und in x- & y-Richtung)
+            // aus Schritterkennng und speichere in Data-Objekt
+            calculateCompleteVelocityByStepDetectorAndSetInDataObject(line[typeOrientation_x], d);
+
         }
         d.setLongitude_gt(Double.valueOf(line[longitudeGtPosition]));
         d.setLatitude_gt(Double.valueOf(line[latitudeGtPosition]));
@@ -202,6 +208,26 @@ class CsvReader {
         // Setze auch die GT-direction für spätere Abstandsberechnung in und um Bewegungsrichtung
         d.setGtDirection(Double.valueOf(line[gt_directionPosition]));
         return d;
+    }
+
+    private void calculateCompleteVelocityByStepDetectorAndSetInDataObject(String s, Data d) {
+        // Berechne dt
+        double dt = oldTimeFromStepdetector == 0 ? 0.1 : (d.getTimestamp() - oldTimeFromStepdetector) / 1000000000.0f;
+        //double dt = oldTimeFromStepdetector == 0 ? 0.1 : (d.getTimestamp() - oldTimeFromStepdetector) / 10000000.0f;
+        oldTimeFromStepdetector = d.getTimestamp();
+
+        // Schrittlängen:
+        // Luan: 0.8278146
+        // Rovena: 0.8038585 --> 13 -> 15 Stellen Timestamp-Diff
+        double stepLength = 0.8278146;
+        double stepFrequency = 1 / dt;
+        double walkVelocity = stepLength * stepFrequency;
+        d.setAmountSpeed_stepDetector(walkVelocity);
+
+        // Als Winkel nutzen wir den Orientation-Wert
+        double angleOrientation = Double.valueOf(s);
+        d.setSpeed_x_stepDetector(d.getAmountSpeed_stepDetector() * Math.sin(Math.toRadians(d.getBearing_wgs())));
+        d.setSpeed_y_stepDetector(d.getAmountSpeed_stepDetector() * Math.cos(Math.toRadians(d.getBearing_wgs())));
     }
 
     private void setColumnPositionValuesOfFile(String pathToFile) {

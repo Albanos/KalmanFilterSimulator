@@ -64,8 +64,37 @@ public class Data {
     private double cartesian_y_gt;
     private GlobalPosition globalPositionsGt;
 
+    // Geschwindigkeit aus Schritterkennung
+    private double amountSpeed_stepDetector;
+    private double speed_x_stepDetector;
+    private double speed_y_stepDetector;
+
     //===============================================
 
+
+    public double getSpeed_x_stepDetector() {
+        return speed_x_stepDetector;
+    }
+
+    public void setSpeed_x_stepDetector(double speed_x_stepDetector) {
+        this.speed_x_stepDetector = speed_x_stepDetector;
+    }
+
+    public double getSpeed_y_stepDetector() {
+        return speed_y_stepDetector;
+    }
+
+    public void setSpeed_y_stepDetector(double speed_y_stepDetector) {
+        this.speed_y_stepDetector = speed_y_stepDetector;
+    }
+
+    public double getAmountSpeed_stepDetector() {
+        return amountSpeed_stepDetector;
+    }
+
+    public void setAmountSpeed_stepDetector(double amountSpeed_stepDetector) {
+        this.amountSpeed_stepDetector = amountSpeed_stepDetector;
+    }
 
     public GlobalPosition getGlobalPositionsGt() {
         return globalPositionsGt;
