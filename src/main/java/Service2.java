@@ -49,6 +49,8 @@ class Service2 {
                 firstData.getLongitude_wgs(),
                 firstData.getAltitude_wgs()
         ));
+        // Setze den StepCounter-Zähler zurück (In jeder Datei beginnt StepDetectorCounter wieder mit 1)
+        CsvReader.setOldStepDetectorCount(0);
     }
 
     void setListOfAllData(LinkedList<Data> listOfAllData) {

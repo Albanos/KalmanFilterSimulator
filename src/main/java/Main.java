@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -118,7 +119,7 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-5_2019-03-08_17-05-06.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6_rovi2);
+        readAllSegmentsFromCsv(nexus6_rovi3);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -132,7 +133,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -143,6 +144,7 @@ public class Main {
         // Segment B
         constants.setCurrentSegment(constants.getSegmentB());
         service.setListOfAllDataByGlobalSegment();
+        LinkedList<Data> listOfAllData1 = service.getListOfAllData();
 
         startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
@@ -151,7 +153,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -170,7 +172,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -188,7 +190,8 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false);
+                0.5, true, true);
+
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -228,11 +231,11 @@ public class Main {
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
     }
 
-    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement) {
+    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement, boolean withVelocityFromStepDetection) {
         // Simuliere alle Konfigurationen:
         //filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
         //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(withGtAsFakeMeasurement);
-        filterConfiguration.filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(withGtAsFakeMeasurement);
+        filterConfiguration.filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(withGtAsFakeMeasurement, withVelocityFromStepDetection);
         //filterConfiguration.filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(withGtAsFakeMeasurement);
 
         // Gebe beste Konfiguration zurück

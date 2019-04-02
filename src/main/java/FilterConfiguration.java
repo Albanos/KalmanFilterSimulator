@@ -269,7 +269,7 @@ public class FilterConfiguration {
 //            );
 //        }
 //    }
-    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(boolean withGtAsFakeMeasurement) {
+    public void filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(boolean withGtAsFakeMeasurement, boolean withVelocityfromStepDetection) {
         for (float i = 0.1f; i <= 20.1; i = i + 0.1f) {
             for (double j = 0.1; j <= 15.1; j = j + 0.1) {
                 // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
@@ -281,7 +281,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf1
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement, withVelocityfromStepDetection);
 
                 allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -291,7 +291,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf2
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement, withVelocityfromStepDetection);
                 allSegmentResultsForCurrentConfi.add(conf2);
 
                 // ===============================================Lese Segment C ein
@@ -300,7 +300,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf3
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement, withVelocityfromStepDetection);
                 allSegmentResultsForCurrentConfi.add(conf3);
 
                 // ===============================================Lese Segment D ein
@@ -309,7 +309,7 @@ public class FilterConfiguration {
                 service.setListOfAllDataByGlobalSegment();
 
                 FilterConfiguration conf4
-                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement);
+                        = simulateEstimationAndGenerateConfigurationAndreturnThem(i, j, withGtAsFakeMeasurement, withVelocityfromStepDetection);
                 allSegmentResultsForCurrentConfi.add(conf4);
 
                 // Speichere alle Konfis in globaler map
@@ -321,7 +321,7 @@ public class FilterConfiguration {
         }
     }
 
-    public void filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(boolean withGtAsFakeMeasurement) {
+    public void filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(boolean withGtAsFakeMeasurement, boolean withVelocityFromStepDetection) {
         // Für Positions-Genauigkeit (=sigmaPosAcc)
         for (double i = 0.5; i <= 8.5; i = i + 0.5) {
             // Für GNSS-Speed (sigmaGnssSpeed)
@@ -343,7 +343,7 @@ public class FilterConfiguration {
 
                                 FilterConfiguration conf1
                                         = simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                                                i, j, k, l, m, n, withGtAsFakeMeasurement
+                                                i, j, k, l, m, n, withGtAsFakeMeasurement, withVelocityFromStepDetection
                                 );
                                 allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -353,7 +353,7 @@ public class FilterConfiguration {
 
                                 FilterConfiguration conf2
                                         = simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                                        i, j, k, l, m, n, withGtAsFakeMeasurement
+                                        i, j, k, l, m, n, withGtAsFakeMeasurement, withVelocityFromStepDetection
                                 );
                                 allSegmentResultsForCurrentConfi.add(conf2);
 
@@ -363,7 +363,7 @@ public class FilterConfiguration {
 
                                 FilterConfiguration conf3
                                         = simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                                        i, j, k, l, m, n, withGtAsFakeMeasurement
+                                        i, j, k, l, m, n, withGtAsFakeMeasurement, withVelocityFromStepDetection
                                 );
                                 allSegmentResultsForCurrentConfi.add(conf3);
 
@@ -373,7 +373,7 @@ public class FilterConfiguration {
 
                                 FilterConfiguration conf4
                                         = simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                                        i, j, k, l, m, n, withGtAsFakeMeasurement
+                                        i, j, k, l, m, n, withGtAsFakeMeasurement, withVelocityFromStepDetection
                                 );
                                 allSegmentResultsForCurrentConfi.add(conf4);
 
@@ -393,7 +393,7 @@ public class FilterConfiguration {
         }
     }
 
-    public void filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(boolean withGtAsFakeMeasurement) {
+    public void filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(boolean withGtAsFakeMeasurement, boolean withVelocityFromStepDetection) {
         // Für G1 des Prozessrausch-Vektors G (bildet Prozessrauschkovarianz Q)
         for (double i = 22.5; i <= 30.5; i = i + 1) {
             // Für G2 des Prozessrausch-Vektors G (bildet Prozessrauschkovarianz Q)
@@ -417,7 +417,7 @@ public class FilterConfiguration {
                                 j,
                                 k,
                                 l,
-                                withGtAsFakeMeasurement
+                                withGtAsFakeMeasurement, withVelocityFromStepDetection
                         );
                         allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -433,7 +433,7 @@ public class FilterConfiguration {
                                 j,
                                 k,
                                 l,
-                                withGtAsFakeMeasurement
+                                withGtAsFakeMeasurement, withVelocityFromStepDetection
                         );
                         allSegmentResultsForCurrentConfi.add(conf2);
 
@@ -449,7 +449,7 @@ public class FilterConfiguration {
                                 j,
                                 k,
                                 l,
-                                withGtAsFakeMeasurement
+                                withGtAsFakeMeasurement, withVelocityFromStepDetection
                         );
                         allSegmentResultsForCurrentConfi.add(conf3);
 
@@ -465,7 +465,7 @@ public class FilterConfiguration {
                                 j,
                                 k,
                                 l,
-                                withGtAsFakeMeasurement
+                                withGtAsFakeMeasurement, withVelocityFromStepDetection
                         );
                         allSegmentResultsForCurrentConfi.add(conf4);
 
@@ -513,7 +513,7 @@ public class FilterConfiguration {
     /**
      * Filter-Simulation mit gnssSpeed = 0.1 bis gnssSpeed = 5.1 in 0.1-Schritten
      */
-    public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(boolean withGtAsFakeMeasurement) {
+    public void filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(boolean withGtAsFakeMeasurement, boolean withVelocityfromStepDetection) {
         for (double i = 0.1; i < 15.1; i = i + 0.1) {
             // Speichere Filter-Ergebnise für jedes Segment in temp-Liste
             ArrayList<FilterConfiguration> allSegmentResultsForCurrentConfi = new ArrayList<>();
@@ -524,7 +524,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf1
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement, withVelocityfromStepDetection);
 
             allSegmentResultsForCurrentConfi.add(conf1);
 
@@ -534,7 +534,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf2
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement, withVelocityfromStepDetection);
             allSegmentResultsForCurrentConfi.add(conf2);
 
             // ===============================================Lese Segment C ein
@@ -543,7 +543,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf3
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement, withVelocityfromStepDetection);
             allSegmentResultsForCurrentConfi.add(conf3);
 
             // ===============================================Lese Segment D ein
@@ -552,7 +552,7 @@ public class FilterConfiguration {
             service.setListOfAllDataByGlobalSegment();
 
             FilterConfiguration conf4
-                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement);
+                    = simulateEstimationAndGenerateConfigurationAndreturnThem(constants.getSigmaAccel(), i, withGtAsFakeMeasurement, withVelocityfromStepDetection);
             allSegmentResultsForCurrentConfi.add(conf4);
 
             // Speichere alle Konfis in globaler map
@@ -595,13 +595,13 @@ public class FilterConfiguration {
 //            }
 //        }
 //    }
-    private void simulateEstimationAndSaveResultInGlobalList(FilterConfiguration currentConfiguration, boolean withGtAsFakeMeasurement) {
+    private void simulateEstimationAndSaveResultInGlobalList(FilterConfiguration currentConfiguration, boolean withGtAsFakeMeasurement, boolean withVelocityfromStepDetection) {
         System.out.println("=====================Beginn, simulation mit sigmaAccel:  "
                 + currentConfiguration.getSigmaAccel() + " & sigmaSpeed:  "
                 + currentConfiguration.getSigmaGnssSpeed());
 
         EstimationFilter2 filter = new EstimationFilter2();
-        filter.makeEstimation(withGtAsFakeMeasurement);
+        filter.makeEstimation(withGtAsFakeMeasurement, withVelocityfromStepDetection);
 
         Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
@@ -615,7 +615,7 @@ public class FilterConfiguration {
         allFilterConfigurations.add(currentConfiguration);
     }
 
-    public FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed, boolean withGtAsFakeMeasurement) {
+    public FilterConfiguration simulateEstimationAndGenerateConfigurationAndreturnThem(float sigmaAccel, double sigmaSpeed, boolean withGtAsFakeMeasurement, boolean withVelocityfromStepDetection) {
         FilterConfiguration currentConfiguration = new FilterConfiguration();
         currentConfiguration.setSigmaAccel(sigmaAccel);
         currentConfiguration.setSigmaGnssSpeed(sigmaSpeed);
@@ -627,7 +627,7 @@ public class FilterConfiguration {
                 + sigmaAccel + " & sigmaSpeed:  " + sigmaSpeed);
 
         EstimationFilter2 filter = new EstimationFilter2();
-        filter.makeEstimation(withGtAsFakeMeasurement);
+        filter.makeEstimation(withGtAsFakeMeasurement, withVelocityfromStepDetection);
 
         Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 
@@ -648,7 +648,8 @@ public class FilterConfiguration {
             double g2,
             double g3,
             double g4,
-            boolean withGtAsFakeMeasurement
+            boolean withGtAsFakeMeasurement,
+            boolean withVelocityfromStepDetection
     ) {
         FilterConfiguration currentConfiguration = new FilterConfiguration();
         currentConfiguration.setSigmaGnssSpeed(sigmaGnssSpeed);
@@ -675,7 +676,7 @@ public class FilterConfiguration {
                 + "G4:  " + g4 + "\n");
 
         EstimationFilter2 currentFilter = new EstimationFilter2();
-        currentFilter.makeEstimation(withGtAsFakeMeasurement);
+        currentFilter.makeEstimation(withGtAsFakeMeasurement, withVelocityfromStepDetection);
 
         Map<String, Double> allRmseValues = service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
 

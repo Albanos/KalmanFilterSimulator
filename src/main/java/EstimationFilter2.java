@@ -154,7 +154,7 @@ public class EstimationFilter2 {
         filter = new KalmanFilter(pm, mm);
     }
 
-    public void makeEstimation(boolean withGtAsMeasurement) {
+    public void makeEstimation(boolean withGtAsMeasurement, boolean withVelocityFromStepDetection) {
         int iterationCounter = 0;
         z = new ArrayRealVector(new double[] {0,0,0,0}); // initialisiere z mit nullen
         currentMeasurment = new ArrayRealVector(new double[] {0,0,0,0});
@@ -193,6 +193,14 @@ public class EstimationFilter2 {
                             d.getSpeed_x_wgs(),
                             d.getSpeed_y_wgs()
                     });
+                    if(withVelocityFromStepDetection) {
+                        currentMeasurment = new ArrayRealVector(new double[]{
+                                d.getCartesian_x(),
+                                d.getCartesian_y(),
+                                d.getSpeed_x_stepDetector(),
+                                d.getSpeed_y_stepDetector()
+                        });
+                    }
 
 //                    // Vergleiche currentMesasurement mit z. Wenn ungleich
 //                    // liegt eine neue Messung vor, die wir auswerten
@@ -219,6 +227,14 @@ public class EstimationFilter2 {
                                         d.getSpeed_x_wgs(),
                                         d.getSpeed_y_wgs()
                                 });
+                                if(withVelocityFromStepDetection) {
+                                    currentMeasurment = new ArrayRealVector(new double[]{
+                                            d.getCartesian_x_gt(),
+                                            d.getCartesian_y_gt(),
+                                            d.getSpeed_x_stepDetector(),
+                                            d.getSpeed_y_stepDetector()
+                                    });
+                                }
                                 System.out.println("====================GT-Position für SegmentA genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -234,6 +250,14 @@ public class EstimationFilter2 {
                                         d.getSpeed_x_wgs(),
                                         d.getSpeed_y_wgs()
                                 });
+                                if(withVelocityFromStepDetection) {
+                                    currentMeasurment = new ArrayRealVector(new double[]{
+                                            d.getCartesian_x_gt(),
+                                            d.getCartesian_y_gt(),
+                                            d.getSpeed_x_stepDetector(),
+                                            d.getSpeed_y_stepDetector()
+                                    });
+                                }
                                 System.out.println("====================GT-Position für SegmentB genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -250,6 +274,14 @@ public class EstimationFilter2 {
                                         d.getSpeed_x_wgs(),
                                         d.getSpeed_y_wgs()
                                 });
+                                if(withVelocityFromStepDetection) {
+                                    currentMeasurment = new ArrayRealVector(new double[]{
+                                            d.getCartesian_x_gt(),
+                                            d.getCartesian_y_gt(),
+                                            d.getSpeed_x_stepDetector(),
+                                            d.getSpeed_y_stepDetector()
+                                    });
+                                }
                                 System.out.println("====================GT-Position für SegmentC genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -268,10 +300,14 @@ public class EstimationFilter2 {
                                         d.getSpeed_x_wgs(),
                                         d.getSpeed_y_wgs()
                                 });
-                                currentMeasurment.setEntry(0, d.getCartesian_x_gt());
-                                currentMeasurment.setEntry(1, d.getCartesian_y_gt());
-                                currentMeasurment.setEntry(2, d.getSpeed_x_wgs());
-                                currentMeasurment.setEntry(3, d.getSpeed_y_wgs());
+                                if(withVelocityFromStepDetection) {
+                                    currentMeasurment = new ArrayRealVector(new double[]{
+                                            d.getCartesian_x_gt(),
+                                            d.getCartesian_y_gt(),
+                                            d.getSpeed_x_stepDetector(),
+                                            d.getSpeed_y_stepDetector()
+                                    });
+                                }
                                 System.out.println("====================GT-Position für SegmentD genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen

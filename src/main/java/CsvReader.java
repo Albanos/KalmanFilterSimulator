@@ -34,7 +34,13 @@ class CsvReader {
     private static int gt_directionPosition = -1;
     private static int labelPosition = -1;
     private static int typeOrientation_x = -1;
-    private static double oldTimeFromStepdetector = 0;
+    private static int typeStepDetectorCounter = -1;
+
+    private static long oldTimeFromStepdetector = 0;
+    private static int oldStepDetectorCount = 0;
+    private static double oldAmoundOfVelocity_stepDetector = 0;
+    private static double oldVel_x_StepDetector = 0;
+    private static double oldVel_y_StepDetector = 0;
 
 
     private CsvReader() {
@@ -180,7 +186,7 @@ class CsvReader {
 
             // Berechne die Geschwindigkeit (Betrag und in x- & y-Richtung)
             // aus Schritterkennng und speichere in Data-Objekt
-            calculateCompleteVelocityByStepDetectorAndSetInDataObject(line[typeOrientation_x], d);
+            calculateCompleteVelocityByStepDetectorAndSetInDataObject(line[typeOrientation_x], line[typeStepDetectorCounter], d);
 
         }
         d.setLongitude_gt(Double.valueOf(line[longitudeGtPosition]));
@@ -210,24 +216,65 @@ class CsvReader {
         return d;
     }
 
-    private void calculateCompleteVelocityByStepDetectorAndSetInDataObject(String s, Data d) {
-        // Berechne dt
-        double dt = oldTimeFromStepdetector == 0 ? 0.1 : (d.getTimestamp() - oldTimeFromStepdetector) / 1000000000.0f;
-        //double dt = oldTimeFromStepdetector == 0 ? 0.1 : (d.getTimestamp() - oldTimeFromStepdetector) / 10000000.0f;
-        oldTimeFromStepdetector = d.getTimestamp();
+    private void calculateCompleteVelocityByStepDetectorAndSetInDataObject(String currentOrientation,String currentStepDetectorCounter, Data d) {
 
-        // Schrittlängen:
-        // Luan: 0.8278146
-        // Rovena: 0.8038585 --> 13 -> 15 Stellen Timestamp-Diff
-        double stepLength = 0.8278146;
-        double stepFrequency = 1 / dt;
-        double walkVelocity = stepLength * stepFrequency;
-        d.setAmountSpeed_stepDetector(walkVelocity);
+        // Berechne die Geschwindigkeit nur, wenn sie einen von NaN verschiedenen Wert hat
+        // (kommt bei manchen Datensätzen am Anfang für kurze Zeit vor). Wenn NaN, nehme GNSS-Geschwindigkeit.
+        // Ebenso überspringen wir Schritt 1, da wir dann noch kein dt errechnen können
+        if(!currentStepDetectorCounter.equals("NaN")) {
+            int currentStepDetectorCount = Integer.valueOf(currentStepDetectorCounter);
+            if(currentStepDetectorCount != 1) {
+                if (currentStepDetectorCount > oldStepDetectorCount) {
+                    // Aktualisiere alten wert
+                    oldStepDetectorCount = currentStepDetectorCount;
 
-        // Als Winkel nutzen wir den Orientation-Wert
-        double angleOrientation = Double.valueOf(s);
-        d.setSpeed_x_stepDetector(d.getAmountSpeed_stepDetector() * Math.sin(Math.toRadians(d.getBearing_wgs())));
-        d.setSpeed_y_stepDetector(d.getAmountSpeed_stepDetector() * Math.cos(Math.toRadians(d.getBearing_wgs())));
+                    // Berechne dt
+                    //double dt = oldTimeFromStepdetector == 0 ? 0.1 : (d.getTimestamp() - oldTimeFromStepdetector) / 1000000000.0f;
+                    float dt = oldTimeFromStepdetector == 0 ? 0.1f : (d.getTimestamp() - oldTimeFromStepdetector) / 1000.0f;
+                    oldTimeFromStepdetector = d.getTimestamp();
+
+                    // Schrittlängen:
+                    // Luan: 0.8278146
+                    // Rovena: 0.8038585 --> 13 -> 15 Stellen Timestamp-Diff
+                    double stepLength = 0.8038585;
+                    double stepFrequency = 1 / dt;
+                    double walkVelocity = stepLength * stepFrequency;
+                    d.setAmountSpeed_stepDetector(walkVelocity);
+
+                    // Als Winkel nutzen wir den Orientation-Wert
+                    double angleOrientation = Double.valueOf(currentOrientation);
+                    double vel_x_stepDetector = d.getAmountSpeed_stepDetector() * Math.sin(Math.toRadians(d.getBearing_wgs()));
+                    double vel_y_stepDetector = d.getAmountSpeed_stepDetector() * Math.cos(Math.toRadians(d.getBearing_wgs()));
+                    d.setSpeed_x_stepDetector(vel_x_stepDetector);
+                    d.setSpeed_y_stepDetector(vel_y_stepDetector);
+
+                    // Merke dir die zuletzt berechnete Geschwindigkeit um sie setzen zu können, wenn kein
+                    // neuer Schritt erkannt wurde
+                    oldAmoundOfVelocity_stepDetector = walkVelocity;
+                    oldVel_x_StepDetector = vel_x_stepDetector;
+                    oldVel_y_StepDetector = vel_y_stepDetector;
+                } else {
+                    // Setze die zuletzt berechnete Geschwindigkeit, da kein neuer Schritt erkannt wurde
+                    d.setAmountSpeed_stepDetector(oldAmoundOfVelocity_stepDetector);
+                    d.setSpeed_x_stepDetector(oldVel_x_StepDetector);
+                    d.setSpeed_y_stepDetector(oldVel_y_StepDetector);
+                }
+            }
+            else {
+                // Wenn du bei Schritt 1 bist,
+                // setze die zuvor berechneten GNSS-Geschwindigkeitswerte auch hier
+                d.setAmountSpeed_stepDetector(d.getAmountSpeed_wgs());
+                d.setSpeed_x_stepDetector(d.getSpeed_x_wgs());
+                d.setSpeed_y_stepDetector(d.getSpeed_x_wgs());
+            }
+        }
+        // Wenn du eine NaN Geschwindigkeit findest,
+        // setze die zuvor berechneten GNSS-Geschwindigkeitswerte auch hier
+        else {
+            d.setAmountSpeed_stepDetector(d.getAmountSpeed_wgs());
+            d.setSpeed_x_stepDetector(d.getSpeed_x_wgs());
+            d.setSpeed_y_stepDetector(d.getSpeed_x_wgs());
+        }
     }
 
     private void setColumnPositionValuesOfFile(String pathToFile) {
@@ -252,6 +299,7 @@ class CsvReader {
         labelPosition = findSpecificColumnByName("label", pathToFile);
         gt_directionPosition = findSpecificColumnByName("GT_Direction", pathToFile);
         typeOrientation_x = findSpecificColumnByName("TYPE_ORIENTATION-X",pathToFile);
+        typeStepDetectorCounter = findSpecificColumnByName("TYPE_STEP_DETECTOR_COUNTER-X", pathToFile);
     }
 
     Map<String, List<Data>> getOriginalLinesBySegments() {
@@ -259,5 +307,13 @@ class CsvReader {
     }
     public Map<String, Integer> getGnssCounterBySegments() {
         return gnssCounterBySegments;
+    }
+
+    public static int getOldStepDetectorCount() {
+        return oldStepDetectorCount;
+    }
+
+    public static void setOldStepDetectorCount(int oldStepDetectorCount) {
+        CsvReader.oldStepDetectorCount = oldStepDetectorCount;
     }
 }
