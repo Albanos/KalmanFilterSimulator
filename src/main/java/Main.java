@@ -118,8 +118,52 @@ public class Main {
     private static final String nexus6_rovi5 =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetection\\Car2X-ADN_rovena-5_2019-03-08_17-05-06.0_formatted_addedColumns.csv";
 
+    // ================================ Dateien mit Step-detector, an klarem Tag (sonnig)
+    private static final String nexus6b_johann3 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-03-nexus6b_2019-03-29_15-26-02.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann3 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-03-nexus6w_2019-03-29_15-26-03.0_formatted_addedColumns.csv";
+    private static final String nexus6b_johann4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-04-nexus6b_2019-03-29_15-36-03.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-04-nexus6w_2019-03-29_15-36-03.0_formatted_addedColumns.csv";
+    private static final String nexus6b_johann5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-05-nexus6b_2019-03-29_15-45-48.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-05-nexus6w_2019-03-29_15-45-48.0_formatted_addedColumns.csv";
+    private static final String nexus6b_johann6 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-06-nexus6b_2019-03-29_15-55-35.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann6 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-06-nexus6w_2019-03-29_15-55-36.0_formatted_addedColumns.csv";
+    private static final String nexus6b_johann7 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-07-nexus6b_2019-03-29_16-06-41.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann7 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-07-nexus6w_2019-03-29_16-06-41.0_formatted_addedColumns.csv";
+    private static final String nexus6b_johann8 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-08-nexus6b_2019-03-29_16-18-52.0_formatted_addedColumns.csv";
+    private static final String nexus6w_johann8 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-08-nexus6w_2019-03-29_16-18-52.0_formatted_addedColumns.csv";
+    private static final String nexus6b_luan1 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-01-nexus6b_2019-03-29_17-27-06.0_formatted_addedColumns.csv";
+    private static final String nexus6w_luan1 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-01-nexus6w_2019-03-29_17-27-05.0_formatted_addedColumns.csv";
+    private static final String nexus6b_luan4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-04-nexus6b_2019-03-29_18-13-07.0_formatted_addedColumns.csv";
+    private static final String nexus6w_luan4 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-04-nexus6w_2019-03-29_18-13-07.0_formatted_addedColumns.csv";
+    private static final String nexus6b_luan5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-05-nexus6b_2019-03-29_18-22-08.0_formatted_addedColumns.csv";
+    private static final String nexus6w_luan5 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-05-nexus6w_2019-03-29_18-22-07.0_formatted_addedColumns.csv";
+    private static final String nexus6b_luan6 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-06-nexus6b_2019-03-29_18-31-35.0_formatted_addedColumns.csv";
+    private static final String nexus6w_luan6 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-06-nexus6w_2019-03-29_18-31-35.0_formatted_addedColumns.csv";
+    private static final String nexus6b_luan7 =
+            "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
+
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6_rovi3);
+        readAllSegmentsFromCsv(nexus6b_luan7);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -133,7 +177,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, false, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -153,7 +197,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, false, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -172,7 +216,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, false, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -190,7 +234,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, false, false);
 
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();

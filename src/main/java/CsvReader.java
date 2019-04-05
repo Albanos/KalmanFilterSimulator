@@ -235,8 +235,9 @@ class CsvReader {
 
                     // Schrittlängen:
                     // Luan: 0.8278146
-                    // Rovena: 0.8038585 --> 13 -> 15 Stellen Timestamp-Diff
-                    double stepLength = 0.8038585;
+                    // Rovena: 0.8038585
+                    // Johann: 0.769230
+                    double stepLength = 0.8278146;
                     double stepFrequency = 1 / dt;
                     double walkVelocity = stepLength * stepFrequency;
                     d.setAmountSpeed_stepDetector(walkVelocity);
