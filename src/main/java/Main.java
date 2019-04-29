@@ -163,13 +163,12 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6b_luan7);
+        readAllSegmentsFromCsv(nexus6w_johann3, true);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
         constants.setCurrentSegment(constants.getSegmentA());
         service.setListOfAllDataByGlobalSegment();
-
         FilterConfiguration startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
                 5.0,
@@ -177,7 +176,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -188,7 +187,6 @@ public class Main {
         // Segment B
         constants.setCurrentSegment(constants.getSegmentB());
         service.setListOfAllDataByGlobalSegment();
-        LinkedList<Data> listOfAllData1 = service.getListOfAllData();
 
         startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
@@ -197,7 +195,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -216,7 +214,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -234,15 +232,15 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, false, false);
+                0.5, true, true);
 
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
-        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt);
-        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt);
+        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt / 4);
+        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 4);
 
 
 
@@ -260,18 +258,18 @@ public class Main {
         System.out.println("Hi");
     }
 
-    private static void readAllSegmentsFromCsv(String pathToFile) {
+    private static void readAllSegmentsFromCsv(String pathToFile, boolean only10Meters) {
         // Befülle die globale map mit allen segmenten einmalig
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA());
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA(), only10Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentA());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB());
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB(), only10Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentB());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC());
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC(), only10Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentC());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentD());
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentD(), only10Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
     }
 
@@ -391,16 +389,17 @@ public class Main {
 //        filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed();
 //    }
 
-    /**
-     * Lese alle Daten für das jeweillige Segment ein und Berechne kartesische Punkte, sowie WGS-Accel
-     *
-     * @param fileToRead
-     */
-    public static void readDataOfFileAndCalculateCartesianPoints(String fileToRead) {
-        csvReader.readSegmentFromCsv(fileToRead, constants.getCurrentSegment());
-
-        // Berechne für jede WGS-Position die cartesische Position,
-        // mit der WGS-Beschleunigung
-        service.calculateCartesianPointAndWgsAccelForData(constants.getCurrentSegment());
-    }
+    //FIXME: OLD
+//    /**
+//     * Lese alle Daten für das jeweillige Segment ein und Berechne kartesische Punkte, sowie WGS-Accel
+//     *
+//     * @param fileToRead
+//     */
+//    public static void readDataOfFileAndCalculateCartesianPoints(String fileToRead) {
+//        csvReader.readSegmentFromCsv(fileToRead, constants.getCurrentSegment());
+//
+//        // Berechne für jede WGS-Position die cartesische Position,
+//        // mit der WGS-Beschleunigung
+//        service.calculateCartesianPointAndWgsAccelForData(constants.getCurrentSegment());
+//    }
 }

@@ -77,7 +77,7 @@ class CsvReader {
 //        }
 //    }
 
-    void readSegmentFromCsv(final String pathToFile, final String[] segment) {
+    void readSegmentFromCsv(final String pathToFile, final String[] segment, boolean only10Meters) {
         String[] line;
         // Wir haben eine kartesische Position weniger als WGS-Positionen!
         int positionCounter = -1;
@@ -99,10 +99,20 @@ class CsvReader {
                     continue;
                 }
 
-                // höre auf zu lesen, wenn du das erste STOP liest = erstes Segment
-                //if(line[18].startsWith("STOP_" + segment[1])) {
-                else if (line[labelPosition].startsWith("STOP_" + segment[1])) {
-                    break;
+                // Wenn nur 10m simuliert werden sollen (Car2P-Szenario), betrachten wir das Label "genauer": Schaue,
+                // ob das label mit 10m beginnt, denn:
+                // 0.....5......10 --> entspricht den 10m
+                if(only10Meters) {
+                    if (line[labelPosition].startsWith("GO_" + segment[0] + "_1")) {
+                        break;
+                    }
+                }
+                else {
+                    // höre auf zu lesen, wenn du das erste STOP liest = erstes Segment
+                    //if(line[18].startsWith("STOP_" + segment[1])) {
+                    if (line[labelPosition].startsWith("STOP_" + segment[1])) {
+                        break;
+                    }
                 }
 
                 dataObjects.add(generateDataObjectAndSaveAllData(line, pathToFile));

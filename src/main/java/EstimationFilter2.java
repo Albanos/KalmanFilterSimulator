@@ -4,6 +4,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 
 /**
@@ -51,6 +52,7 @@ public class EstimationFilter2 {
     private LinkedList<Data> copyListOfAllData = new LinkedList<>();
     private static long timestamp2;
     private static long timestamp;
+    private boolean usingGt = false;
 
     public EstimationFilter2() {
         // Kopiere alle Daten, damit diese für Schleife gelöscht werden können
@@ -221,20 +223,16 @@ public class EstimationFilter2 {
                         // MERKE: neue Markierungsnummer im Messdurchlauf mit Step-erfassung
                         case "12079_12700":
                             if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                                currentMeasurment = new ArrayRealVector(new double[]{
-                                        d.getCartesian_x_gt(),
-                                        d.getCartesian_y_gt(),
-                                        d.getSpeed_x_wgs(),
-                                        d.getSpeed_y_wgs()
-                                });
-                                if(withVelocityFromStepDetection) {
-                                    currentMeasurment = new ArrayRealVector(new double[]{
-                                            d.getCartesian_x_gt(),
-                                            d.getCartesian_y_gt(),
-                                            d.getSpeed_x_stepDetector(),
-                                            d.getSpeed_y_stepDetector()
-                                    });
-                                }
+//                                currentMeasurment = new ArrayRealVector(new double[]{
+//                                        d.getCartesian_x_gt(),
+//                                        d.getCartesian_y_gt(),
+//                                        d.getSpeed_x_wgs(),
+//                                        d.getSpeed_y_wgs()
+//                                });
+                                // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
+                                // ermöglichen über reflection den Zugriff und überschreiben den Wert. Ist
+                                // zusätzlich noch die step-detection gewünscht, setzen wir auch diese
+                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
                                 System.out.println("====================GT-Position für SegmentA genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -244,20 +242,23 @@ public class EstimationFilter2 {
                             break;
                         case "12700_First_12694":
                             if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                                currentMeasurment = new ArrayRealVector(new double[]{
-                                        d.getCartesian_x_gt(),
-                                        d.getCartesian_y_gt(),
-                                        d.getSpeed_x_wgs(),
-                                        d.getSpeed_y_wgs()
-                                });
-                                if(withVelocityFromStepDetection) {
-                                    currentMeasurment = new ArrayRealVector(new double[]{
-                                            d.getCartesian_x_gt(),
-                                            d.getCartesian_y_gt(),
-                                            d.getSpeed_x_stepDetector(),
-                                            d.getSpeed_y_stepDetector()
-                                    });
-                                }
+//                                currentMeasurment = new ArrayRealVector(new double[]{
+//                                        d.getCartesian_x_gt(),
+//                                        d.getCartesian_y_gt(),
+//                                        d.getSpeed_x_wgs(),
+//                                        d.getSpeed_y_wgs()
+//                                });
+                                // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
+                                // ermöglichen über reflection den Zugriff und überschreiben den Wert
+                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+//                                if(withVelocityFromStepDetection) {
+//                                    currentMeasurment = new ArrayRealVector(new double[]{
+//                                            d.getCartesian_x_gt(),
+//                                            d.getCartesian_y_gt(),
+//                                            d.getSpeed_x_stepDetector(),
+//                                            d.getSpeed_y_stepDetector()
+//                                    });
+//                                }
                                 System.out.println("====================GT-Position für SegmentB genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -268,20 +269,24 @@ public class EstimationFilter2 {
 
                         case "12694_12700":
                             if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                                currentMeasurment = new ArrayRealVector(new double[]{
-                                        d.getCartesian_x_gt(),
-                                        d.getCartesian_y_gt(),
-                                        d.getSpeed_x_wgs(),
-                                        d.getSpeed_y_wgs()
-                                });
-                                if(withVelocityFromStepDetection) {
-                                    currentMeasurment = new ArrayRealVector(new double[]{
-                                            d.getCartesian_x_gt(),
-                                            d.getCartesian_y_gt(),
-                                            d.getSpeed_x_stepDetector(),
-                                            d.getSpeed_y_stepDetector()
-                                    });
-                                }
+//                                currentMeasurment = new ArrayRealVector(new double[]{
+//                                        d.getCartesian_x_gt(),
+//                                        d.getCartesian_y_gt(),
+//                                        d.getSpeed_x_wgs(),
+//                                        d.getSpeed_y_wgs()
+//                                });
+                                // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
+                                // ermöglichen über reflection den Zugriff und überschreiben den Wert. Ist
+                                // zusätzlich noch die step-detection gewünscht, setzen wir auch diese
+                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+//                                if(withVelocityFromStepDetection) {
+//                                    currentMeasurment = new ArrayRealVector(new double[]{
+//                                            d.getCartesian_x_gt(),
+//                                            d.getCartesian_y_gt(),
+//                                            d.getSpeed_x_stepDetector(),
+//                                            d.getSpeed_y_stepDetector()
+//                                    });
+//                                }
                                 System.out.println("====================GT-Position für SegmentC genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -294,20 +299,15 @@ public class EstimationFilter2 {
                         // MERKE: neue Markierungsnummer im Messdurchlauf mit Step-erfassung
                         case "12700_Second_12079":
                             if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                                currentMeasurment = new ArrayRealVector(new double[]{
-                                        d.getCartesian_x_gt(),
-                                        d.getCartesian_y_gt(),
-                                        d.getSpeed_x_wgs(),
-                                        d.getSpeed_y_wgs()
-                                });
-                                if(withVelocityFromStepDetection) {
-                                    currentMeasurment = new ArrayRealVector(new double[]{
-                                            d.getCartesian_x_gt(),
-                                            d.getCartesian_y_gt(),
-                                            d.getSpeed_x_stepDetector(),
-                                            d.getSpeed_y_stepDetector()
-                                    });
-                                }
+//                                currentMeasurment = new ArrayRealVector(new double[]{
+//                                        d.getCartesian_x_gt(),
+//                                        d.getCartesian_y_gt(),
+//                                        d.getSpeed_x_wgs(),
+//                                        d.getSpeed_y_wgs()
+//                                });
+                                // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
+                                // ermöglichen über reflection den Zugriff und überschreiben den Wert
+                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
                                 System.out.println("====================GT-Position für SegmentD genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -324,18 +324,19 @@ public class EstimationFilter2 {
                     String key = String.join("_", constants.getCurrentSegment());
                     // Prüfe für Segment A und D ob die Messungen z und currentMeasure dem Betrage nach in Y-ACHSE größer sind
                     if(key.equals("12079_12700") || key.equals("12700_Second_12079")) {
-                        if(Math.abs(currentMeasurment.getEntry(1)) > Math.abs(z.getEntry(1))) {
+                        if(Math.abs(currentMeasurment.getEntry(1)) > Math.abs(z.getEntry(1))  && !usingGt) {
                             filter.correct(currentMeasurment);
-                            z = currentMeasurment;
+                            z = currentMeasurment.copy();
                         }
                     }
                     // Prüfe für Segment B und C ob die Messungen z und currentMeasure dem Betrage nach in X-ACHSE größer sind
                     else {
-                        if(Math.abs(currentMeasurment.getEntry(0)) > Math.abs(z.getEntry(0))) {
+                        if(Math.abs(currentMeasurment.getEntry(0)) > Math.abs(z.getEntry(0)) && !usingGt) {
                             filter.correct(currentMeasurment);
                             z = currentMeasurment;
                         }
                     }
+                    usingGt = false;
 //                    if(currentMeasurment.getEntry(3) == 0.0) {
 //                        System.out.println("Geschwindigkeit ist NULL!!!");
 //                    }
@@ -365,6 +366,45 @@ public class EstimationFilter2 {
             service.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
         }
         System.out.println("=======================Schätzungen abgeschlossen\n");
+    }
+
+    private void overrideCurrentStateEstimationOfKalmanFilter(boolean withVelocityFromStepDetection, Data d) {
+        RealVector currentStateEstimation = getCurrentStateEstimationOfKalmanFilterClazz();
+        currentStateEstimation.setEntry(0, d.getCartesian_x_gt());
+        currentStateEstimation.setEntry(1, d.getCartesian_y_gt());
+        currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
+        currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
+        usingGt = true;
+        if(withVelocityFromStepDetection) {
+//                                    currentMeasurment = new ArrayRealVector(new double[]{
+//                                            d.getCartesian_x_gt(),
+//                                            d.getCartesian_y_gt(),
+//                                            d.getSpeed_x_stepDetector(),
+//                                            d.getSpeed_y_stepDetector()
+//                                    });
+            // Wir ersetzen nur die Geschwindigkeit durch die des step-detectors
+            currentStateEstimation.setEntry(0, d.getCartesian_x_gt());
+            currentStateEstimation.setEntry(1, d.getCartesian_y_gt());
+            currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+            currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+        }
+    }
+
+    private RealVector getCurrentStateEstimationOfKalmanFilterClazz() {
+        Field stateEstimation = null;
+        try {
+            stateEstimation = KalmanFilter.class.getDeclaredField("stateEstimation");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        stateEstimation.setAccessible(true);
+        RealVector currentStateEstimation = null;
+        try {
+            currentStateEstimation = (RealVector) stateEstimation.get(filter);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return currentStateEstimation;
     }
 
     private void saveCurrentMatrixRAndSetLowerPositionsVarianz() {
