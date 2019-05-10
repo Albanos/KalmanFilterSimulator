@@ -836,6 +836,13 @@ class Service2 {
             String row = "type=\"routepoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\"\n";
 
             output.append(row);
+            // Wenn die Position eine Stufe ist, dann setzte zusätzlich noch einen Waypoint mit name-label auf Position
+            if(d.isCurbPosition()) {
+                row = "type=\"waypointlist\"\n" +
+                        "type=\"waypoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\" name=\"CurbPosition\"\n" +
+                        "type=\"waypointlistend\"\n";
+                output.append(row);
+            }
         }
 
         // schliesse die route ab

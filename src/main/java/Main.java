@@ -176,7 +176,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, true, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
@@ -195,52 +195,52 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5, true, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
 
         creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
         service.writeAllDataToVikingFile(constants.getCurrentSegment());
-
+// FIXME: Vorerst nur Betrachtung von Segment A und Segment B, für 10m-Evaluation
         // Segment C
-        constants.setCurrentSegment(constants.getSegmentC());
-        service.setListOfAllDataByGlobalSegment();
-
-        startConf
-                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                5.0,
-                3.0,
-                4.5,
-                4.5,
-                3.5,
-                0.5, true, true);
-        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
-        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
-
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-
-        // Segment D
-        constants.setCurrentSegment(constants.getSegmentD());
-        service.setListOfAllDataByGlobalSegment();
-
-        startConf
-                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                5.0,
-                3.0,
-                4.5,
-                4.5,
-                3.5,
-                0.5, true, true);
-
-        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
-        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
-
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt / 4);
-        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 4);
+//        constants.setCurrentSegment(constants.getSegmentC());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true, true);
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+//
+//        // Segment D
+//        constants.setCurrentSegment(constants.getSegmentD());
+//        service.setListOfAllDataByGlobalSegment();
+//
+//        startConf
+//                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+//                5.0,
+//                3.0,
+//                4.5,
+//                4.5,
+//                3.5,
+//                0.5, true, true);
+//
+//        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
+//        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+//
+//        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
+//        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt / 2);
+        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 2);
 
 
 

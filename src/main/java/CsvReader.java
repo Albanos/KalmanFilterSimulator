@@ -161,6 +161,8 @@ class CsvReader {
         // Entferne Punkt aus timestamp
         d.setTimestamp(Long.valueOf(line[timestampPosition].replaceAll("\\.", "")));
 
+        d.setLabel(line[labelPosition]);
+
         d.setLongitude_wgs(Double.valueOf(line[longitudePosition]));
         d.setLatitude_wgs(Double.valueOf(line[latitudePosition]));
         d.setAltitude_wgs(Double.valueOf(line[altitudePosition]));
@@ -247,7 +249,7 @@ class CsvReader {
                     // Luan: 0.8278146
                     // Rovena: 0.8038585
                     // Johann: 0.769230
-                    double stepLength = 0.8278146;
+                    double stepLength = 0.769230;
                     double stepFrequency = 1 / dt;
                     double walkVelocity = stepLength * stepFrequency;
                     d.setAmountSpeed_stepDetector(walkVelocity);

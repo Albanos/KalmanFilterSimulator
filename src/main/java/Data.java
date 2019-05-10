@@ -68,9 +68,26 @@ public class Data {
     private double amountSpeed_stepDetector;
     private double speed_x_stepDetector;
     private double speed_y_stepDetector;
+    private boolean isCurbPosition = false;
+    private String label;
 
     //===============================================
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public boolean isCurbPosition() {
+        return isCurbPosition;
+    }
+
+    public void setCurbPosition(boolean curbPosition) {
+        isCurbPosition = curbPosition;
+    }
 
     public double getSpeed_x_stepDetector() {
         return speed_x_stepDetector;
