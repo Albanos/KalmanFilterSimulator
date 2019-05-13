@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.RealVector;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Luan Hajzeraj on 12/1/2018.
@@ -836,13 +837,14 @@ class Service2 {
             String row = "type=\"routepoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\"\n";
 
             output.append(row);
-            // Wenn die Position eine Stufe ist, dann setzte zusätzlich noch einen Waypoint mit name-label auf Position
-            if(d.isCurbPosition()) {
-                row = "type=\"waypointlist\"\n" +
-                        "type=\"waypoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\" name=\"CurbPosition\"\n" +
-                        "type=\"waypointlistend\"\n";
-                output.append(row);
-            }
+            // FIXME: OLD, wird weiter unten, in der WaypointList gehandelt
+//            // Wenn die Position eine Stufe ist, dann setzte zusätzlich noch einen Waypoint mit name-label auf Position
+//            if(d.isCurbPosition()) {
+//                row = "type=\"waypointlist\"\n" +
+//                        "type=\"waypoint\" latitude=\"" + estimatedLat + "\" longitude=\"" + estimatedLon + "\" name=\"CurbPosition\"\n" +
+//                        "type=\"waypointlistend\"\n";
+//                output.append(row);
+//            }
         }
 
         // schliesse die route ab
@@ -857,6 +859,19 @@ class Service2 {
                 "type=\"waypointlistend\"\n" +
                 "~EndLayerData\n" +
                 "~EndLayer";
+        // Wenn eine CurbPosition existiert, dann füge sie der WayPointList hinzu, indem du variable suffix überschreibst
+        Data curbPosition = getListOfAllData().stream().filter(d -> d.isCurbPosition()).findFirst().orElse(null);
+        if(curbPosition != null) {
+            suffix = "~LayerData\n" +
+                    "type=\"waypointlist\"\n" +
+                    "type=\"waypoint\" latitude=\"" + firstPosition_lat + "\" longitude=\"" + firstPosition_lon + "\" name=\"A\"\n" +
+                    "type=\"waypoint\" latitude=\"" + lastPosition_lat + "\" longitude=\"" + lastPosition_lon + "\" name=\"B\"\n" +
+                    "type=\"waypoint\" latitude=\"51.339037340000004\" longitude=\"9.4473964999999964\" name=\"C\" unixtime=\"1491926179\"\n" +
+                    "type=\"waypoint\" latitude=\"" + curbPosition.getEstimatedLat() + "\" longitude=\"" + curbPosition.getEstimatedLon() + "\" name=\"CurbPosition\"\n" +
+                    "type=\"waypointlistend\"\n" +
+                    "~EndLayerData\n" +
+                    "~EndLayer";
+        }
         output.append(suffix);
 
         String outputAsString = output.toString();

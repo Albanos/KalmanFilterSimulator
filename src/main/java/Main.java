@@ -163,7 +163,7 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6w_johann3, true);
+        readAllSegmentsFromCsv(nexus6b_johann5, true);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -179,6 +179,8 @@ public class Main {
                 0.5, true, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+        System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
+        System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -198,6 +200,8 @@ public class Main {
                 0.5, true, false);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
+        System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
+        System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
 
         creator = new ExcelFileCreator2();
         creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -239,8 +243,8 @@ public class Main {
 //
 //        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
 //        service.writeAllDataToVikingFile(constants.getCurrentSegment());
-        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt / 2);
-        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 2);
+//        System.out.println("Summe der RMSE-Werte, Est_GT:  " + sumOfAllRmseValuesEstGt / 2);
+//        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 2);
 
 
 
