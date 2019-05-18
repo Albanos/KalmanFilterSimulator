@@ -7,7 +7,6 @@ import org.apache.commons.math3.linear.RealVector;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Luan Hajzeraj on 12/1/2018.
@@ -78,7 +77,7 @@ class Service2 {
         return firstGlobalPosition;
     }
 
-    private void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
+    public void setFirstGlobalPosition(GlobalPosition firstGlobalPosition) {
         this.firstGlobalPosition = firstGlobalPosition;
     }
 
@@ -102,29 +101,7 @@ class Service2 {
         }
 
         for (Data row : dataOfCurrentSegment) {
-            // Berechne nur einen kartesischen Punkt, wenn lat_wgs und lon_wgs != NaN
-            if(!Double.isNaN(row.getLatitude_wgs()) && !Double.isNaN(row.getLongitude_wgs())) {
-                // Berechne die kartesischen Punkte für die "normalen" Positionen
-                final GlobalPosition globalPosition = row.getGlobalPosition();
-                final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
-                final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
-
-                //if (distance != 0.0 && angle != 0.0) {
-                if (distance != 0.0 && !Double.isNaN(angle)) {
-                    row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
-                    row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
-                }
-            }
-            // Berechne die kartesischen Punkte für die GT-Positionen
-            final GlobalPosition globalPositionsGt = row.getGlobalPositionsGt();
-            final double distanceGt = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
-            final double angleGt = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
-
-            //if (distanceGt != 0.0 && angleGt != 0.0) {
-            if (distanceGt != 0.0 && !Double.isNaN(angleGt)) {
-                row.setCartesian_x_gt(distanceGt * Math.sin(Math.toRadians(angleGt)));
-                row.setCartesian_y_gt(distanceGt * Math.cos(Math.toRadians(angleGt)));
-            }
+            calculateCartesianPointsByDataRow(firstGlobalPosition, row);
 
             // Aktualisiere dt
             setDt(getOldDt() == 0 ? 0.1 : (getDt() - getOldDt()) / 1000.0f);
@@ -132,6 +109,32 @@ class Service2 {
             float[] earthAcc = calculateWgsAccel(row);
             row.setAccel_x_wgs(earthAcc[0]);
             row.setAccel_y_wgs(earthAcc[1]);
+        }
+    }
+
+    public void calculateCartesianPointsByDataRow(GlobalPosition firstGlobalPosition, Data row) {
+        // Berechne nur einen kartesischen Punkt, wenn lat_wgs und lon_wgs != NaN
+        if(!Double.isNaN(row.getLatitude_wgs()) && !Double.isNaN(row.getLongitude_wgs())) {
+            // Berechne die kartesischen Punkte für die "normalen" Positionen
+            final GlobalPosition globalPosition = row.getGlobalPosition();
+            final double distance = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPosition);
+            final double angle = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPosition);
+
+            //if (distance != 0.0 && angle != 0.0) {
+            if (distance != 0.0 && !Double.isNaN(angle)) {
+                row.setCartesian_x(distance * Math.sin(Math.toRadians(angle)));
+                row.setCartesian_y(distance * Math.cos(Math.toRadians(angle)));
+            }
+        }
+        // Berechne die kartesischen Punkte für die GT-Positionen
+        final GlobalPosition globalPositionsGt = row.getGlobalPositionsGt();
+        final double distanceGt = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
+        final double angleGt = coordinateAngleBetweenTwoPoints(firstGlobalPosition, globalPositionsGt);
+
+        //if (distanceGt != 0.0 && angleGt != 0.0) {
+        if (distanceGt != 0.0 && !Double.isNaN(angleGt)) {
+            row.setCartesian_x_gt(distanceGt * Math.sin(Math.toRadians(angleGt)));
+            row.setCartesian_y_gt(distanceGt * Math.cos(Math.toRadians(angleGt)));
         }
     }
 
@@ -172,7 +175,7 @@ class Service2 {
      * @param g2 -
      * @return -
      */
-    double coordinateDistanceBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
+    public double coordinateDistanceBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
             GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
@@ -190,7 +193,7 @@ class Service2 {
      * @param g2 -
      * @return -
      */
-    double coordinateAngleBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
+    public double coordinateAngleBetweenTwoPoints(GlobalPosition g1, GlobalPosition g2) {
         if (g1 != null && g2 != null) {
             GeodeticMeasurement gm = calculator
                     .calculateGeodeticMeasurement(Ellipsoid.WGS84, g1, g2);
@@ -514,17 +517,9 @@ class Service2 {
         double estimated_x = data.getEstimatedPoint_x();
         double estimated_y = data.getEstimatedPoint_y();
 
-        // Berechne Abstand des Geschätzten und des ersten kartesischen Punktes (erste kartesische ist der 16.)
-        // TODO: der erste kartesische Punkt ist definitiv nicht mehr der 16. Punkt. Hier kommt sicher auch das Richtungsproblem her!
-//        double firstCartesian_x = getListOfAllData().get(16).getCartesian_x();
-//        double firstCartesian_y = getListOfAllData().get(16).getCartesian_y();
-//        Data firstDataPoint = getListOfAllData().stream()
-//                .filter(d -> d.getCartesian_x() != 0.0 && d.getCartesian_y() != 0.0)
-//                .findFirst().orElse(new Data());
-//        double firstCartesian_x = firstDataPoint.getCartesian_x();
-//        double firstCartesian_y = firstDataPoint.getCartesian_y();
-//        double firstCartesian_x = getListOfAllData().getFirst().getCartesian_x_gt();
-//        double firstCartesian_y = getListOfAllData().getFirst().getCartesian_y_gt();
+        // Berechne Abstand des Geschätzten und des ersten kartesischen Punktes
+//        double x = 0 - Math.abs(estimated_x);
+//        double y = 0 - Math.abs(estimated_y);
         double x = 0 - estimated_x;
         double y = 0 - estimated_y;
 
@@ -545,6 +540,25 @@ class Service2 {
         } else if (y < 0) {
             angle = Math.toDegrees(Math.atan(x / y));
         }
+        // Rücksprache mit Eric (Winkelrichtung im Uhrzeigersinn!!!)
+//        if(y > 0 && x >= 0) {
+//            angle = Math.toDegrees(Math.atan(x / y));
+//        }
+//        else if(y < 0 && x >= 0) {
+//            angle = Math.toDegrees(Math.atan(x / y)) + 90;
+//        }
+//        else if(y < 0 && x <= 0) {
+//            angle = Math.toDegrees(Math.atan(x / y)) + 180;
+//        }
+//        else if(y > 0 && x <= 0) {
+//            angle = Math.toDegrees(Math.atan(x / y)) + 270;
+//        }
+//        else if(y == 0 && x > 0) {
+//            angle = 90;
+//        }
+//        else if(y == 0 && x < 0) {
+//            angle = 270;
+//        }
 
         // Berechne nun die WGS-koordinaten
         calculateWGSCoordinateByDataPoint(data, angle, distance);

@@ -391,7 +391,7 @@ public class EstimationFilter2 {
         String key = String.join("_", constants.getCurrentSegment());
         if(key.startsWith("12079_12700")) {
             double y_component = firstEstY > 0 ? 5 + firstEstY : 5 - firstEstY;
-            currentStateEstimation.setEntry(0, d.getCartesian_x());
+            currentStateEstimation.setEntry(0, lastEstX);
             currentStateEstimation.setEntry(1, 5 + firstEstY);
             currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
             currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
@@ -399,7 +399,7 @@ public class EstimationFilter2 {
         else if(key.startsWith("12700_First_12694")) {
             double x_component = firstEstX < 0 ? -5 - firstEstX : -5 + firstEstX;
             currentStateEstimation.setEntry(0, -5 + firstEstX);
-            currentStateEstimation.setEntry(1, d.getCartesian_y());
+            currentStateEstimation.setEntry(1, lastExtY);
             currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
             currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
         }
@@ -429,6 +429,51 @@ public class EstimationFilter2 {
                 currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
             }
         }
+
+//        usingGt = true;
+//        // Multipliziere die aktuelle Schätzung mit der Rotationsmatrix
+//        double angleToRotate = d.getGtDirection();
+//        if(key.startsWith("12079_12700")) {
+//            RealMatrix rotationMatrix = new Array2DRowRealMatrix(new double[][]{
+//                    {Math.cos(angleToRotate), -1 * Math.sin(angleToRotate)},
+//                    {Math.sin(angleToRotate), Math.cos(angleToRotate)}
+//            });
+//            // Ermittle aktuelle Position aus Zustandsvektor (dieses erhält zusätzlich die Geschwindigkeit)
+//            RealVector estPosition = new ArrayRealVector(new double[]{lastEstX, lastExtY});
+//            RealVector rotatetEstimationPoint = rotationMatrix.operate(estPosition);
+//            //rotatetEstimationPoint.setEntry(0, lastEstX);
+//
+//            rotatetEstimationPoint.setEntry(1, 5 + firstEstY);
+//
+//            // rotiere den Punkt wieder zurück
+//            //angleToRotate = -angleToRotate;
+//            rotationMatrix = new Array2DRowRealMatrix(new double[][]{
+//                    {Math.cos(angleToRotate), Math.sin(angleToRotate)},
+//                    {-1 * Math.sin(angleToRotate), Math.cos(angleToRotate)}
+//            });
+//            RealVector rotatetEstimationPoint2 = rotationMatrix.operate(rotatetEstimationPoint);
+//
+//
+//            currentStateEstimation.setEntry(0, rotatetEstimationPoint2.getEntry(0));
+//            currentStateEstimation.setEntry(1, rotatetEstimationPoint2.getEntry(1));
+//        }
+//
+//
+//        if (key.startsWith("12700_First_12694")) {
+//            //angleToRotate = -angleToRotate;
+//            RealMatrix rotationMatrix = new Array2DRowRealMatrix(new double[][]{
+//                    {Math.cos(angleToRotate), -Math.sin(angleToRotate)},
+//                    {Math.sin(angleToRotate), Math.cos(angleToRotate)}
+//            });
+//            // Ermittle aktuelle Position aus Zustandsvektor (dieses erhält zusätzlich die Geschwindigkeit)
+//            RealVector estPosition = new ArrayRealVector(new double[]{currentStateEstimation.getEntry(0), currentStateEstimation.getEntry(1)});
+//            RealVector rotatetEstimationPoint = rotationMatrix.operate(estPosition);
+//            //rotatetEstimationPoint.setEntry(0, lastEstX);
+//            rotatetEstimationPoint.setEntry(1, 5 + firstEstY);
+//            currentStateEstimation.setEntry(0, rotatetEstimationPoint.getEntry(0));
+//            currentStateEstimation.setEntry(1, rotatetEstimationPoint.getEntry(1));
+//        }
+
     }
 
     private RealVector getCurrentStateEstimationOfKalmanFilterClazz() {

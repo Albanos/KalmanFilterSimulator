@@ -163,7 +163,7 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6b_johann5, true);
+        readAllSegmentsFromCsv(nexus6w_johann8, true);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
