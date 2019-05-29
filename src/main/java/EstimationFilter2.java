@@ -1,3 +1,7 @@
+import geodesy.Ellipsoid;
+import geodesy.GeodeticCalculator;
+import geodesy.GlobalCoordinates;
+import geodesy.GlobalPosition;
 import org.apache.commons.math3.filter.*;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -5,7 +9,12 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Luan Hajzeraj on 12/1/2018.
@@ -77,8 +86,8 @@ public class EstimationFilter2 {
         // Standardabweichung der Beschleunigung (statisch festgelegt), für Prozessrauschen
         final float sigmaAccel = constants.getSigmaAccel();
 
-        double coordinate_x = firstDataPoint.getCartesian_x_gt();
-        double coordinate_y = firstDataPoint.getCartesian_y_gt();
+        double coordinate_x = firstDataPoint.getCartesian_x();
+        double coordinate_y = firstDataPoint.getCartesian_y();
         double speed_x = firstDataPoint.getSpeed_x_wgs();
         double speed_y = firstDataPoint.getSpeed_y_wgs();
 
@@ -229,7 +238,8 @@ public class EstimationFilter2 {
                         // MERKE: neue Markierungsnummer im Messdurchlauf mit Step-erfassung
                         case "12079_12700":
                             //if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                            if(d.getLabel().endsWith("_5") && !useGtForSegmentA) {
+                            //if(d.getLabel().endsWith("_5") && !useGtForSegmentA) {
+                            if(d.getLabel().endsWith("_10") && !useGtForSegmentA) {
                                 useGtForSegmentA = true;
 //                                currentMeasurment = new ArrayRealVector(new double[]{
 //                                        d.getCartesian_x_gt(),
@@ -241,7 +251,8 @@ public class EstimationFilter2 {
                                 // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
                                 // ermöglichen über reflection den Zugriff und überschreiben den Wert. Ist
                                 // zusätzlich noch die step-detection gewünscht, setzen wir auch diese
-                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+                                //overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
+                                overrideCurrentStateEstimationOfKalmanFilterWith10mEvaluation(withVelocityFromStepDetection,d);
                                 System.out.println("====================GT-Position für SegmentA genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -251,7 +262,8 @@ public class EstimationFilter2 {
                             break;
                         case "12700_First_12694":
                             //if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
-                            if(d.getLabel().endsWith("_5") && !useGtForSegmentB) {
+                            //if(d.getLabel().endsWith("_5") && !useGtForSegmentB) {
+                            if(d.getLabel().endsWith("_10") && !useGtForSegmentB) {
                                 useGtForSegmentB = true;
 //                                currentMeasurment = new ArrayRealVector(new double[]{
 //                                        d.getCartesian_x_gt(),
@@ -262,7 +274,8 @@ public class EstimationFilter2 {
                                 d.setCurbPosition(true);
                                 // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
                                 // ermöglichen über reflection den Zugriff und überschreiben den Wert
-                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+                                //overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
+                                overrideCurrentStateEstimationOfKalmanFilterWith10mEvaluation(withVelocityFromStepDetection,d);
 //                                if(withVelocityFromStepDetection) {
 //                                    currentMeasurment = new ArrayRealVector(new double[]{
 //                                            d.getCartesian_x_gt(),
@@ -290,7 +303,7 @@ public class EstimationFilter2 {
                                 // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
                                 // ermöglichen über reflection den Zugriff und überschreiben den Wert. Ist
                                 // zusätzlich noch die step-detection gewünscht, setzen wir auch diese
-                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+                                overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
 //                                if(withVelocityFromStepDetection) {
 //                                    currentMeasurment = new ArrayRealVector(new double[]{
 //                                            d.getCartesian_x_gt(),
@@ -319,7 +332,7 @@ public class EstimationFilter2 {
 //                                });
                                 // Wir manipulieren das Feld "stateEstimation" der Klasse "Kalman Filter". Wir
                                 // ermöglichen über reflection den Zugriff und überschreiben den Wert
-                                overrideCurrentStateEstimationOfKalmanFilter(withVelocityFromStepDetection, d);
+                                overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
                                 System.out.println("====================GT-Position für SegmentD genutzt!");
                                 System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
@@ -386,76 +399,76 @@ public class EstimationFilter2 {
         System.out.println("=======================Schätzungen abgeschlossen\n");
     }
 
-    private void overrideCurrentStateEstimationOfKalmanFilter(boolean withVelocityFromStepDetection, Data d) {
+    private void overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(boolean withVelocityFromStepDetection, Data d) {
         RealVector currentStateEstimation = getCurrentStateEstimationOfKalmanFilterClazz();
         String key = String.join("_", constants.getCurrentSegment());
-        if(key.startsWith("12079_12700")) {
-            double y_component = firstEstY > 0 ? 5 + firstEstY : 5 - firstEstY;
-            currentStateEstimation.setEntry(0, lastEstX);
-            currentStateEstimation.setEntry(1, 5 + firstEstY);
-            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
-            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
-        }
-        else if(key.startsWith("12700_First_12694")) {
-            double x_component = firstEstX < 0 ? -5 - firstEstX : -5 + firstEstX;
-            currentStateEstimation.setEntry(0, -5 + firstEstX);
-            currentStateEstimation.setEntry(1, lastExtY);
-            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
-            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
-        }
-        usingGt = true;
-        if(withVelocityFromStepDetection) {
-//                                    currentMeasurment = new ArrayRealVector(new double[]{
-//                                            d.getCartesian_x_gt(),
-//                                            d.getCartesian_y_gt(),
-//                                            d.getSpeed_x_stepDetector(),
-//                                            d.getSpeed_y_stepDetector()
-//                                    });
-            // Wir ersetzen nur die Geschwindigkeit durch die des step-detectors
-            if(key.startsWith("12079_12700")) {
-                double y_component = firstEstY > 0 ? 5 + firstEstY : 5 - firstEstY;
-                //double y_component = firstEstY > 0 ? d.getCartesian_y_gt() + firstEstY : 5 - d.getCartesian_y_gt();
-                currentStateEstimation.setEntry(0, lastEstX);
-                currentStateEstimation.setEntry(1, 5 + firstEstY);
-                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
-                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
-            }
-            else if(key.startsWith("12700_First_12694")) {
-                double x_component = firstEstX < 0 ? -5 - firstEstX : -5 + firstEstX;
-                //double x_component = firstEstX < 0 ? d.getCartesian_x_gt() - firstEstX : -5 + d.getCartesian_x_gt();
-                currentStateEstimation.setEntry(0, -5 + firstEstX);
-                currentStateEstimation.setEntry(1, lastExtY);
-                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
-                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
-            }
-        }
-
+        // Merke: Jetzt, wo wir den Zustand x mit GNSS.Koordinaten initialisieren, müssen wir den ersten GT-Punkt draufaddieren
+        double firstCartesian_y_gt = service.getListOfAllData().getFirst().getCartesian_y_gt();
+        double firstCartesian_x_gt = service.getListOfAllData().getFirst().getCartesian_x_gt();
+//        if(key.startsWith("12079_12700")) {
+//            double y_component = firstEstY > 0 ? 5 + firstEstY : 5 - firstEstY;
+//            currentStateEstimation.setEntry(0, lastEstX);
+//            currentStateEstimation.setEntry(1, 5 + firstCartesian_y_gt);
+//            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
+//            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
+//        }
+//        else if(key.startsWith("12700_First_12694")) {
+//            double x_component = firstEstX < 0 ? -5 - firstEstX : -5 + firstEstX;
+//            currentStateEstimation.setEntry(0, -5 + firstCartesian_x_gt);
+//            currentStateEstimation.setEntry(1, lastExtY);
+//            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
+//            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
+//        }
+//        usingGt = true;
+//        if(withVelocityFromStepDetection) {
+//            // Wir ersetzen nur die Geschwindigkeit durch die des step-detectors
+//            if(key.startsWith("12079_12700")) {
+//                double y_component = firstEstY > 0 ? 5 + firstEstY : 5 - firstEstY;
+//                //double y_component = firstEstY > 0 ? d.getCartesian_y_gt() + firstEstY : 5 - d.getCartesian_y_gt();
+//                currentStateEstimation.setEntry(0, lastEstX);
+//                currentStateEstimation.setEntry(1, 5 + firstCartesian_y_gt);
+//                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+//                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+//            }
+//            else if(key.startsWith("12700_First_12694")) {
+//                double x_component = firstEstX < 0 ? -5 - firstEstX : -5 + firstEstX;
+//                //double x_component = firstEstX < 0 ? d.getCartesian_x_gt() - firstEstX : -5 + d.getCartesian_x_gt();
+//                currentStateEstimation.setEntry(0, -5 + firstCartesian_x_gt);
+//                currentStateEstimation.setEntry(1, lastExtY);
+//                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+//                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+//            }
+//        }
+// FIXME: Wir werden nicht rotieren müssen, deshalb nicht nötig
 //        usingGt = true;
 //        // Multipliziere die aktuelle Schätzung mit der Rotationsmatrix
-//        double angleToRotate = d.getGtDirection();
+//        double angleToRotate = 90 - d.getGtDirection();
 //        if(key.startsWith("12079_12700")) {
 //            RealMatrix rotationMatrix = new Array2DRowRealMatrix(new double[][]{
 //                    {Math.cos(angleToRotate), -1 * Math.sin(angleToRotate)},
 //                    {Math.sin(angleToRotate), Math.cos(angleToRotate)}
 //            });
 //            // Ermittle aktuelle Position aus Zustandsvektor (dieses erhält zusätzlich die Geschwindigkeit)
-//            RealVector estPosition = new ArrayRealVector(new double[]{lastEstX, lastExtY});
+//            RealVector estPosition = new ArrayRealVector(new double[]{currentStateEstimation.getEntry(0), currentStateEstimation.getEntry(1)});
 //            RealVector rotatetEstimationPoint = rotationMatrix.operate(estPosition);
 //            //rotatetEstimationPoint.setEntry(0, lastEstX);
 //
-//            rotatetEstimationPoint.setEntry(1, 5 + firstEstY);
+//            rotatetEstimationPoint.setEntry(1, 5 + firstCartesian_y_gt);
 //
 //            // rotiere den Punkt wieder zurück
-//            //angleToRotate = -angleToRotate;
+//            angleToRotate = d.getGtDirection();
 //            rotationMatrix = new Array2DRowRealMatrix(new double[][]{
-//                    {Math.cos(angleToRotate), Math.sin(angleToRotate)},
-//                    {-1 * Math.sin(angleToRotate), Math.cos(angleToRotate)}
+//                    {Math.cos(angleToRotate), -1 * Math.sin(angleToRotate)},
+//                    {Math.sin(angleToRotate), Math.cos(angleToRotate)}
 //            });
+////            rotationMatrix = new Array2DRowRealMatrix(new double[][]{
+////                    {Math.cos(angleToRotate), Math.sin(angleToRotate)},
+////                    {-1 * Math.sin(angleToRotate), Math.cos(angleToRotate)}
+////            });
 //            RealVector rotatetEstimationPoint2 = rotationMatrix.operate(rotatetEstimationPoint);
 //
-//
-//            currentStateEstimation.setEntry(0, rotatetEstimationPoint2.getEntry(0));
-//            currentStateEstimation.setEntry(1, rotatetEstimationPoint2.getEntry(1));
+//            currentStateEstimation.setEntry(0, rotatetEstimationPoint.getEntry(0));
+//            currentStateEstimation.setEntry(1, rotatetEstimationPoint.getEntry(1));
 //        }
 //
 //
@@ -474,6 +487,102 @@ public class EstimationFilter2 {
 //            currentStateEstimation.setEntry(1, rotatetEstimationPoint.getEntry(1));
 //        }
 
+    }
+
+    private void overrideCurrentStateEstimationOfKalmanFilterWith10mEvaluation(boolean withVelocityFromStepDetection, Data d) {
+        RealVector currentStateEstimation = getCurrentStateEstimationOfKalmanFilterClazz();
+        String key = String.join("_", constants.getCurrentSegment());
+
+        double firstCartesian_y_gt = service.getListOfAllData().getFirst().getCartesian_y_gt();
+        double firstCartesian_x_gt = service.getListOfAllData().getFirst().getCartesian_x_gt();
+
+        // Berechne absoluten Abstand von geschätzten Punkt (in WGS) zu GT-Punkt (in WGS)
+        List<Data> collect = service.getListOfAllData()
+                .stream()
+                .filter(x -> x.getEstimatedLat() != 0.0)
+                .collect(Collectors.toList());
+        Data foo = collect.get(collect.size() -1);
+        double lastEstLat = foo.getEstimatedLat();
+        double lastEstLon = foo.getEstimatedLon();
+        double lastGtLat = foo.getLatitude_gt();
+        double lastGtLon = foo.getLongitude_gt();
+
+        GlobalPosition lastEstGlobalPos = new GlobalPosition(lastEstLat, lastEstLon,0);
+        GlobalPosition lastGtGlobalPos = new GlobalPosition(lastGtLat, lastGtLon,0);
+
+        //double distLastEstAndLastGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, lastGtGlobalPos);
+
+        // Berechne den Abstand zwischen letztem GT und 5m-GT-Punkt
+        double currentGtLat = d.getLatitude_gt();
+        double currentGtLon = d.getLongitude_gt();
+        GlobalPosition currentGtGlobalPos = new GlobalPosition(currentGtLat, currentGtLon,0);
+        double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, service.getFirstGlobalPosition());
+
+        double distanceToShift = 0;
+        if(key.startsWith("12079_12700")) {
+            distanceToShift = 10 - distLastEstAndCurrGt + firstCartesian_y_gt;
+        }
+        else if(key.startsWith("12700_First_12694")) {
+            distanceToShift = 10 - distLastEstAndCurrGt - firstCartesian_x_gt;
+        }
+
+        // Berechne mit GT-richtung und Abstand den neuen Punkt über Geodesy
+        GeodeticCalculator calculator = new GeodeticCalculator();
+        GlobalCoordinates foo2 = calculator.calculateEndingGlobalCoordinates(Ellipsoid.WGS84, lastEstGlobalPos, d.getGtDirection(), distanceToShift);
+
+        double calcLat = foo2.getLatitude();
+        double calcLon = foo2.getLongitude();
+        d.setEstimatedLat(calcLat);
+        d.setEstimatedLon(calcLon);
+
+        HashMap<String, Double> cartesianCoordinatesByLatLon =
+                service.calculateCartesianPointByLatLon(calcLat, calcLon, service.getFirstGlobalPosition());
+
+        currentStateEstimation.setEntry(0, cartesianCoordinatesByLatLon.get("x"));
+        currentStateEstimation.setEntry(1, cartesianCoordinatesByLatLon.get("y"));
+
+        if(withVelocityFromStepDetection) {
+            currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+            currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+        }
+        usingGt = true;
+
+
+
+        // VERSCHIEBUNG IN Y-EBENE UM 0-GRAD: Funktioniert!!!
+//        // Merke: Jetzt, wo wir den Zustand x mit GNSS.Koordinaten initialisieren, müssen wir den ersten GT-Punkt draufaddieren
+//        double firstCartesian_y_gt = service.getListOfAllData().getFirst().getCartesian_y_gt();
+//        double firstCartesian_x_gt = service.getListOfAllData().getFirst().getCartesian_x_gt();
+//        if (key.startsWith("12079_12700")) {
+//            currentStateEstimation.setEntry(0, lastEstX);
+//            //currentStateEstimation.setEntry(1, 10 + firstEstY);
+//            currentStateEstimation.setEntry(1, 10 + firstCartesian_y_gt);
+//            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
+//            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
+//        } else if (key.startsWith("12700_First_12694")) {
+//            //currentStateEstimation.setEntry(0, -10 + firstEstX);
+//            currentStateEstimation.setEntry(0, -10 + firstCartesian_x_gt);
+//            currentStateEstimation.setEntry(1, lastExtY);
+//            currentStateEstimation.setEntry(2, d.getSpeed_x_wgs());
+//            currentStateEstimation.setEntry(3, d.getSpeed_y_wgs());
+//        }
+//        usingGt = true;
+//        if (withVelocityFromStepDetection) {
+//            // Wir ersetzen nur die Geschwindigkeit durch die des step-detectors
+//            if (key.startsWith("12079_12700")) {
+//                currentStateEstimation.setEntry(0, lastEstX);
+//                //currentStateEstimation.setEntry(1, 10 + firstEstY);
+//                currentStateEstimation.setEntry(1, 10 + firstCartesian_y_gt);
+//                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+//                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+//            } else if (key.startsWith("12700_First_12694")) {
+//                //currentStateEstimation.setEntry(0, -10 + firstEstX);
+//                currentStateEstimation.setEntry(0, -10 + firstCartesian_x_gt);
+//                currentStateEstimation.setEntry(1, lastExtY);
+//                currentStateEstimation.setEntry(2, d.getSpeed_x_stepDetector());
+//                currentStateEstimation.setEntry(3, d.getSpeed_y_stepDetector());
+//            }
+//        }
     }
 
     private RealVector getCurrentStateEstimationOfKalmanFilterClazz() {

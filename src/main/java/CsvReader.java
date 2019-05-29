@@ -77,7 +77,7 @@ class CsvReader {
 //        }
 //    }
 
-    void readSegmentFromCsv(final String pathToFile, final String[] segment, boolean only10Meters) {
+    void readSegmentFromCsv(final String pathToFile, final String[] segment, boolean only10Meters, boolean only20Meters) {
         String[] line;
         // Wir haben eine kartesische Position weniger als WGS-Positionen!
         int positionCounter = -1;
@@ -104,6 +104,11 @@ class CsvReader {
                 // 0.....5......10 --> entspricht den 10m
                 if(only10Meters) {
                     if (line[labelPosition].startsWith("GO_" + segment[0] + "_1")) {
+                        break;
+                    }
+                }
+                else if(only20Meters) {
+                    if (line[labelPosition].startsWith("GO_" + segment[0] + "_2")) {
                         break;
                     }
                 }
@@ -249,7 +254,7 @@ class CsvReader {
                     // Luan: 0.8278146
                     // Rovena: 0.8038585
                     // Johann: 0.769230
-                    double stepLength = 0.769230;
+                    double stepLength = 0.8278146;
                     double stepFrequency = 1 / dt;
                     double walkVelocity = stepLength * stepFrequency;
                     d.setAmountSpeed_stepDetector(walkVelocity);

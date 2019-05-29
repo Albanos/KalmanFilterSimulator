@@ -163,7 +163,7 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6w_johann8, true);
+        readAllSegmentsFromCsv(nexus6w_luan6, false, true);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
@@ -176,7 +176,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
@@ -189,7 +189,6 @@ public class Main {
         // Segment B
         constants.setCurrentSegment(constants.getSegmentB());
         service.setListOfAllDataByGlobalSegment();
-
         startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
                 5.0,
@@ -197,7 +196,7 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, false);
+                0.5, true, true);
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
@@ -262,18 +261,26 @@ public class Main {
         System.out.println("Hi");
     }
 
-    private static void readAllSegmentsFromCsv(String pathToFile, boolean only10Meters) {
+    private static void readAllSegmentsFromCsv(String pathToFile, boolean only10Meters, boolean only20Meters) {
+        if(only10Meters && only20Meters) {
+            try {
+                throw new Exception("Entweder nur 10 meter oder nur 20 meter, nicht beide");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
         // Befülle die globale map mit allen segmenten einmalig
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA(), only10Meters);
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentA());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB(), only10Meters);
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentB());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC(), only10Meters);
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentC());
 
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentD(), only10Meters);
+        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentD(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
     }
 

@@ -138,6 +138,17 @@ class Service2 {
         }
     }
 
+    public HashMap<String, Double> calculateCartesianPointByLatLon(double lat, double lon, GlobalPosition firstGlobalPosition) {
+        final GlobalPosition gp = new GlobalPosition(lat,lon,0);
+        final double dist = coordinateDistanceBetweenTwoPoints(firstGlobalPosition, gp);
+        final double ang = coordinateAngleBetweenTwoPoints(firstGlobalPosition, gp);
+
+        HashMap<String, Double> returnMap = new HashMap<>();
+        returnMap.put("x", dist * Math.sin(Math.toRadians(ang)));
+        returnMap.put("y", dist * Math.cos(Math.toRadians(ang)));
+        return returnMap;
+    }
+
     private float[] calculateWgsAccel(Data row) {
         float[] gravityValues = new float[3];
         float[] magneticValues = new float[3];
@@ -514,6 +525,10 @@ class Service2 {
     }
 
     void calculateAngleAndDistanceAndWgsPositionByDataPoint(Data data) {
+        if(data.getEstimatedLat() != 0.0 && data.getEstimatedLon() != 0.0) {
+            return;
+        }
+
         double estimated_x = data.getEstimatedPoint_x();
         double estimated_y = data.getEstimatedPoint_y();
 
