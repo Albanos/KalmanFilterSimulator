@@ -12,7 +12,7 @@ public class ExcelFileCreator2 {
     private final Service2 service = Service2.getInstance();
     private final Constants constants = Constants.getInstance();
 
-    public void writeDataToFile(final List<Data> data, final FilterConfiguration conf, String[] currentSegment) {
+    public void writeDataToFile(String runFileName, final List<Data> data, final FilterConfiguration conf, String[] currentSegment) {
         // ======================Grundstruktur für den Excel-Export erzeugen
         HSSFWorkbook workbook = new HSSFWorkbook();
 
@@ -284,11 +284,11 @@ public class ExcelFileCreator2 {
                 // Ebenso wie oben...
                 case "12700_Second,12079": segmentSuffix = "SegD"; break;
             }
-            String fileName = "export_" +
-                    new Timestamp(System.currentTimeMillis()).toString()
-                            .replaceAll("\\s", "_")
-                            .replaceAll(":", "-")
-                            .replaceAll("\\.", "-")
+            String fileName = "export_" + runFileName
+//                    new Timestamp(System.currentTimeMillis()).toString()
+//                            .replaceAll("\\s", "_")
+//                            .replaceAll(":", "-")
+//                            .replaceAll("\\.", "-")
                             .concat("_" + segmentSuffix)
                             .concat(".xls");
             FileOutputStream fos = new FileOutputStream(fileName);

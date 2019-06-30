@@ -376,7 +376,7 @@ public class EstimationFilter2 {
             lastEstX = estX;
             lastExtY = estY;
 
-            System.out.println("Aktuell geschätzter Punkt:  " + estX + " ; " + estY + "\n");
+            //System.out.println("Aktuell geschätzter Punkt:  " + estX + " ; " + estY + "\n");
             if(firstEstX == 0 && firstEstY == 0) {
                 firstEstX = estX;
                 firstEstY = estY;
@@ -493,6 +493,30 @@ public class EstimationFilter2 {
         RealVector currentStateEstimation = getCurrentStateEstimationOfKalmanFilterClazz();
         String key = String.join("_", constants.getCurrentSegment());
 
+//        double c = service.getListOfAllData().getFirst().getCartesian_x_gt();
+//        double d0 = service.getListOfAllData().getFirst().getCartesian_y_gt();
+//
+//        // Verschiebung nach Formel von Janssen
+//        RealVector B = new ArrayRealVector(new double[] {lastEstX, lastExtY});
+//        RealVector S = new ArrayRealVector(new double[] {d.getCartesian_x_gt(), d.getCartesian_y_gt()});
+//        RealVector P = new ArrayRealVector(new double[] {0,0});
+//
+//        double a = S.getEntry(0) - c;
+//        double alpha = B.getEntry(0);
+//        double b = S.getEntry(1) - d0;
+//        double beta = B.getEntry(1);
+//
+//        double quotient = ( a * (a - alpha) + b * (b - beta) ) / (Math.pow(a,2) + Math.pow(b,2));
+//
+//        RealVector productOfQuotientAndS = S.mapMultiply(quotient);
+//        P = B.add(productOfQuotientAndS);
+//        double x = P.getEntry(0);
+//        double y = P.getEntry(1);
+//
+//        currentStateEstimation.setEntry(0,x);
+//        currentStateEstimation.setEntry(1,y);
+
+        // Verschiebung der Position bei Stufennutzung durch Geodesy: funktioniert scheinbar korrekt
         double firstCartesian_y_gt = service.getListOfAllData().getFirst().getCartesian_y_gt();
         double firstCartesian_x_gt = service.getListOfAllData().getFirst().getCartesian_x_gt();
 
@@ -516,6 +540,7 @@ public class EstimationFilter2 {
         double currentGtLat = d.getLatitude_gt();
         double currentGtLon = d.getLongitude_gt();
         GlobalPosition currentGtGlobalPos = new GlobalPosition(currentGtLat, currentGtLon,0);
+        //double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, service.getFirstGlobalPosition());
         double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, service.getFirstGlobalPosition());
 
         double distanceToShift = 0;

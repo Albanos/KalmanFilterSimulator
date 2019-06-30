@@ -1,3 +1,5 @@
+import org.apache.commons.lang3.BooleanUtils;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -163,12 +165,18 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        readAllSegmentsFromCsv(nexus6w_luan6, false, true);
+        String filePath = nexus6w_johann6;
+        String fileName = filePath.split("_")[2] + "_" + args[0];
+        readAllSegmentsFromCsv(filePath, true, false);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
         constants.setCurrentSegment(constants.getSegmentA());
         service.setListOfAllDataByGlobalSegment();
+
+        Data first = service.getListOfAllData().getFirst();
+        Data last = service.getListOfAllData().getLast();
+
         FilterConfiguration startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
                 5.0,
@@ -176,15 +184,16 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5,
+                BooleanUtils.toBoolean(args[1]), BooleanUtils.toBoolean(args[2]));
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
         System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
+        service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
 
         // Segment B
         constants.setCurrentSegment(constants.getSegmentB());
@@ -196,15 +205,16 @@ public class Main {
                 4.5,
                 4.5,
                 3.5,
-                0.5, true, true);
+                0.5,
+                BooleanUtils.toBoolean(args[1]), BooleanUtils.toBoolean(args[2]));
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
         System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
 
         creator = new ExcelFileCreator2();
-        creator.writeDataToFile(service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(constants.getCurrentSegment());
+        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
+        service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
 // FIXME: Vorerst nur Betrachtung von Segment A und Segment B, für 10m-Evaluation
         // Segment C
 //        constants.setCurrentSegment(constants.getSegmentC());

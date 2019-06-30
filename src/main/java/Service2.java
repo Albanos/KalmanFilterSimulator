@@ -91,11 +91,17 @@ class Service2 {
         final GlobalPosition firstGlobalPosition;
         if(!dataOfCurrentSegment.isEmpty()) {
             final Data firstDataRow = dataOfCurrentSegment.get(0);
+//            Wir verschieben den Ursprung des Koordinatensystems in den ersten GT-Punkt
             firstGlobalPosition = new GlobalPosition(
                         firstDataRow.getLatitude_wgs(),
                         firstDataRow.getLongitude_wgs(),
                         firstDataRow.getAltitude_wgs()
                 );
+//            firstGlobalPosition = new GlobalPosition(
+//                    firstDataRow.getLatitude_gt(),
+//                    firstDataRow.getLongitude_gt(),
+//                    firstDataRow.getAltitude_wgs()
+//            );
         } else {
             firstGlobalPosition = null;
         }
@@ -718,7 +724,7 @@ class Service2 {
         return returnMap;
     }
 
-    void writeAllDataToVikingFile(String[] currentSegment) {
+    void writeAllDataToVikingFile(String runFileName, String[] currentSegment) {
         StringBuffer output = new StringBuffer();
         double firstPosition_lat = 0;
         double firstPosition_lon = 0;
@@ -921,11 +927,11 @@ class Service2 {
                 case "12700_Second,12079": segmentSuffix = "SegD"; break;
             }
 
-            os = new FileOutputStream(new File("vikingExport_" +
-                    new Timestamp(System.currentTimeMillis()).toString()
-                            .replaceAll("\\s", "_")
-                            .replaceAll(":", "-")
-                            .replaceAll("\\.", "-")
+            os = new FileOutputStream(new File("vikingExport_" + runFileName
+//                    new Timestamp(System.currentTimeMillis()).toString()
+//                            .replaceAll("\\s", "_")
+//                            .replaceAll(":", "-")
+//                            .replaceAll("\\.", "-")
                             .concat("_" + segmentSuffix)
                             .concat(".vik")));
             os.write(outputAsString.getBytes(), 0, outputAsString.length());
