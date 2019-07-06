@@ -201,8 +201,8 @@ public class EstimationFilter2 {
                 if(!Double.isNaN(d.getLatitude_wgs()) && !Double.isNaN(d.getLongitude_wgs())) {
                     timestamp2 = currentTimestamp;
 
-                    System.out.println("Aktuelle Position, Zeit:  " + currentTimestamp);
-                    System.out.println("Aktueller kartesischer Punkt:  " + d.getCartesian_x() + " ; " + d.getCartesian_y() + "\n");
+//                    System.out.println("Aktuelle Position, Zeit:  " + currentTimestamp);
+//                    System.out.println("Aktueller kartesischer Punkt:  " + d.getCartesian_x() + " ; " + d.getCartesian_y() + "\n");
                     // Extrahiere aus aktuellem Datensatz Position und jew. speed
                     currentMeasurment = new ArrayRealVector(new double[]{
                             d.getCartesian_x(),
@@ -254,11 +254,11 @@ public class EstimationFilter2 {
                                 //overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
                                 overrideCurrentStateEstimationOfKalmanFilterWith10mEvaluation(withVelocityFromStepDetection,d);
                                 System.out.println("====================GT-Position für SegmentA genutzt!");
-                                System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
+                                //System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
 //                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
-                            System.out.println("Iteration:  " + iterationCounter);
+                            //System.out.println("Iteration:  " + iterationCounter);
                             break;
                         case "12700_First_12694":
                             //if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
@@ -285,11 +285,11 @@ public class EstimationFilter2 {
 //                                    });
 //                                }
                                 System.out.println("====================GT-Position für SegmentB genutzt!");
-                                System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
+                                //System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
 //                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
-                            System.out.println("Iteration:  " + iterationCounter);
+                            //System.out.println("Iteration:  " + iterationCounter);
                             break;
 
                         case "12694_12700":
@@ -313,11 +313,11 @@ public class EstimationFilter2 {
 //                                    });
 //                                }
                                 System.out.println("====================GT-Position für SegmentC genutzt!");
-                                System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
+                                //System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
 //                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
-                            System.out.println("Iteration:  " + iterationCounter);
+                            //System.out.println("Iteration:  " + iterationCounter);
                             break;
 
                         //case "12700_Second_12078":
@@ -334,11 +334,11 @@ public class EstimationFilter2 {
                                 // ermöglichen über reflection den Zugriff und überschreiben den Wert
                                 overrideCurrentStateEstimationOfKalmanFilterWith5mEvaluation(withVelocityFromStepDetection, d);
                                 System.out.println("====================GT-Position für SegmentD genutzt!");
-                                System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
+                                //System.out.println("Betrag der GNSS-Geschwindigkeit:  " + d.getAmountSpeed_wgs());
                                 // Speichere aktuellen Wert von Matrix R temporär und setze kleineres Positions-Messrauschen
 //                                saveCurrentMatrixRAndSetLowerPositionsVarianz();
                             }
-                            System.out.println("Iteration:  " + iterationCounter);
+                            //System.out.println("Iteration:  " + iterationCounter);
                             break;
                     }
                 }

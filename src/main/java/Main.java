@@ -165,9 +165,9 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        String filePath = nexus6w_johann6;
+        String filePath = nexus6b_luan7;
         String fileName = filePath.split("_")[2] + "_" + args[0];
-        readAllSegmentsFromCsv(filePath, true, false);
+        readAllSegmentsFromCsv(filePath, false, true);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
