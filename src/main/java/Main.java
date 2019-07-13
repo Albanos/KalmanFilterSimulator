@@ -2,6 +2,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Luan Hajzeraj on 12.11.2018.
@@ -165,17 +166,14 @@ public class Main {
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
     public static void main(String[] args) {
-        String filePath = nexus6b_luan7;
+        String filePath = nexus6w_johann8;
         String fileName = filePath.split("_")[2] + "_" + args[0];
-        readAllSegmentsFromCsv(filePath, false, true);
+        readAllSegmentsFromCsv(filePath, false, false);
         double sumOfAllRmseValuesEstGt = 0;
         double sumOfAllRmseValuesGnssGt = 0;
         // Segment A
         constants.setCurrentSegment(constants.getSegmentA());
         service.setListOfAllDataByGlobalSegment();
-
-        Data first = service.getListOfAllData().getFirst();
-        Data last = service.getListOfAllData().getLast();
 
         FilterConfiguration startConf
                 = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
@@ -189,7 +187,11 @@ public class Main {
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
-        System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
+        System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
+        System.out.println("RMSE, Est -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceEstGt());
+        System.out.println("RMSE, Est -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
+        System.out.println("RMSE, GNSS -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
+        System.out.println("RMSE, GNSS -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
 
         ExcelFileCreator2 creator = new ExcelFileCreator2();
         creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -210,7 +212,11 @@ public class Main {
         sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
         sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
         System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
-        System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n");
+        System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
+        System.out.println("RMSE, Est -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceEstGt());
+        System.out.println("RMSE, Est -> GT, Segment b, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
+        System.out.println("RMSE, GNSS -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
+        System.out.println("RMSE, GNSS -> GT, Segment B, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
 
         creator = new ExcelFileCreator2();
         creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
@@ -283,9 +289,11 @@ public class Main {
         // Befülle die globale map mit allen segmenten einmalig
         csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentA());
+        service.labelLast10And5Meters(constants.getSegmentA());
 
         csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentB());
+        service.labelLast10And5Meters(constants.getSegmentB());
 
         csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC(), only10Meters, only20Meters);
         service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentC());

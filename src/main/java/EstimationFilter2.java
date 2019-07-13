@@ -181,7 +181,7 @@ public class EstimationFilter2 {
             double currentAccelYWgs = d.getAccel_y_wgs();
 
             // Wir nutzen eine Frquenz von 10 Hz
-            if((currentTimestamp - timestamp) < 100) {
+            if((currentTimestamp - timestamp) < 100 && !d.isLast5m()) {
                 continue;
             }
             timestamp = currentTimestamp;
@@ -196,7 +196,7 @@ public class EstimationFilter2 {
 
             // Prüfe ob 1s vergangen ist. Wenn ja: Werte kartesische
             // Position aus
-            if((currentTimestamp - timestamp2) >= 1000) {
+            if((currentTimestamp - timestamp2) >= 1000 || d.isLast5m()) {
                 // Für den Fall der "normalen" Messung muss location existieren
                 if(!Double.isNaN(d.getLatitude_wgs()) && !Double.isNaN(d.getLongitude_wgs())) {
                     timestamp2 = currentTimestamp;
@@ -239,7 +239,8 @@ public class EstimationFilter2 {
                         case "12079_12700":
                             //if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                             //if(d.getLabel().endsWith("_5") && !useGtForSegmentA) {
-                            if(d.getLabel().endsWith("_10") && !useGtForSegmentA) {
+                            //if(d.getLabel().endsWith("_10") && !useGtForSegmentA) {
+                            if(d.isLast5m()) {
                                 useGtForSegmentA = true;
 //                                currentMeasurment = new ArrayRealVector(new double[]{
 //                                        d.getCartesian_x_gt(),
@@ -263,7 +264,8 @@ public class EstimationFilter2 {
                         case "12700_First_12694":
                             //if (iterationCounter == csvReader.getGnssCounterBySegments().get(key) / 2) {
                             //if(d.getLabel().endsWith("_5") && !useGtForSegmentB) {
-                            if(d.getLabel().endsWith("_10") && !useGtForSegmentB) {
+                            //if(d.getLabel().endsWith("_10") && !useGtForSegmentB) {
+                            if(d.isLast5m()) {
                                 useGtForSegmentB = true;
 //                                currentMeasurment = new ArrayRealVector(new double[]{
 //                                        d.getCartesian_x_gt(),
@@ -390,11 +392,13 @@ public class EstimationFilter2 {
             // erst Abstand und Winkel zum ersten kartesischen Punkt, dann die WGS-Koordinaten
             service.calculateAngleAndDistanceAndWgsPositionByDataPoint(d);
 
-            // Berechne auch die longitudinale und laterale Distanz zur GT-Position
-            service.calculateDistanceBetweenEstimatedAndGTPosition(d);
+            if(d.isLast10m() || d.isLast5m()) {
+                // Berechne auch die longitudinale und laterale Distanz zur GT-Position
+                service.calculateDistanceBetweenEstimatedAndGTPosition(d);
 
-            // Berechne ausserdem den absoluten Abstand zwischen Est <--> GT (& zwischen GNSS <--> GT)
-            service.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
+                // Berechne ausserdem den absoluten Abstand zwischen Est <--> GT (& zwischen GNSS <--> GT)
+                service.calculateAbsoluteDistanceBetweenEstAndGtPoint(d);
+            }
         }
         System.out.println("=======================Schätzungen abgeschlossen\n");
     }
@@ -532,23 +536,42 @@ public class EstimationFilter2 {
         double lastGtLon = foo.getLongitude_gt();
 
         GlobalPosition lastEstGlobalPos = new GlobalPosition(lastEstLat, lastEstLon,0);
-        GlobalPosition lastGtGlobalPos = new GlobalPosition(lastGtLat, lastGtLon,0);
+        GlobalPosition lastGtGlobalPos = new GlobalPosition(lastGtLat,lastGtLon,0);
 
-        //double distLastEstAndLastGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, lastGtGlobalPos);
+
 
         // Berechne den Abstand zwischen letztem GT und 5m-GT-Punkt
         double currentGtLat = d.getLatitude_gt();
         double currentGtLon = d.getLongitude_gt();
         GlobalPosition currentGtGlobalPos = new GlobalPosition(currentGtLat, currentGtLon,0);
         //double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, service.getFirstGlobalPosition());
-        double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, service.getFirstGlobalPosition());
+        Data startOfLast10m = service.getListOfAllData().stream().filter(Data::isLast10m).findFirst().orElse(null);
+        GlobalPosition startOfLast10mGp = new GlobalPosition(startOfLast10m.getLatitude_gt(),startOfLast10m.getLongitude_gt(),0);
+        double distLastEstAndCurrGt = service.coordinateDistanceBetweenTwoPoints(lastEstGlobalPos, startOfLast10mGp);
+
+        double distanceBetweenLastGtAndStartOfLast10m = service.coordinateDistanceBetweenTwoPoints(lastGtGlobalPos, startOfLast10mGp);
+
 
         double distanceToShift = 0;
         if(key.startsWith("12079_12700")) {
-            distanceToShift = 10 - distLastEstAndCurrGt + firstCartesian_y_gt;
+            //distanceToShift = 5 - distLastEstAndCurrGt + firstCartesian_y_gt;
+            //distanceToShift = 5 - distLastEstAndCurrGt;
+            //distanceToShift = 5 - distanceBetweenLastGtAndStartOfLast10m;
+            distanceToShift = 5 - (foo.getEstimatedPoint_y() - startOfLast10m.getCartesian_y_gt());
         }
         else if(key.startsWith("12700_First_12694")) {
-            distanceToShift = 10 - distLastEstAndCurrGt - firstCartesian_x_gt;
+            //distanceToShift = 5 - distLastEstAndCurrGt - firstCartesian_x_gt;
+            //distanceToShift = 5 - distLastEstAndCurrGt;
+            //distanceToShift = 5 - distanceBetweenLastGtAndStartOfLast10m;
+            // Wenn letzte Schätzung nach/hinter last10m (in Bewegungsrichtung), dann nehme Absolutbetrag, für korrekte
+            // Rechnung. Ist letzte Schätzung vor last10m (in Bewegungsrichtung) addiere differenz auf, da weiter nach
+            // links verschoben werden muss
+            if(foo.getEstimatedPoint_x() <= startOfLast10m.getCartesian_x_gt()) {
+                distanceToShift = 5 - Math.abs((foo.getEstimatedPoint_x() - startOfLast10m.getCartesian_x_gt()));
+            }
+            else {
+                distanceToShift = 5 + (foo.getEstimatedPoint_x() - startOfLast10m.getCartesian_x_gt());
+            }
         }
 
         // Berechne mit GT-richtung und Abstand den neuen Punkt über Geodesy

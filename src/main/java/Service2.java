@@ -5,6 +5,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -897,12 +898,14 @@ class Service2 {
         // Wenn eine CurbPosition existiert, dann füge sie der WayPointList hinzu, indem du variable suffix überschreibst
         Data curbPosition = getListOfAllData().stream().filter(d -> d.isCurbPosition()).findFirst().orElse(null);
         if(curbPosition != null) {
+            Data startOfLast10m = getListOfAllData().stream().filter(d -> d.isLast10m()).filter(d -> d.getEstimatedLat() != 0).findFirst().orElse(null);
             suffix = "~LayerData\n" +
                     "type=\"waypointlist\"\n" +
                     "type=\"waypoint\" latitude=\"" + firstPosition_lat + "\" longitude=\"" + firstPosition_lon + "\" name=\"A\"\n" +
                     "type=\"waypoint\" latitude=\"" + lastPosition_lat + "\" longitude=\"" + lastPosition_lon + "\" name=\"B\"\n" +
                     "type=\"waypoint\" latitude=\"51.339037340000004\" longitude=\"9.4473964999999964\" name=\"C\" unixtime=\"1491926179\"\n" +
                     "type=\"waypoint\" latitude=\"" + curbPosition.getEstimatedLat() + "\" longitude=\"" + curbPosition.getEstimatedLon() + "\" name=\"CurbPosition\"\n" +
+                    "type=\"waypoint\" latitude=\"" + startOfLast10m.getLatitude_gt() + "\" longitude=\"" + startOfLast10m.getLongitude_gt() + "\" name=\"StartOfLast10m\"\n" +
                     "type=\"waypointlistend\"\n" +
                     "~EndLayerData\n" +
                     "~EndLayer";
@@ -963,7 +966,7 @@ class Service2 {
 
             // Schreibe nur diejenigen Datensätze, die auch geschätzte Punkte haben
             // Wir überspringen Punkte, wegen definierter Schätzfrequenz
-            if (estimatedPoint_x == 0.0 || estimatedPoint_y == 0.0) {
+            if (estimatedPoint_x == 0.0 || estimatedPoint_y == 0.0 || !d.isLast10m()) {
                 continue;
             }
 
@@ -1000,5 +1003,36 @@ class Service2 {
         rmseMap.put("absGnssGt", Math.sqrt(sumOfAbsoluteDistanceGnssGt / countOfIterations));
 
         return rmseMap;
+    }
+
+    public void labelLast10And5Meters(String[] segment) {
+        final String keyForMap = segment[0] + "_" + segment[1];
+        final List<Data> dataOfCurrentSegment = csvReader.getOriginalLinesBySegments().get(keyForMap);
+        final Data lastPointOfSegment = dataOfCurrentSegment.get(dataOfCurrentSegment.size() - 1);
+        final GlobalPosition lastGp = new GlobalPosition(lastPointOfSegment.getLatitude_gt(),lastPointOfSegment.getLongitude_gt(),0);
+        Data nextTo5m = null;
+        double nextTo5mDistance = 100;
+
+        for(int i = dataOfCurrentSegment.size() - 1; i > 0; i--) {
+            Data currentRow = dataOfCurrentSegment.get(i);
+            final double latitudeGtOfCurrentRow = currentRow.getLatitude_gt();
+            final double longitudeGtOfCurrentRow = currentRow.getLongitude_gt();
+            final GlobalPosition currentGp = new GlobalPosition(latitudeGtOfCurrentRow,longitudeGtOfCurrentRow,0);
+
+            final double distanceBetweenLastGpAndCurrentGp = coordinateDistanceBetweenTwoPoints(lastGp,currentGp);
+
+            if(distanceBetweenLastGpAndCurrentGp <= 10) {
+                currentRow.setLast10m(true);
+                // Finde den Punkt, an dem der Abstand zu 5m (ausgehend vom letzten Segment-Punkt) am kleinsten ist
+                if(nextTo5m == null || Math.abs(distanceBetweenLastGpAndCurrentGp - 5) < Math.abs(nextTo5mDistance - 5)) {
+                    nextTo5m = currentRow;
+                    nextTo5mDistance = distanceBetweenLastGpAndCurrentGp;
+                }
+            }
+            else if(distanceBetweenLastGpAndCurrentGp > 10) {
+                break;
+            }
+        }
+        nextTo5m.setLast5m(true);
     }
 }

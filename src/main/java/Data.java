@@ -70,8 +70,25 @@ public class Data {
     private double speed_y_stepDetector;
     private boolean isCurbPosition = false;
     private String label;
+    private boolean last10m = false;
+    private boolean last5m = false;
 
     //===============================================
+    public boolean isLast10m() {
+        return last10m;
+    }
+
+    public void setLast10m(boolean last10m) {
+        this.last10m = last10m;
+    }
+
+    public boolean isLast5m() {
+        return last5m;
+    }
+
+    public void setLast5m(boolean last5m) {
+        this.last5m = last5m;
+    }
 
     public String getLabel() {
         return label;
