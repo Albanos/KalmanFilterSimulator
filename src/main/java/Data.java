@@ -72,8 +72,27 @@ public class Data {
     private String label;
     private boolean last10m = false;
     private boolean last5m = false;
+    // Distanz vom Start des letzten 10m-Segments bis zum ende des letzten 10m-Segments (ausgehend vom Start)
+    private Integer distanceFromStart = null;
+    private Double exactDistanceFromStart = null;
 
     //===============================================
+    public Double getExactDistanceFromStart() {
+        return exactDistanceFromStart;
+    }
+
+    public void setExactDistanceFromStart(Double exactDistanceFromStart) {
+        this.exactDistanceFromStart = exactDistanceFromStart;
+    }
+
+    public Integer getDistanceFromStart() {
+        return distanceFromStart;
+    }
+
+    public void setDistanceFromStart(Integer distanceFromStart) {
+        this.distanceFromStart = distanceFromStart;
+    }
+
     public boolean isLast10m() {
         return last10m;
     }

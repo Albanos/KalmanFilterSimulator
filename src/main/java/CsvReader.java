@@ -77,7 +77,7 @@ class CsvReader {
 //        }
 //    }
 
-    void readSegmentFromCsv(final String pathToFile, final String[] segment, boolean only10Meters, boolean only20Meters) {
+    void readSegmentFromCsv(final String pathToFile, String fileName, final String[] segment, boolean only10Meters, boolean only20Meters) {
         String[] line;
         // Wir haben eine kartesische Position weniger als WGS-Positionen!
         int positionCounter = -1;
@@ -120,7 +120,7 @@ class CsvReader {
                     }
                 }
 
-                dataObjects.add(generateDataObjectAndSaveAllData(line, pathToFile));
+                dataObjects.add(generateDataObjectAndSaveAllData(line, pathToFile, fileName));
                 // Zähle die GNSS-Positionen und speichere für akt. Segment (für GT-Auswertung im Filter)
                 // Nur, wenn es auch eine gültige, also KEINE NaN-Position ist
                 if(!Double.isNaN( ((LinkedList<Data>) dataObjects).getLast().getLongitude_wgs())
@@ -160,7 +160,7 @@ class CsvReader {
         return 0;
     }
 
-    private Data generateDataObjectAndSaveAllData(final String[] line, String pathToFile) {
+    private Data generateDataObjectAndSaveAllData(final String[] line, String pathToFile, String fileName) {
         final Data d = new Data();
 
         // Entferne Punkt aus timestamp
@@ -203,7 +203,7 @@ class CsvReader {
 
             // Berechne die Geschwindigkeit (Betrag und in x- & y-Richtung)
             // aus Schritterkennng und speichere in Data-Objekt
-            calculateCompleteVelocityByStepDetectorAndSetInDataObject(line[typeOrientation_x], line[typeStepDetectorCounter], d);
+            calculateCompleteVelocityByStepDetectorAndSetInDataObject(line[typeOrientation_x], line[typeStepDetectorCounter], d, fileName);
 
         }
         d.setLongitude_gt(Double.valueOf(line[longitudeGtPosition]));
@@ -233,7 +233,7 @@ class CsvReader {
         return d;
     }
 
-    private void calculateCompleteVelocityByStepDetectorAndSetInDataObject(String currentOrientation,String currentStepDetectorCounter, Data d) {
+    private void calculateCompleteVelocityByStepDetectorAndSetInDataObject(String currentOrientation,String currentStepDetectorCounter, Data d, String fileName) {
 
         // Berechne die Geschwindigkeit nur, wenn sie einen von NaN verschiedenen Wert hat
         // (kommt bei manchen Datensätzen am Anfang für kurze Zeit vor). Wenn NaN, nehme GNSS-Geschwindigkeit.
@@ -254,7 +254,8 @@ class CsvReader {
                     // Luan: 0.8278146
                     // Rovena: 0.8038585
                     // Johann: 0.769230
-                    double stepLength = 0.769230;
+                    double stepLength = fileName.contains("johann") ? 0.769230 : 0.8278146;
+                    //double stepLength = 0.769230;
                     double stepFrequency = 1 / dt;
                     double walkVelocity = stepLength * stepFrequency;
                     d.setAmountSpeed_stepDetector(walkVelocity);
@@ -333,5 +334,13 @@ class CsvReader {
 
     public static void setOldStepDetectorCount(int oldStepDetectorCount) {
         CsvReader.oldStepDetectorCount = oldStepDetectorCount;
+    }
+
+    public static boolean isFirstIteration() {
+        return firstIteration;
+    }
+
+    public static void setFirstIteration(boolean firstIteration) {
+        CsvReader.firstIteration = firstIteration;
     }
 }

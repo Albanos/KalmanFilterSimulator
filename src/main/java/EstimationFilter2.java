@@ -181,7 +181,7 @@ public class EstimationFilter2 {
             double currentAccelYWgs = d.getAccel_y_wgs();
 
             // Wir nutzen eine Frquenz von 10 Hz
-            if((currentTimestamp - timestamp) < 100 && !d.isLast5m()) {
+            if((currentTimestamp - timestamp) < 100 && d.getDistanceFromStart() == null) {
                 continue;
             }
             timestamp = currentTimestamp;
@@ -196,7 +196,7 @@ public class EstimationFilter2 {
 
             // Prüfe ob 1s vergangen ist. Wenn ja: Werte kartesische
             // Position aus
-            if((currentTimestamp - timestamp2) >= 1000 || d.isLast5m()) {
+            if((currentTimestamp - timestamp2) >= 1000 || d.getDistanceFromStart() != null) {
                 // Für den Fall der "normalen" Messung muss location existieren
                 if(!Double.isNaN(d.getLatitude_wgs()) && !Double.isNaN(d.getLongitude_wgs())) {
                     timestamp2 = currentTimestamp;

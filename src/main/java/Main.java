@@ -1,7 +1,9 @@
-import org.apache.commons.lang3.BooleanUtils;
+import org.apache.poi.ss.usermodel.*;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -165,63 +167,150 @@ public class Main {
     private static final String nexus6b_luan7 =
             "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv";
 
+    private static Map<String, String> files = new HashMap<>();
+
+    static {
+        files.put("nexus6b_johann3", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-03-nexus6b_2019-03-29_15-26-02.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann3", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-03-nexus6w_2019-03-29_15-26-03.0_formatted_addedColumns.csv");
+        files.put("nexus6b_johann4", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-04-nexus6b_2019-03-29_15-36-03.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann4", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-04-nexus6w_2019-03-29_15-36-03.0_formatted_addedColumns.csv");
+        files.put("nexus6b_johann5", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-05-nexus6b_2019-03-29_15-45-48.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann5", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-05-nexus6w_2019-03-29_15-45-48.0_formatted_addedColumns.csv");
+        files.put("nexus6b_johann6", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-06-nexus6b_2019-03-29_15-55-35.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann6", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-06-nexus6w_2019-03-29_15-55-36.0_formatted_addedColumns.csv");
+        files.put("nexus6b_johann7", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-07-nexus6b_2019-03-29_16-06-41.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann7", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-07-nexus6w_2019-03-29_16-06-41.0_formatted_addedColumns.csv");
+        files.put("nexus6b_johann8", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-08-nexus6b_2019-03-29_16-18-52.0_formatted_addedColumns.csv");
+        files.put("nexus6w_johann8", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_johann-08-nexus6w_2019-03-29_16-18-52.0_formatted_addedColumns.csv");
+        files.put("nexus6b_luan1", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-01-nexus6b_2019-03-29_17-27-06.0_formatted_addedColumns.csv");
+        files.put("nexus6w_luan1", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-01-nexus6w_2019-03-29_17-27-05.0_formatted_addedColumns.csv");
+        files.put("nexus6b_luan4", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-04-nexus6b_2019-03-29_18-13-07.0_formatted_addedColumns.csv");
+        files.put("nexus6w_luan4", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-04-nexus6w_2019-03-29_18-13-07.0_formatted_addedColumns.csv");
+        files.put("nexus6b_luan5", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-05-nexus6b_2019-03-29_18-22-08.0_formatted_addedColumns.csv");
+        files.put("nexus6w_luan5", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-05-nexus6w_2019-03-29_18-22-07.0_formatted_addedColumns.csv");
+        files.put("nexus6b_luan6", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-06-nexus6b_2019-03-29_18-31-35.0_formatted_addedColumns.csv");
+        files.put("nexus6w_luan6", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-06-nexus6w_2019-03-29_18-31-35.0_formatted_addedColumns.csv");
+        files.put("nexus6b_luan7", "D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\dataWithStepDetectionOnClearDay\\Car2X-ADN_luan-07-nexus6b_2019-03-29_18-40-15.0_formatted_addedColumns.csv");
+    }
+
     public static void main(String[] args) {
-        String filePath = nexus6w_johann8;
-        String fileName = filePath.split("_")[2] + "_" + args[0];
-        readAllSegmentsFromCsv(filePath, false, false);
-        double sumOfAllRmseValuesEstGt = 0;
-        double sumOfAllRmseValuesGnssGt = 0;
+        for (Map.Entry<String, String> entry : files.entrySet()) {
+            try {
+                Workbook excel = readExcelTemplate();
+                //readAllSegmentsFromCsv(entry.getValue(), false, false);
+                for (String segment : Arrays.asList("A", "B")) {
+                    for (Boolean withCurb : Arrays.asList(Boolean.FALSE, Boolean.TRUE)) {
+                        for (Boolean withStep : Arrays.asList(Boolean.FALSE, Boolean.TRUE)) {
+                            setAndClearSpecificThings();
+                            doStuff(entry.getValue(), entry.getKey(), withCurb, withStep, segment);
+                            writeToExcel(excel, withCurb, withStep, segment);
+                        }
+                    }
+                }
+                saveExcel(excel, entry.getKey());
+                System.out.println("=============================Simulation von " + entry.getKey() + " abgeschlossen");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void readAllSegmentsFromCsv(String pathToFile, String fileName, boolean only10Meters, boolean only20Meters) {
+        if (only10Meters && only20Meters) {
+            try {
+                throw new Exception("Entweder nur 10 meter oder nur 20 meter, nicht beide");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        // Befülle die globale map mit allen segmenten einmalig
+        csvReader.readSegmentFromCsv(pathToFile, fileName, constants.getSegmentA(), only10Meters, only20Meters);
+        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentA());
+        service.last10m(constants.getSegmentA());
+        //service.labelLast10And5Meters(constants.getSegmentA());
+
+        csvReader.readSegmentFromCsv(pathToFile, fileName, constants.getSegmentB(), only10Meters, only20Meters);
+        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentB());
+        service.last10m(constants.getSegmentB());
+        //service.labelLast10And5Meters(constants.getSegmentB());
+
+        csvReader.readSegmentFromCsv(pathToFile, fileName, constants.getSegmentC(), only10Meters, only20Meters);
+        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentC());
+
+        csvReader.readSegmentFromCsv(pathToFile, fileName, constants.getSegmentD(), only10Meters, only20Meters);
+        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
+    }
+
+    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement, boolean withVelocityFromStepDetection) {
+        // Simuliere alle Konfigurationen:
+        //filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
+        //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(withGtAsFakeMeasurement);
+        filterConfiguration.filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(withGtAsFakeMeasurement, withVelocityFromStepDetection);
+        //filterConfiguration.filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(withGtAsFakeMeasurement);
+
+        // Gebe beste Konfiguration zurück
+        return filterConfiguration.findBestConfigurationBySumOfAbsRmse();
+    }
+
+    private static void doStuff(String filePath, String fileName, boolean withCurb, boolean withStep, String segment) {
+        //String fileName = filePath.split("_")[2] + "_" + args[0];
+        readAllSegmentsFromCsv(filePath, fileName, false, false);
+
         // Segment A
-        constants.setCurrentSegment(constants.getSegmentA());
-        service.setListOfAllDataByGlobalSegment();
+        switch (segment) {
+            case "A":
+                constants.setCurrentSegment(constants.getSegmentA());
+                service.setListOfAllDataByGlobalSegment();
+                FilterConfiguration startConf
+                        = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+                        5.0,
+                        3.0,
+                        4.5,
+                        4.5,
+                        3.5,
+                        0.5,
+                        withCurb, withStep);
+            System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
+            System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
+            System.out.println("RMSE, Est -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceEstGt());
+            System.out.println("RMSE, Est -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
+            System.out.println("RMSE, GNSS -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
+            System.out.println("RMSE, GNSS -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
 
-        FilterConfiguration startConf
-                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                5.0,
-                3.0,
-                4.5,
-                4.5,
-                3.5,
-                0.5,
-                BooleanUtils.toBoolean(args[1]), BooleanUtils.toBoolean(args[2]));
-        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
-        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
-        System.out.println("RMSE, Est -> GT, Segment A:  " + startConf.getRmseAbsDistanceEstGt());
-        System.out.println("RMSE, GNSS -> GT, Segment A:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
-        System.out.println("RMSE, Est -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceEstGt());
-        System.out.println("RMSE, Est -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
-        System.out.println("RMSE, GNSS -> GT, Segment A, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
-        System.out.println("RMSE, GNSS -> GT, Segment A, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
+//        ExcelFileCreator2 creator = new ExcelFileCreator2();
+//        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
+                //service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
+                break;
 
-        ExcelFileCreator2 creator = new ExcelFileCreator2();
-        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
+            // Segment B
+            case "B":
+                constants.setCurrentSegment(constants.getSegmentB());
+                service.setListOfAllDataByGlobalSegment();
+                startConf
+                        = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
+                        5.0,
+                        3.0,
+                        4.5,
+                        4.5,
+                        3.5,
+                        0.5,
+                        withCurb, withStep);
+            System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
+            System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
+            System.out.println("RMSE, Est -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceEstGt());
+            System.out.println("RMSE, Est -> GT, Segment b, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
+            System.out.println("RMSE, GNSS -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
+            System.out.println("RMSE, GNSS -> GT, Segment B, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
 
-        // Segment B
-        constants.setCurrentSegment(constants.getSegmentB());
-        service.setListOfAllDataByGlobalSegment();
-        startConf
-                = filterConfiguration.simulateEstimationWithAllParametersGenerateConfigurationAndReturnThem(
-                5.0,
-                3.0,
-                4.5,
-                4.5,
-                3.5,
-                0.5,
-                BooleanUtils.toBoolean(args[1]), BooleanUtils.toBoolean(args[2]));
-        sumOfAllRmseValuesEstGt += startConf.getRmseAbsDistanceEstGt();
-        sumOfAllRmseValuesGnssGt += startConf.getRmseAbsDistanceGnssGt();
-        System.out.println("RMSE, Est -> GT, Segment B:  " + startConf.getRmseAbsDistanceEstGt());
-        System.out.println("RMSE, GNSS -> GT, Segment B:  " + startConf.getRmseAbsDistanceGnssGt() + "\n\n");
-        System.out.println("RMSE, Est -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceEstGt());
-        System.out.println("RMSE, Est -> GT, Segment b, LONGI:  " + startConf.getRmseLongiDistanceEstGt() + "\n");
-        System.out.println("RMSE, GNSS -> GT, Segment B, LATI:  " + startConf.getRmseLatiDistanceGnssGt());
-        System.out.println("RMSE, GNSS -> GT, Segment B, LONGI:  " + startConf.getRmseLongiDistanceGnssGt() + "\n");
 
-        creator = new ExcelFileCreator2();
-        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
-        service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
-// FIXME: Vorerst nur Betrachtung von Segment A und Segment B, für 10m-Evaluation
+//        creator = new ExcelFileCreator2();
+//        creator.writeDataToFile(fileName, service.getListOfAllData(),startConf, constants.getCurrentSegment());
+                //service.writeAllDataToVikingFile(fileName, constants.getCurrentSegment());
+                break;
+        }
+
+        // FIXME: Vorerst nur Betrachtung von Segment A und Segment B, für 10m-Evaluation
         // Segment C
 //        constants.setCurrentSegment(constants.getSegmentC());
 //        service.setListOfAllDataByGlobalSegment();
@@ -262,7 +351,6 @@ public class Main {
 //        System.out.println("Summe der RMSE-Werte, GNSS_GT:  " + sumOfAllRmseValuesGnssGt / 2);
 
 
-
 //        FilterConfiguration bestConfi = simulateFilterForAllSegmentsAndFindBestConfi(false);
 //        System.out.println("Beste Kofi:\n" +
 //                "sigmaGnssSpeed:  " + bestConfi.getSigmaGnssSpeed() + "\n"
@@ -272,163 +360,84 @@ public class Main {
 //                + "G3:  " + bestConfi.getG3() + "\n"
 //                + "G4:  " + bestConfi.getG4()
 //        );
-
-
-        System.out.println("Hi");
     }
 
-    private static void readAllSegmentsFromCsv(String pathToFile, boolean only10Meters, boolean only20Meters) {
-        if(only10Meters && only20Meters) {
-            try {
-                throw new Exception("Entweder nur 10 meter oder nur 20 meter, nicht beide");
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
+    private static void setAndClearSpecificThings() {
+        csvReader.getOriginalLinesBySegments().clear();
+        CsvReader.setFirstIteration(true);
+    }
+
+    private static Workbook readExcelTemplate() throws IOException {
+        return WorkbookFactory.create(new File("D:\\Workspace_IntelliJ\\FilterSimulator\\src\\main\\ressources\\template.xlsx"));
+    }
+
+    private static void writeToExcel(Workbook excel, boolean withCurb, boolean withStep, String segment) {
+        String sheetName = "A".equals(segment) ? "Segment1" : "Segment2";
+        if (!withCurb && !withStep) {
+            writeFromColumn(sheetName, 1, excel);
+        } else if (!withCurb) {
+            writeFromColumn(sheetName, 6, excel);
+        } else if (!withStep) {
+            writeFromColumn(sheetName, 11, excel);
+        } else {
+            writeFromColumn(sheetName, 16, excel);
         }
-        // Befülle die globale map mit allen segmenten einmalig
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentA(), only10Meters, only20Meters);
-        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentA());
-        service.labelLast10And5Meters(constants.getSegmentA());
-
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentB(), only10Meters, only20Meters);
-        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentB());
-        service.labelLast10And5Meters(constants.getSegmentB());
-
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentC(), only10Meters, only20Meters);
-        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentC());
-
-        csvReader.readSegmentFromCsv(pathToFile, constants.getSegmentD(), only10Meters, only20Meters);
-        service.calculateCartesianPointAndWgsAccelForData(constants.getSegmentD());
     }
 
-    private static FilterConfiguration simulateFilterForAllSegmentsAndFindBestConfi(boolean withGtAsFakeMeasurement, boolean withVelocityFromStepDetection) {
-        // Simuliere alle Konfigurationen:
-        //filterConfiguration.filterSimulation_overAllSegments_to_20_1_in_001_for_Accel_to_15_1_in_001_for_Speed(withGtAsFakeMeasurement);
-        //filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed(withGtAsFakeMeasurement);
-        filterConfiguration.filterSimulation_overAllSegments_simulateAllValues_withoutAccel_by_01_steps(withGtAsFakeMeasurement, withVelocityFromStepDetection);
-        //filterConfiguration.filterSimulation_overAllSegments_simulateOnlyVectorG_withoutAccel(withGtAsFakeMeasurement);
+    private static void writeFromColumn(String sheetName, int column, Workbook excel) {
+        Sheet sheet = excel.getSheet(sheetName);
+        Map<Integer, Data> dataMap = service
+                .getListOfAllData()
+                .stream()
+                .filter(d -> d.getDistanceFromStart() != null)
+                .collect(Collectors.toMap(Data::getDistanceFromStart, d -> d));
 
-        // Gebe beste Konfiguration zurück
-        return filterConfiguration.findBestConfigurationBySumOfAbsRmse();
+        double summOfDistanceLati = 0;
+        double summOfDistanceLongi = 0;
+        double summOfDistanceAbs = 0;
+
+        for (int meter = 0; meter <= 10; meter++) {
+            Data data = dataMap.get(meter);
+            int rowNumber = meter == 0 ? 5 : ((meter+1) * 6) - 1;
+            //int rowNumber = (meter * 6) - 1;
+            Row currentRow = sheet.getRow(rowNumber);
+
+            // All Est-values
+            // Est -> latiDist
+            Cell currentCell = currentRow.getCell(column);
+            currentCell.setCellValue(data.getLatiDistanceEstToGtWithDirection());
+            summOfDistanceLati += data.getLatiDistanceEstToGtWithDirection();
+            // Est --> longiDist
+            currentCell = currentRow.getCell(column + 1);
+            currentCell.setCellValue(data.getLongiDistanceEstToGtWithDirection());
+            summOfDistanceLongi += data.getLongiDistanceEstToGtWithDirection();
+            // Est -> AbstEst
+            currentCell = currentRow.getCell(column + 2);
+            currentCell.setCellValue(data.getAbsoluteDistanceEstGt());
+            summOfDistanceAbs += data.getAbsoluteDistanceEstGt();
+
+            // All GNSS-Values
+            currentRow = sheet.getRow(rowNumber + 1);
+            // GNSS -> latiDist
+            currentCell = currentRow.getCell(column);
+            currentCell.setCellValue(data.getLatiDistanceGnssToGtWithDirection());
+            summOfDistanceLati += data.getLatiDistanceGnssToGtWithDirection();
+            // GNSS --> longiDist
+            currentCell = currentRow.getCell(column + 1);
+            currentCell.setCellValue(data.getLongiDistanceGnssToGtWithDirection());
+            summOfDistanceLongi += data.getLongiDistanceGnssToGtWithDirection();
+            // GNSS -> AbstEst
+            currentCell = currentRow.getCell(column + 2);
+            currentCell.setCellValue(data.getAbsoluteDistanceGnssGt());
+            summOfDistanceAbs += data.getAbsoluteDistanceGnssGt();
+        }
+        System.out.println();
     }
 
-    /**
-     * Simuliert Filter ohne Accel zu variieren und sucht dann beste Konfi anahnd von lati/longi-
-     * Rmse. Daten werden in eine File geschrieben
-     */
-    // FIXME: old
-//    private static void makeCompleteFilterSimulationWithoutAccelFindBestKonfiOnLatiLongiRmseSimulateWithThemAndWriteInFile() {
-//        makeCompleteFilterSimulationWithoutAccelClearAllDataAndReadFileAgain();
-//
-//        // Extrahiere die Filter-Konfi, wo lati und longi-RMSE minimal sind
-//        FilterConfiguration configurationWithMinimalLatiAndLongiRmse = filterConfiguration.findConfigurationWithMinimalLatiAndLongiRmseOfEstPoints();
-//        FilterConfiguration configurationWithMinimalLongiRmseOfEstPoints = filterConfiguration.findConfigurationWithMinimalLongiRmseOfEstPoints();
-//        FilterConfiguration configurationWithMinimalLatiRmseOfEstPoints = filterConfiguration.findConfigurationWithMinimalLatiRmseOfEstPoints();
-//
-//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-//        //clearAllDataAndReadFileAgain(pathToNexus6File2);
-//
-//        // Simuliere noch einmal in der Ausgangs-Konfi und exportiere
-//        //simulateFilerWithSpecificParametersWithExcelAndVikExport(8f, 0.5);
-//
-//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-//        //clearAllDataAndReadFileAgain(pathToNexus6File2);
-//
-//        // simuliere mit minimalem Longi-Abstand
-//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
-//                configurationWithMinimalLongiRmseOfEstPoints.getSigmaAccel(),
-//                configurationWithMinimalLongiRmseOfEstPoints.getSigmaGnssSpeed()
-//        );
-//
-//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-//        //clearAllDataAndReadFileAgain(pathToNexus6File2);
-//
-//        // simuliere mit minimalem lati-Abstand
-//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
-//                configurationWithMinimalLatiRmseOfEstPoints.getSigmaAccel(),
-//                configurationWithMinimalLatiRmseOfEstPoints.getSigmaGnssSpeed()
-//        );
-//
-//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-//        //clearAllDataAndReadFileAgain(pathToNexus6File2);
-//
-//        // Nehme die Konfiguration von configurationWithMinimalLatiAndLongiRmse, simuliere erneut und exportiere
-//        simulateFilerWithSpecificParametersWithExcelAndVikExport(
-//                configurationWithMinimalLatiAndLongiRmse.getSigmaAccel(),
-//                configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
-//
-//        System.out.println("Filter-Konfi mit minimalem Longi:\nsigmaAccel:  "
-//                + configurationWithMinimalLongiRmseOfEstPoints.getSigmaAccel() + " und sigmaSpeed:  "
-//                + configurationWithMinimalLongiRmseOfEstPoints.getSigmaGnssSpeed());
-//
-//        System.out.println("Filter-Konfi mit minimalem Lati:\nsigmaAccel:  "
-//                + configurationWithMinimalLatiRmseOfEstPoints.getSigmaAccel() + " und sigmaSpeed:  "
-//                + configurationWithMinimalLatiRmseOfEstPoints.getSigmaGnssSpeed());
-//
-//        System.out.println("Optimale Filter-Konfi:\nsigmaAccel:  "
-//                + configurationWithMinimalLatiAndLongiRmse.getSigmaAccel() + " und sigmaSpeed:  "
-//                + configurationWithMinimalLatiAndLongiRmse.getSigmaGnssSpeed());
-//
-//        ExcelFileCreator2 creator2 = new ExcelFileCreator2();
-//        creator2.writeDataToFile();
-//
-//        service.writeAllDataToVikingFile();
-//    }
-
-    // FIXME: old
-//    private static void makeSimulationWithSpecificSigmaAccelAndSpecificSigmaSpeed(float sigmaAccel, double sigmaSpeed) {
-//        constants.setSigmaAccel(sigmaAccel);
-//        constants.setSigmaGnssSpeed(sigmaSpeed);
-//        EstimationFilter2 filter = new EstimationFilter2();
-//        filter.makeEstimation();
-//
-//        service.calculateRMSEOfLatiLongiDistancesAndAbsDistanceFor10Hearts();
-//
-//        ExcelFileCreator2 creator = new ExcelFileCreator2();
-//        creator.writeDataToFile(service.getListOfAllData(),);
-//        service.writeAllDataToVikingFile();
-//    }
-
-    // FIXME: Old
-//    private static void readCompleteFileAndCalculateCartesianPoints(String fileToRead) {
-//        csvReader.readAllSegmentsFromfile(fileToRead);
-//
-//        // Berechne für jede WGS-Position die cartesische Position,
-//        // mit der WGS-Beschleunigung
-//        service.calculateCartesianPointAndWgsAccelForData(constants.getCurrentSegment());
-//    }
-    // FIXME: old
-//    public static void clearAllDataAndReadFileAgain(String fileToReadAgain) {
-//        // Leere die Liste mit Daten und lies erneut ein (neuer Versuch, da statische Liste)
-//        service.getListOfAllData().clear();
-//
-//        service.setOldDt(0);
-//        service.setDt(0);
-//
-//        readDataOfFileAndCalculateCartesianPoints(fileToReadAgain);
-//        //readCompleteFileAndCalculateCartesianPoints(fileToReadAgain);
-//    }
-//
-//    private static void simulateFilerWithSpecificParametersWithExcelAndVikExport(float sigmaAccel, double sigmaSpeed) {
-//        makeSimulationWithSpecificSigmaAccelAndSpecificSigmaSpeed(sigmaAccel, sigmaSpeed);
-//    }
-//
-//    private static void makeCompleteFilterSimulationWithoutAccelClearAllDataAndReadFileAgain() {
-//        filterConfiguration.filterSimulation_01_to_15_1_in_01_onlySigmaGnssSpeed();
-//    }
-
-    //FIXME: OLD
-//    /**
-//     * Lese alle Daten für das jeweillige Segment ein und Berechne kartesische Punkte, sowie WGS-Accel
-//     *
-//     * @param fileToRead
-//     */
-//    public static void readDataOfFileAndCalculateCartesianPoints(String fileToRead) {
-//        csvReader.readSegmentFromCsv(fileToRead, constants.getCurrentSegment());
-//
-//        // Berechne für jede WGS-Position die cartesische Position,
-//        // mit der WGS-Beschleunigung
-//        service.calculateCartesianPointAndWgsAccelForData(constants.getCurrentSegment());
-//    }
+    private static void saveExcel(Workbook excel, String fileName) throws IOException {
+        FileOutputStream out = new FileOutputStream(new File(fileName + ".xlsx"));
+        excel.write(out);
+        out.close();
+        excel.close();
+    }
 }

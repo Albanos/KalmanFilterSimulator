@@ -8,6 +8,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Luan Hajzeraj on 12/1/2018.
@@ -621,7 +622,6 @@ class Service2 {
             distanceLon = -distanceLon;
         }
 
-
         // Anschließend die laterale Distanz
         GlobalCoordinates gc3 = new GlobalCoordinates(latitude_est, longitude_est);
         GlobalCoordinates gc4 = new GlobalCoordinates(latitude_gt, longitude_est);
@@ -1005,7 +1005,60 @@ class Service2 {
         return rmseMap;
     }
 
-    public void labelLast10And5Meters(String[] segment) {
+    public void last10m(String[] segment) {
+        // Label die letzten 10m: identifiziere also den letzten 10m-Abschnitt
+        labelLast10And5Meters(segment);
+
+        // Berechne den Abstand eines jeden 10m-Punktes (ausgehend vom Start des letzten 10m-Segments) zum Ende
+        calculateDistanceFromStartToEndOfLast10m(segment);
+    }
+
+    private void calculateDistanceFromStartToEndOfLast10m(String[] segment) {
+        final String keyForMap = segment[0] + "_" + segment[1];
+        final List<Data> dataOfCurrentSegment = csvReader.getOriginalLinesBySegments().get(keyForMap);
+        List<Data> dataOfLast10m = dataOfCurrentSegment
+                .stream()
+                .filter(Data::isLast10m)
+                .collect(Collectors.toList());
+        final Data startOfLast10m = dataOfLast10m.get(0);
+        final GlobalPosition startOfLast10mGp = new GlobalPosition(startOfLast10m.getLatitude_gt(),startOfLast10m.getLongitude_gt(),0);
+
+        int index = 0;
+
+        for(int counter = 0; counter <= 10; counter++) {
+            Data point = null;
+            double exactDistanceOfLastToCurrentMeter = 100;
+
+            for (int i = index; i < dataOfLast10m.size(); i++) {
+                Data d = dataOfLast10m.get(i);
+                final double latitudeGtOfCurrentRow = d.getLatitude_gt();
+                final double longitudeGtOfCurrentRow = d.getLongitude_gt();
+                final GlobalPosition currentGp = new GlobalPosition(latitudeGtOfCurrentRow, longitudeGtOfCurrentRow, 0);
+
+                double distanceBetweenCurrentPointAndStart = coordinateDistanceBetweenTwoPoints(startOfLast10mGp, currentGp);
+
+                if (Math.abs(distanceBetweenCurrentPointAndStart - counter) < Math.abs(exactDistanceOfLastToCurrentMeter - counter)) {
+                    point = d;
+                    exactDistanceOfLastToCurrentMeter = distanceBetweenCurrentPointAndStart;
+                }
+
+                if(counter+1 < distanceBetweenCurrentPointAndStart) {
+                    break;
+                }
+            }
+            if(point != null) {
+                index = dataOfLast10m.indexOf(point);
+                point.setExactDistanceFromStart(exactDistanceOfLastToCurrentMeter);
+                point.setDistanceFromStart((int) Math.round(exactDistanceOfLastToCurrentMeter));
+            }
+        }
+        List<Data> collect = dataOfLast10m.stream().filter(d -> d.getDistanceFromStart() != null).collect(Collectors.toList());
+        Data dataOf5m = collect.get(5);
+        dataOf5m.setLast5m(true);
+        System.out.println();
+    }
+
+    private void labelLast10And5Meters(String[] segment) {
         final String keyForMap = segment[0] + "_" + segment[1];
         final List<Data> dataOfCurrentSegment = csvReader.getOriginalLinesBySegments().get(keyForMap);
         final Data lastPointOfSegment = dataOfCurrentSegment.get(dataOfCurrentSegment.size() - 1);
@@ -1020,8 +1073,8 @@ class Service2 {
             final GlobalPosition currentGp = new GlobalPosition(latitudeGtOfCurrentRow,longitudeGtOfCurrentRow,0);
 
             final double distanceBetweenLastGpAndCurrentGp = coordinateDistanceBetweenTwoPoints(lastGp,currentGp);
-
-            if(distanceBetweenLastGpAndCurrentGp <= 10) {
+            // Varianz von +0.1m
+            if(distanceBetweenLastGpAndCurrentGp <= 10.1) {
                 currentRow.setLast10m(true);
                 // Finde den Punkt, an dem der Abstand zu 5m (ausgehend vom letzten Segment-Punkt) am kleinsten ist
                 if(nextTo5m == null || Math.abs(distanceBetweenLastGpAndCurrentGp - 5) < Math.abs(nextTo5mDistance - 5)) {
@@ -1029,10 +1082,11 @@ class Service2 {
                     nextTo5mDistance = distanceBetweenLastGpAndCurrentGp;
                 }
             }
-            else if(distanceBetweenLastGpAndCurrentGp > 10) {
+            // Varianz von +0.1m
+            else if(distanceBetweenLastGpAndCurrentGp > 10.1) {
                 break;
             }
         }
-        nextTo5m.setLast5m(true);
+        //nextTo5m.setLast5m(true);
     }
 }
